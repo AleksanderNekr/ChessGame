@@ -39,10 +39,6 @@
                 <ColumnDefinition />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <Button BorderBrush="Aqua" Background="Transparent" Click="ButtonBase_Click" />
-            <Button Grid.Row="1" Grid.Column="0" BorderBrush="Bisque" Background="Transparent" />
-            <Button Grid.Row="0" Grid.Column="1" BorderBrush="Brown" Background="Transparent" />
-            <Button Grid.Row="1" Grid.Column="1" BorderBrush="Chartreuse" Background="Transparent" />
         </Grid>
     </Canvas>
 </Window>

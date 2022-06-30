@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace ChessGame.GameClasses
 {
@@ -7,6 +10,17 @@ namespace ChessGame.GameClasses
         public Pawn(PieceColor color, int row, int column) : base(color, row, column)
         {
             this.UpdatePawnMoves();
+            if (color == PieceColor.White)
+            {
+                this.Background = (ImageBrush)Application.Current.Resources["WhitePawnImg"];
+                return;
+            }
+
+            this.Background = (ImageBrush)Application.Current.Resources["BlackPawnImg"];
+        }
+
+        public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+        {
         }
 
         public override List<Coordinate> ValidMoves { get; } = new();
@@ -63,8 +77,8 @@ namespace ChessGame.GameClasses
 
         private void UpdatePawnAttackMoves()
         {
-            this.TryToAddAttackMove(-1);
-            this.TryToAddAttackMove(1);
+            this.TryToAddAttackMove(columnChange: -1);
+            this.TryToAddAttackMove(columnChange: 1);
         }
 
         private void TryToAddAttackMove(int columnChange)

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
+using ChessGame.GameClasses;
 
 namespace ChessGame
 {
@@ -9,11 +11,17 @@ namespace ChessGame
         public MainWindow()
         {
             this.InitializeComponent();
-        }
-
-        private void ButtonBase_Click(object sender, RoutedEventArgs e)
-        {
-            _ = MessageBox.Show(Environment.CurrentDirectory);
+            var pawn = new Pawn(PieceColor.White, 5, 5);
+            Grid.SetRow(pawn, 0);
+            Grid.SetColumn(pawn, 0);
+            this.Board.Children.Add(pawn);
+            var button = new Button
+                         {
+                             Content = "Click me"
+                         };
+            Grid.SetRow(button, 1);
+            Grid.SetColumn(button, 1);
+            this.Board.Children.Add(button);
         }
 
         private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
