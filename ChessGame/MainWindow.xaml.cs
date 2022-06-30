@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using ChessGame.GameClasses;
 
 namespace ChessGame
 {
@@ -20,7 +21,7 @@ namespace ChessGame
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(Environment.CurrentDirectory);
+            _ = MessageBox.Show(Environment.CurrentDirectory);
         }
     }
 }

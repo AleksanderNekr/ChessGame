@@ -7,7 +7,8 @@
             <ImageBrush x:Key="BoardImg" ImageSource="../../../Images/board.png" />
 
             <!-- White figures -->
-            <ImageBrush x:Key="WhitePawnImg" ImageSource="../../../Images/White/Pawn.png" />
+            <ImageBrush x:Key="WhitePawnImg" ImageSource="C:\RiderProjects\ChessGame\ChessGame\Images\White\Pawn.png"
+                        Stretch="Uniform"/>
             <ImageBrush x:Key="WhiteRookImg" ImageSource="../../../Images/White/Rook.png" />
             <ImageBrush x:Key="WhiteKnightImg" ImageSource="../../../Images/White/Knight.png" />
             <ImageBrush x:Key="WhiteBishopImg" ImageSource="../../../Images/White/Bishop.png" />
