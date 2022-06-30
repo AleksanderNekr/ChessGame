@@ -1,8 +1,14 @@
-﻿namespace ChessGame.GameClasses
+﻿using System;
+
+namespace ChessGame.GameClasses
 {
     internal static class ChessBoard
     {
-        private static readonly Piece?[,] Board = new Piece?[8, 8];
+        public delegate void Content(object sender, ContentChangedEventArgs e);
+
+        public static event Content? ContentChanged;
+
+        public static Piece?[,] Board { get; } = new Piece?[8, 8];
 
         public static Piece? GetPieceOrNull(int row, int column)
         {
@@ -12,20 +18,55 @@
 
         public static Piece? GetPieceOrNull(Coordinate coordinate)
         {
-            var coord = new Coordinate(coordinate.Row, coordinate.Column);
-            return Board[coord.Row, coord.Column];
+            return GetPieceOrNull(coordinate.Row, coordinate.Column);
         }
 
         public static void SetPiece(Piece piece, int row, int column)
         {
             var coord = new Coordinate(row, column);
             Board[coord.Row, coord.Column] = piece;
+            OnContentChanged(piece, new ContentChangedEventArgs(null, coord));
         }
 
         public static void SetPiece(Piece piece, Coordinate coordinate)
         {
-            var coord = new Coordinate(coordinate.Row, coordinate.Column);
-            Board[coord.Row, coord.Column] = piece;
+            SetPiece(piece, coordinate.Row, coordinate.Column);
         }
+
+        public static void RemovePiece(int row, int column)
+        {
+            var    coord = new Coordinate(row, column);
+            Piece? piece = GetPieceOrNull(coord);
+            if (piece == null)
+            {
+                return;
+            }
+
+            ContentChanged?.Invoke(piece, new ContentChangedEventArgs(coord, null));
+            Board[coord.Row, coord.Column] = null;
+        }
+
+        public static void RemovePiece(Coordinate coordinate)
+        {
+            RemovePiece(coordinate.Row, coordinate.Column);
+        }
+
+        private static void OnContentChanged(object sender, ContentChangedEventArgs e)
+        {
+            ContentChanged?.Invoke(sender, e);
+        }
+    }
+
+    internal sealed class ContentChangedEventArgs : EventArgs
+    {
+        public ContentChangedEventArgs(Coordinate? oldCoordinate, Coordinate? newCoordinate)
+        {
+            this.OldCoordinate = oldCoordinate;
+            this.NewCoordinate = newCoordinate;
+        }
+
+        public Coordinate? OldCoordinate { get; }
+
+        public Coordinate? NewCoordinate { get; }
     }
 }

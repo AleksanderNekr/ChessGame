@@ -16,6 +16,7 @@ namespace ChessGame.GameClasses
             this.BorderThickness = new Thickness(1);
             this.MouseEnter += Piece_MouseEnter;
             this.MouseLeave += Piece_MouseLeave;
+            ChessBoard.SetPiece(this, this.Coordinate);
         }
 
         private static void Piece_MouseLeave(object sender, MouseEventArgs e)
@@ -32,9 +33,9 @@ namespace ChessGame.GameClasses
         {
         }
 
-        public PieceColor Color { get; set; }
+        public PieceColor Color { get; }
 
-        protected Coordinate Coordinate { get; set; }
+        protected Coordinate Coordinate { get; }
 
         public abstract List<Coordinate> ValidMoves { get; }
     }
