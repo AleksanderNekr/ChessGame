@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace ChessGame
+﻿namespace ChessGame
 {
     /// <inheritdoc />
     internal sealed partial class App

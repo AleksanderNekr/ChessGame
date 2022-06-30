@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="myserv" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="myserv">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$/../../Program Files/dotnet/sdk/6.0.301/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_6_default.editorconfig" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame.sln" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/App.xaml" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/App.xaml.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/AssemblyInfo.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/ChessGame.csproj" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/Images/board.png" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/MainWindow.xaml" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/MainWindow.xaml.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/obj/Release/net6.0-windows/App.g.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/obj/Release/net6.0-windows/ChessGame.AssemblyInfo.cs" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/obj/Release/net6.0-windows/ChessGame.GeneratedMSBuildEditorConfig.editorconfig" web="/" />
+            <mapping local="$PROJECT_DIR$/ChessGame/obj/Release/net6.0-windows/MainWindow.g.cs" web="/" />
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

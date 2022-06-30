@@ -4,7 +4,23 @@
              StartupUri="MainWindow.xaml" x:ClassModifier="internal">
     <Application.Resources>
         <ResourceDictionary>
-            <ImageBrush x:Key="BoardImg" ImageSource="..\..\..\Images\board.png"/>
+            <ImageBrush x:Key="BoardImg" ImageSource="../../../Images/board.png" />
+
+            <!-- White figures -->
+            <ImageBrush x:Key="WhitePawnImg" ImageSource="../../../Images/White/Pawn.png" />
+            <ImageBrush x:Key="WhiteRookImg" ImageSource="../../../Images/White/Rook.png" />
+            <ImageBrush x:Key="WhiteKnightImg" ImageSource="../../../Images/White/Knight.png" />
+            <ImageBrush x:Key="WhiteBishopImg" ImageSource="../../../Images/White/Bishop.png" />
+            <ImageBrush x:Key="WhiteQueenImg" ImageSource="../../../Images/White/Queen.png" />
+            <ImageBrush x:Key="WhiteKingImg" ImageSource="../../../Images/White/King.png" />
+
+            <!-- Black figures -->
+            <ImageBrush x:Key="BlackPawnImg" ImageSource="../../../Images/Black/Pawn.png" />
+            <ImageBrush x:Key="BlackRookImg" ImageSource="../../../Images/Black/Rook.png" />
+            <ImageBrush x:Key="BlackKnightImg" ImageSource="../../../Images/Black/Knight.png" />
+            <ImageBrush x:Key="BlackBishopImg" ImageSource="../../../Images/Black/Bishop.png" />
+            <ImageBrush x:Key="BlackQueenImg" ImageSource="../../../Images/Black/Queen.png" />
+            <ImageBrush x:Key="BlackKingImg" ImageSource="../../../Images/Black/King.png" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
