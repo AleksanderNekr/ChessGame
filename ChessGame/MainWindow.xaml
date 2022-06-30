@@ -10,7 +10,7 @@
         <!-- Board. -->
         <Grid x:Name="Board" Height="400" Width="400" RenderTransformOrigin="0.5,0.5" Canvas.Top="30"
               HorizontalAlignment="Left"
-              VerticalAlignment="Top" Background="{StaticResource BoardImg}"
+              VerticalAlignment="Top" Background="{StaticResource Board}"
               Canvas.Left="30">
             <Grid.RenderTransform>
                 <TransformGroup>

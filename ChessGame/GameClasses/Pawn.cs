@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace ChessGame.GameClasses
 {
@@ -12,11 +15,11 @@ namespace ChessGame.GameClasses
             this.UpdatePawnMoves();
             if (color == PieceColor.White)
             {
-                this.Background = (ImageBrush)Application.Current.Resources["WhitePawnImg"];
+                this.Background = (ImageBrush)Application.Current.Resources["WhitePawn"];
                 return;
             }
 
-            this.Background = (ImageBrush)Application.Current.Resources["BlackPawnImg"];
+            this.Background = (ImageBrush)Application.Current.Resources["BlackPawn"];
         }
 
         public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
