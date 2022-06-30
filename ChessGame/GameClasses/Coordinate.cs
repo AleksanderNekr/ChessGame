@@ -4,6 +4,10 @@ namespace ChessGame.GameClasses
 {
     public sealed class Coordinate
     {
+        private readonly int _columnCoordinate;
+
+        private readonly int _rowCoordinate;
+
         internal Coordinate(int coordinateRow, int coordinateColumn)
         {
             this.Row    = coordinateRow;
@@ -39,8 +43,5 @@ namespace ChessGame.GameClasses
                 this._columnCoordinate = value;
             }
         }
-
-        private readonly int _rowCoordinate;
-        private readonly int _columnCoordinate;
     }
 }

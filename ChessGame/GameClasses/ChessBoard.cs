@@ -2,11 +2,14 @@
 {
     internal static class ChessBoard
     {
+        private static readonly Piece?[,] Board = new Piece?[8, 8];
+
         public static Piece? GetPieceOrNull(int row, int column)
         {
             var coord = new Coordinate(row, column);
             return Board[coord.Row, coord.Column];
         }
+
         public static Piece? GetPieceOrNull(Coordinate coordinate)
         {
             var coord = new Coordinate(coordinate.Row, coordinate.Column);
@@ -24,7 +27,5 @@
             var coord = new Coordinate(coordinate.Row, coordinate.Column);
             Board[coord.Row, coord.Column] = piece;
         }
-
-        private static readonly Piece?[,] Board = new Piece?[8, 8];
     }
 }
