@@ -8,7 +8,6 @@ namespace ChessGame.GameClasses
     {
         public Pawn(PieceColor color, int row, int column) : base(color, row, column)
         {
-            this.UpdatePawnMoves();
         }
 
         public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
@@ -42,7 +41,7 @@ namespace ChessGame.GameClasses
         /// <summary>
         ///    Updates the valid moves of the pawn.
         /// </summary>
-        private void UpdatePawnMoves()
+        protected override void UpdateMoves()
         {
             this.UpdatePawnDefaultMoves();
             this.UpdatePawnAttackMoves();

@@ -10,17 +10,24 @@ namespace ChessGame.GameClasses
     {
         protected Piece(PieceColor color, int row, int column)
         {
-            this.Color           = color;
-            this.Coordinate      = new Coordinate(row, column);
-            this.Cursor          = Cursors.Hand;
-            this.BorderThickness = new Thickness(1);
-            this.SetBackgroundImage();
-
-            this.MouseEnter      += Piece_MouseEnter;
-            this.MouseLeave      += Piece_MouseLeave;
-            this.GotFocus       += Piece_GotFocus;
+            this.Color                =  color;
+            this.Coordinate           =  new Coordinate(row, column);
+            this.Cursor               =  Cursors.Hand;
+            this.BorderThickness      =  new Thickness(1);
+            ChessBoard.ContentChanged += ChessBoard_ContentChanged;
+            this.MouseEnter           += Piece_MouseEnter;
+            this.MouseLeave           += Piece_MouseLeave;
+            this.GotFocus             += Piece_GotFocus;
             ChessBoard.SetPiece(this, this.Coordinate);
+            this.SetBackgroundImage();
         }
+
+        private static void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs e)
+        {
+            sender.UpdateMoves();
+        }
+
+        protected abstract void UpdateMoves();
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
