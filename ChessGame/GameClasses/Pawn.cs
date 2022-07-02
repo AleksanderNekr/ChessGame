@@ -9,20 +9,15 @@ namespace ChessGame.GameClasses
         public Pawn(PieceColor color, int row, int column) : base(color, row, column)
         {
             this.UpdatePawnMoves();
-            if (color == PieceColor.White)
-            {
-                this.Background = (ImageBrush)Application.Current.Resources["WhitePawn"];
-                return;
-            }
-
-            this.Background = (ImageBrush)Application.Current.Resources["BlackPawn"];
         }
 
         public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
         {
         }
 
-        public override List<Coordinate> ValidMoves { get; } = new();
+        protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
+        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
+        public override    List<Coordinate> ValidMoves { get; } = new();
 
         private int Move
         {
@@ -44,6 +39,9 @@ namespace ChessGame.GameClasses
             }
         }
 
+        /// <summary>
+        ///    Updates the valid moves of the pawn.
+        /// </summary>
         private void UpdatePawnMoves()
         {
             this.UpdatePawnDefaultMoves();

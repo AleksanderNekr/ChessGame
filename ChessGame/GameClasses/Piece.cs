@@ -10,13 +10,36 @@ namespace ChessGame.GameClasses
     {
         protected Piece(PieceColor color, int row, int column)
         {
-            this.Color      =  color;
-            this.Coordinate =  new Coordinate(row, column);
-            this.Cursor     =  Cursors.Hand;
+            this.Color           = color;
+            this.Coordinate      = new Coordinate(row, column);
+            this.Cursor          = Cursors.Hand;
             this.BorderThickness = new Thickness(1);
-            this.MouseEnter += Piece_MouseEnter;
-            this.MouseLeave += Piece_MouseLeave;
+            this.SetBackgroundImage();
+
+            this.MouseEnter      += Piece_MouseEnter;
+            this.MouseLeave      += Piece_MouseLeave;
+            this.GotFocus       += Piece_GotFocus;
             ChessBoard.SetPiece(this, this.Coordinate);
+        }
+
+        private static void Piece_GotFocus(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Got focus");
+        }
+
+        protected abstract ImageBrush WhiteImage { get; }
+
+        protected abstract ImageBrush BlackImage { get; }
+
+        private void SetBackgroundImage()
+        {
+            if (this.Color == PieceColor.White)
+            {
+                this.Background = this.WhiteImage;
+                return;
+            }
+
+            this.Background = this.BlackImage;
         }
 
         private static void Piece_MouseLeave(object sender, MouseEventArgs e)
@@ -37,7 +60,7 @@ namespace ChessGame.GameClasses
 
         protected Coordinate Coordinate { get; }
 
-        public abstract List<Coordinate> ValidMoves { get; }
+        public abstract ICollection<Coordinate> ValidMoves { get; }
     }
 
     public enum PieceColor

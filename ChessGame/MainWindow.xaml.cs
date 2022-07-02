@@ -14,19 +14,12 @@ namespace ChessGame
             ChessBoard.ContentChanged += this.ChessBoard_ContentChanged;
         }
 
-        private void ChessBoard_ContentChanged(object sender, ContentChangedEventArgs contentChangedEventArgs)
+        private void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs contentChangedEventArgs)
         {
-            this.UpdateBoard();
+            this.UpdateGridBoard();
         }
 
-        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            double newSize = Math.Min(e.NewSize.Width, e.NewSize.Height) - 140;
-            this.Board.Width  = newSize;
-            this.Board.Height = newSize;
-        }
-
-        private void UpdateBoard()
+        private void UpdateGridBoard()
         {
             this.Board.Children.Clear();
             for (var i = 0; i < ChessBoard.Board.GetLength(0); i++)
@@ -48,8 +41,15 @@ namespace ChessGame
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
-            var whitePawn = new Pawn(PieceColor.White, 4, 5);
-            var blackPawn = new Pawn(PieceColor.Black, 4, 4);
+            _ = new Pawn(PieceColor.White, 4, 5);
+            _ = new Pawn(PieceColor.Black, 4, 4);
+        }
+
+        private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            double newSize = Math.Min(e.NewSize.Width, e.NewSize.Height) - 140;
+            this.Board.Width  = newSize;
+            this.Board.Height = newSize;
         }
     }
 }

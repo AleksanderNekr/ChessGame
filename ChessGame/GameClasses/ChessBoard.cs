@@ -4,9 +4,9 @@ namespace ChessGame.GameClasses
 {
     internal static class ChessBoard
     {
-        public delegate void Content(object sender, ContentChangedEventArgs e);
+        public delegate void ContentChangeHandler(Piece sender, ContentChangedEventArgs e);
 
-        public static event Content? ContentChanged;
+        public static event ContentChangeHandler? ContentChanged;
 
         public static Piece?[,] Board { get; } = new Piece?[8, 8];
 
@@ -42,7 +42,7 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            ContentChanged?.Invoke(piece, new ContentChangedEventArgs(coord, null));
+            OnContentChanged(piece, new ContentChangedEventArgs(coord, null));
             Board[coord.Row, coord.Column] = null;
         }
 
@@ -51,7 +51,7 @@ namespace ChessGame.GameClasses
             RemovePiece(coordinate.Row, coordinate.Column);
         }
 
-        private static void OnContentChanged(object sender, ContentChangedEventArgs e)
+        private static void OnContentChanged(Piece sender, ContentChangedEventArgs e)
         {
             ContentChanged?.Invoke(sender, e);
         }
