@@ -42,8 +42,8 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            OnContentChanged(piece, new ContentChangedEventArgs(coord, null));
             Board[coord.Row, coord.Column] = null;
+            OnContentChanged(piece, new ContentChangedEventArgs(coord, null));
         }
 
         public static void RemovePiece(Coordinate coordinate)

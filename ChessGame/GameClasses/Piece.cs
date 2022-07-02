@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -32,7 +33,7 @@ namespace ChessGame.GameClasses
 
         public PieceColor Color { get; }
 
-        public abstract ICollection<Coordinate> ValidMoves { get; }
+        public List<Coordinate> ValidMoves { get; } = new();
 
         protected abstract ImageBrush WhiteImage { get; }
 
@@ -48,6 +49,7 @@ namespace ChessGame.GameClasses
             piece.BorderBrush =  Brushes.Chartreuse;
             piece.MouseEnter  -= Piece_MouseEnter;
             piece.MouseLeave  -= Piece_MouseLeave;
+            piece.ShowValidMoves();
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -56,6 +58,7 @@ namespace ChessGame.GameClasses
             piece.BorderBrush =  Brushes.Transparent;
             piece.MouseEnter  += Piece_MouseEnter;
             piece.MouseLeave  += Piece_MouseLeave;
+            piece.HideValidMoves();
         }
 
         private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -69,6 +72,44 @@ namespace ChessGame.GameClasses
             }
 
             piece.Focus();
+        }
+
+        private void ShowValidMoves()
+        {
+            foreach (Coordinate coordinate in this.ValidMoves)
+            {
+                Piece? place = ChessBoard.GetPieceOrNull(coordinate);
+                if (place == null)
+                {
+                    _ = new ValidMove(this.Color, coordinate);
+                    continue;
+                }
+
+                if (place.Color == this.Color)
+                {
+                    continue;
+                }
+
+                place.BorderThickness = new Thickness(1);
+                place.BorderBrush     = Brushes.Red;
+            }
+        }
+
+        private void HideValidMoves()
+        {
+            foreach (Coordinate coordinate in this.ValidMoves)
+            {
+                Piece place = ChessBoard.GetPieceOrNull(coordinate)
+                           ?? throw new NullReferenceException("When trying to hide valid move"
+                                                             + $" at {coordinate}, then it is null.");
+                if (place.Color == this.Color)
+                {
+                    ChessBoard.RemovePiece(coordinate);
+                    continue;
+                }
+
+                place.BorderBrush = Brushes.Transparent;
+            }
         }
 
         private static void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs e)
