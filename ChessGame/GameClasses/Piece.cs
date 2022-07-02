@@ -30,15 +30,17 @@ namespace ChessGame.GameClasses
         {
         }
 
+        public PieceColor Color { get; }
+
+        public abstract ICollection<Coordinate> ValidMoves { get; }
+
         protected abstract ImageBrush WhiteImage { get; }
 
         protected abstract ImageBrush BlackImage { get; }
 
-        public PieceColor Color { get; }
-
         protected Coordinate Coordinate { get; }
 
-        public abstract ICollection<Coordinate> ValidMoves { get; }
+        protected abstract void UpdateMoves();
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -63,7 +65,8 @@ namespace ChessGame.GameClasses
             var piece = (Piece)sender;
             if (piece.IsFocused)
             {
-                Piece_LostFocus(sender, e);
+                // Remove focus from the piece.
+                piece.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
                 return;
             }
 
@@ -74,8 +77,6 @@ namespace ChessGame.GameClasses
         {
             sender.UpdateMoves();
         }
-
-        protected abstract void UpdateMoves();
 
         private void SetBackgroundImage()
         {
