@@ -48,7 +48,6 @@ namespace ChessGame.GameClasses
             piece.BorderBrush =  Brushes.Chartreuse;
             piece.MouseEnter  -= Piece_MouseEnter;
             piece.MouseLeave  -= Piece_MouseLeave;
-            MessageBox.Show(((Piece)e.Source).Color + " GotFocus");
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -57,7 +56,6 @@ namespace ChessGame.GameClasses
             piece.BorderBrush =  Brushes.Transparent;
             piece.MouseEnter  += Piece_MouseEnter;
             piece.MouseLeave  += Piece_MouseLeave;
-            MessageBox.Show(((Piece)e.Source).Color + " LostFocus");
         }
 
         private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
