@@ -17,6 +17,8 @@ namespace ChessGame.GameClasses
         protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
         protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
+        public override List<Coordinate> ValidMoves { get; } = new();
+
         private int Move
         {
             get
@@ -86,6 +88,11 @@ namespace ChessGame.GameClasses
             {
                 this.ValidMoves.Add(newCoordinate);
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
     }
 }

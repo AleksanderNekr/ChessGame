@@ -4,11 +4,11 @@ namespace ChessGame.GameClasses
 {
     internal static class ChessBoard
     {
-        public delegate void ContentChangeHandler(Piece sender, ContentChangedEventArgs e);
+        public delegate void BoardChangeHandler(Piece sender, BoardChangedEventArgs e);
 
         public static Piece?[,] Board { get; } = new Piece?[8, 8];
 
-        public static event ContentChangeHandler? ContentChanged;
+        public static event BoardChangeHandler? BoardChanged;
 
         public static Piece? GetPieceOrNull(int row, int column)
         {
@@ -25,7 +25,8 @@ namespace ChessGame.GameClasses
         {
             var coord = new Coordinate(row, column);
             Board[coord.Row, coord.Column] = piece;
-            OnContentChanged(piece, new ContentChangedEventArgs(null, coord));
+            piece.Coordinate               = coord;
+            OnBoardChanged(piece, new BoardChangedEventArgs(null, coord));
         }
 
         public static void SetPiece(Piece piece, Coordinate coordinate)
@@ -43,7 +44,7 @@ namespace ChessGame.GameClasses
             }
 
             Board[coord.Row, coord.Column] = null;
-            OnContentChanged(piece, new ContentChangedEventArgs(coord, null));
+            OnBoardChanged(piece, new BoardChangedEventArgs(coord, null));
         }
 
         public static void RemovePiece(Coordinate coordinate)
@@ -51,15 +52,15 @@ namespace ChessGame.GameClasses
             RemovePiece(coordinate.Row, coordinate.Column);
         }
 
-        private static void OnContentChanged(Piece sender, ContentChangedEventArgs e)
+        internal static void OnBoardChanged(Piece sender, BoardChangedEventArgs e)
         {
-            ContentChanged?.Invoke(sender, e);
+            BoardChanged?.Invoke(sender, e);
         }
     }
 
-    internal sealed class ContentChangedEventArgs : EventArgs
+    internal sealed class BoardChangedEventArgs : EventArgs
     {
-        public ContentChangedEventArgs(Coordinate? oldCoordinate, Coordinate? newCoordinate)
+        public BoardChangedEventArgs(Coordinate? oldCoordinate, Coordinate? newCoordinate)
         {
             this.OldCoordinate = oldCoordinate;
             this.NewCoordinate = newCoordinate;

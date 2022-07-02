@@ -7,31 +7,43 @@
             <ImageBrush x:Key="Board" ImageSource="../../../Images/board.png" />
 
             <!-- White figures -->
-            <ImageBrush x:Key="WhitePawn" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Pawn.png"
+            <ImageBrush x:Key="WhitePawn"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Pawn.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="WhiteRook" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Rook.png"
+            <ImageBrush x:Key="WhiteRook"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Rook.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="WhiteKnight" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Knight.png"
+            <ImageBrush x:Key="WhiteKnight"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Knight.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="WhiteBishop" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Bishop.png"
+            <ImageBrush x:Key="WhiteBishop"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Bishop.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="WhiteQueen" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Queen.png"
+            <ImageBrush x:Key="WhiteQueen"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Queen.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="WhiteKing" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/King.png"
+            <ImageBrush x:Key="WhiteKing"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/King.png"
                         Stretch="Uniform" />
 
             <!-- Black figures -->
-            <ImageBrush x:Key="BlackPawn" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Pawn.png"
+            <ImageBrush x:Key="BlackPawn"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Pawn.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="BlackRook" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Rook.png"
+            <ImageBrush x:Key="BlackRook"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Rook.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="BlackKnight" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Knight.png"
+            <ImageBrush x:Key="BlackKnight"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Knight.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="BlackBishop" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Bishop.png"
+            <ImageBrush x:Key="BlackBishop"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Bishop.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="BlackQueen" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Queen.png"
+            <ImageBrush x:Key="BlackQueen"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/Queen.png"
                         Stretch="Uniform" />
-            <ImageBrush x:Key="BlackKing" ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/King.png"
+            <ImageBrush x:Key="BlackKing"
+                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/Black/Alpha/King.png"
                         Stretch="Uniform" />
         </ResourceDictionary>
     </Application.Resources>

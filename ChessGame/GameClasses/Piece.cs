@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,18 +10,18 @@ namespace ChessGame.GameClasses
     {
         protected Piece(PieceColor color, int row, int column)
         {
-            this.Coordinate           =  new Coordinate(row, column);
-            this.Color                =  color;
-            this.Cursor               =  Cursors.Hand;
-            this.BorderThickness      =  new Thickness(1);
-            this.Focusable            =  true;
-            this.FocusVisualStyle     =  null;
-            ChessBoard.ContentChanged += ChessBoard_ContentChanged;
-            this.MouseEnter           += Piece_MouseEnter;
-            this.MouseLeave           += Piece_MouseLeave;
-            this.GotFocus             += Piece_GotFocus;
-            this.LostFocus            += Piece_LostFocus;
-            this.MouseLeftButtonUp    += Piece_MouseLeftButtonUp;
+            this.Coordinate         =  new Coordinate(row, column);
+            this.Color              =  color;
+            this.Cursor             =  Cursors.Hand;
+            this.BorderThickness    =  new Thickness(1);
+            this.Focusable          =  true;
+            this.FocusVisualStyle   =  null;
+            ChessBoard.BoardChanged += ChessBoard_BoardChanged;
+            this.MouseEnter         += Piece_MouseEnter;
+            this.MouseLeave         += Piece_MouseLeave;
+            this.GotFocus           += Piece_GotFocus;
+            this.LostFocus          += Piece_LostFocus;
+            this.MouseLeftButtonUp  += Piece_MouseLeftButtonUp;
             this.SetBackgroundImage();
             ChessBoard.SetPiece(this, this.Coordinate);
         }
@@ -33,24 +32,46 @@ namespace ChessGame.GameClasses
 
         public PieceColor Color { get; }
 
-        public List<Coordinate> ValidMoves { get; } = new();
+        public virtual List<Coordinate> ValidMoves { get; } = new();
 
         protected abstract ImageBrush WhiteImage { get; }
 
         protected abstract ImageBrush BlackImage { get; }
 
-        protected Coordinate Coordinate { get; }
+        internal protected Coordinate Coordinate { get; internal set; }
+
+        internal static event LastClickedHandler? LastClicked;
+
+        public void MoveTo(Coordinate coordinate)
+        {
+            Coordinate oldCoordinate = this.Coordinate;
+            ChessBoard.Board[coordinate.Row, coordinate.Column]           = this;
+            ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
+            this.Coordinate                                               = coordinate;
+            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, this.Coordinate));
+        }
+
+        public void MoveTo(int row, int column)
+        {
+            this.MoveTo(new Coordinate(row, column));
+        }
 
         protected abstract void UpdateMoves();
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
+            if (sender is ValidMove)
+            {
+                return;
+            }
+
             var piece = (Piece)sender;
             piece.BorderThickness =  new Thickness(3);
             piece.BorderBrush     =  Brushes.Chartreuse;
             piece.MouseEnter      -= Piece_MouseEnter;
             piece.MouseLeave      -= Piece_MouseLeave;
             piece.ShowValidMoves();
+            LastClicked?.Invoke(piece, e);
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -97,13 +118,16 @@ namespace ChessGame.GameClasses
             }
         }
 
-        private void HideValidMoves()
+        internal void HideValidMoves()
         {
             foreach (Coordinate coordinate in this.ValidMoves)
             {
-                Piece place = ChessBoard.GetPieceOrNull(coordinate)
-                           ?? throw new NullReferenceException("When trying to hide valid move"
-                                                             + $" at {coordinate}, then it is null.");
+                Piece? place = ChessBoard.GetPieceOrNull(coordinate);
+                if (place == null)
+                {
+                    continue;
+                }
+
                 if (place.Color == this.Color)
                 {
                     ChessBoard.RemovePiece(coordinate);
@@ -114,7 +138,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        private static void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs e)
+        private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
         {
             sender.UpdateMoves();
         }
@@ -139,6 +163,13 @@ namespace ChessGame.GameClasses
         {
             ((Piece)sender).BorderBrush = Brushes.Chartreuse;
         }
+
+        public override string ToString()
+        {
+            return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
+        }
+
+        internal delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
     }
 
     internal enum PieceColor

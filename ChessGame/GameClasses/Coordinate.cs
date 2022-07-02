@@ -43,5 +43,10 @@ namespace ChessGame.GameClasses
                 this._columnCoordinate = value;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{this.Row} : {this.Column}";
+        }
     }
 }

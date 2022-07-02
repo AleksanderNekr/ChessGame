@@ -11,10 +11,10 @@ namespace ChessGame
         public MainWindow()
         {
             this.InitializeComponent();
-            ChessBoard.ContentChanged += this.ChessBoard_ContentChanged;
+            ChessBoard.BoardChanged += this.ChessBoardBoardChanged;
         }
 
-        private void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs contentChangedEventArgs)
+        private void ChessBoardBoardChanged(Piece sender, BoardChangedEventArgs boardChangedEventArgs)
         {
             this.UpdateGridBoard();
         }
