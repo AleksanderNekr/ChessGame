@@ -46,18 +46,20 @@ namespace ChessGame.GameClasses
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
             var piece = (Piece)sender;
-            piece.BorderBrush =  Brushes.Chartreuse;
-            piece.MouseEnter  -= Piece_MouseEnter;
-            piece.MouseLeave  -= Piece_MouseLeave;
+            piece.BorderThickness =  new Thickness(3);
+            piece.BorderBrush     =  Brushes.Chartreuse;
+            piece.MouseEnter      -= Piece_MouseEnter;
+            piece.MouseLeave      -= Piece_MouseLeave;
             piece.ShowValidMoves();
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
         {
             var piece = (Piece)sender;
-            piece.BorderBrush =  Brushes.Transparent;
-            piece.MouseEnter  += Piece_MouseEnter;
-            piece.MouseLeave  += Piece_MouseLeave;
+            piece.BorderThickness =  new Thickness(1);
+            piece.BorderBrush     =  Brushes.Transparent;
+            piece.MouseEnter      += Piece_MouseEnter;
+            piece.MouseLeave      += Piece_MouseLeave;
             piece.HideValidMoves();
         }
 

@@ -9,8 +9,9 @@ namespace ChessGame.GameClasses
 {
     internal sealed class ValidMove : Piece
     {
-        public ValidMove(PieceColor color, int row, int column) : base(color, row, column)
+        private ValidMove(PieceColor color, int row, int column) : base(color, row, column)
         {
+            // Images for both colors are identical, so we can use one image for both colors.
             this.BlackImage        =  this.WhiteImage;
             this.MouseEnter        += this.ValidMove_MouseEnter;
             this.MouseLeave        += this.ValidMove_MouseLeave;
@@ -41,7 +42,7 @@ namespace ChessGame.GameClasses
 
             var brush = new ImageBrush(new DrawingImage(rect))
                         {
-                            Opacity = 0.4
+                            Opacity = 0.2
                         };
             return brush;
         }
