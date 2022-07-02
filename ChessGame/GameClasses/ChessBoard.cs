@@ -6,9 +6,9 @@ namespace ChessGame.GameClasses
     {
         public delegate void ContentChangeHandler(Piece sender, ContentChangedEventArgs e);
 
-        public static event ContentChangeHandler? ContentChanged;
-
         public static Piece?[,] Board { get; } = new Piece?[8, 8];
+
+        public static event ContentChangeHandler? ContentChanged;
 
         public static Piece? GetPieceOrNull(int row, int column)
         {

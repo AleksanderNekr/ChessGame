@@ -39,7 +39,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        ///    Updates the valid moves of the pawn.
+        ///     Updates the valid moves of the pawn.
         /// </summary>
         protected override void UpdateMoves()
         {

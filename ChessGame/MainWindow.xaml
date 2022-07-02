@@ -40,6 +40,6 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
         </Grid>
-        <Button Content="Click!" Click="ButtonBase_Click"></Button>
+        <Button Name="Button" Content="Click!" Click="ButtonBase_Click" />
     </Canvas>
 </Window>

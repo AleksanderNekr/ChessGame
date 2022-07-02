@@ -8,33 +8,33 @@
 
             <!-- White figures -->
             <ImageBrush x:Key="WhitePawn" ImageSource="C:\RiderProjects\ChessGame\ChessGame\Images\White\Pawn.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <!-- <ImageBrush x:Key="WhitePawn" ImageSource="../../../Images/White/Pawn.png" -->
             <!--             Stretch="Uniform"/> -->
             <ImageBrush x:Key="WhiteRook" ImageSource="../../../Images/White/Rook.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="WhiteKnight" ImageSource="../../../Images/White/Knight.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="WhiteBishop" ImageSource="../../../Images/White/Bishop.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="WhiteQueen" ImageSource="../../../Images/White/Queen.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="WhiteKing" ImageSource="../../../Images/White/King.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
 
             <!-- Black figures -->
             <ImageBrush x:Key="BlackPawn" ImageSource="C:\RiderProjects\ChessGame\ChessGame\Images/Black/Pawn.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="BlackRook" ImageSource="../../../Images/Black/Rook.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="BlackKnight" ImageSource="../../../Images/Black/Knight.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="BlackBishop" ImageSource="../../../Images/Black/Bishop.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="BlackQueen" ImageSource="../../../Images/Black/Queen.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
             <ImageBrush x:Key="BlackKing" ImageSource="../../../Images/Black/King.png"
-                        Stretch="Uniform"/>
+                        Stretch="Uniform" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

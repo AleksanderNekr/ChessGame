@@ -10,16 +10,64 @@ namespace ChessGame.GameClasses
     {
         protected Piece(PieceColor color, int row, int column)
         {
-            this.Color                =  color;
             this.Coordinate           =  new Coordinate(row, column);
+            this.Color                =  color;
             this.Cursor               =  Cursors.Hand;
             this.BorderThickness      =  new Thickness(1);
+            this.Focusable            =  true;
+            this.FocusVisualStyle     =  null;
             ChessBoard.ContentChanged += ChessBoard_ContentChanged;
             this.MouseEnter           += Piece_MouseEnter;
             this.MouseLeave           += Piece_MouseLeave;
             this.GotFocus             += Piece_GotFocus;
-            ChessBoard.SetPiece(this, this.Coordinate);
+            this.LostFocus            += Piece_LostFocus;
+            this.MouseLeftButtonUp    += Piece_MouseLeftButtonUp;
             this.SetBackgroundImage();
+            ChessBoard.SetPiece(this, this.Coordinate);
+        }
+
+        protected Piece(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+        {
+        }
+
+        protected abstract ImageBrush WhiteImage { get; }
+
+        protected abstract ImageBrush BlackImage { get; }
+
+        public PieceColor Color { get; }
+
+        protected Coordinate Coordinate { get; }
+
+        public abstract ICollection<Coordinate> ValidMoves { get; }
+
+        private static void Piece_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var piece = (Piece)sender;
+            piece.BorderBrush =  Brushes.Chartreuse;
+            piece.MouseEnter  -= Piece_MouseEnter;
+            piece.MouseLeave  -= Piece_MouseLeave;
+            MessageBox.Show(((Piece)e.Source).Color + " GotFocus");
+        }
+
+        private static void Piece_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var piece = (Piece)sender;
+            piece.BorderBrush =  Brushes.Transparent;
+            piece.MouseEnter  += Piece_MouseEnter;
+            piece.MouseLeave  += Piece_MouseLeave;
+            MessageBox.Show(((Piece)e.Source).Color + " LostFocus");
+        }
+
+        private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var piece = (Piece)sender;
+            if (piece.IsFocused)
+            {
+                Piece_LostFocus(sender, e);
+                return;
+            }
+
+            piece.Focus();
         }
 
         private static void ChessBoard_ContentChanged(Piece sender, ContentChangedEventArgs e)
@@ -28,15 +76,6 @@ namespace ChessGame.GameClasses
         }
 
         protected abstract void UpdateMoves();
-
-        private static void Piece_GotFocus(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Got focus");
-        }
-
-        protected abstract ImageBrush WhiteImage { get; }
-
-        protected abstract ImageBrush BlackImage { get; }
 
         private void SetBackgroundImage()
         {
@@ -58,19 +97,9 @@ namespace ChessGame.GameClasses
         {
             ((Piece)sender).BorderBrush = Brushes.Chartreuse;
         }
-
-        protected Piece(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
-        {
-        }
-
-        public PieceColor Color { get; }
-
-        protected Coordinate Coordinate { get; }
-
-        public abstract ICollection<Coordinate> ValidMoves { get; }
     }
 
-    public enum PieceColor
+    internal enum PieceColor
     {
         White,
         Black
