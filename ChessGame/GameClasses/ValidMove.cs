@@ -32,7 +32,7 @@ namespace ChessGame.GameClasses
                                                  new EllipseGeometry());
                 var image = new ImageBrush(new DrawingImage(circle))
                             {
-                                Viewport = new Rect(0.25, 0.25, 0.5, 0.5),
+                                Viewport = new Rect(0.35, 0.35, 0.3, 0.3),
                                 Opacity  = 0.4
                             };
                 return image;
@@ -76,10 +76,7 @@ namespace ChessGame.GameClasses
                                            new Pen(Brushes.Chartreuse, 1),
                                            new RectangleGeometry(new Rect()));
 
-            var brush = new ImageBrush(new DrawingImage(rect))
-                        {
-                            Opacity = 0.2
-                        };
+            var brush = new ImageBrush(new DrawingImage(rect)) { Opacity = 0.2 };
             return brush;
         }
 

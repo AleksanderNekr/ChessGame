@@ -89,10 +89,5 @@ namespace ChessGame.GameClasses
                 this.ValidMoves.Add(newCoordinate);
             }
         }
-
-        public override string ToString()
-        {
-            return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
-        }
     }
 }
