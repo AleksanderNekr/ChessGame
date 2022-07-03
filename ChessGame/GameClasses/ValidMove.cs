@@ -23,7 +23,7 @@ namespace ChessGame.GameClasses
 
         protected override ImageBrush BlackImage { get; } = CircleBrush;
 
-        private static ImageBrush CircleBrush
+        internal static ImageBrush CircleBrush
         {
             get
             {

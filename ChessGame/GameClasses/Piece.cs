@@ -49,6 +49,37 @@ namespace ChessGame.GameClasses
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
             this.Coordinate                                               = newCoordinate;
             ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
+            this.ChangePlayer();
+        }
+
+        private void ChangePlayer()
+        {
+            if (this.Color == PieceColor.White)
+            {
+                LockPieces(PieceColor.White);
+                return;
+            }
+
+            LockPieces(PieceColor.Black);
+        }
+
+        private static void LockPieces(PieceColor color)
+        {
+            foreach (Piece? piece in ChessBoard.Board)
+            {
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                if (piece.Color == color)
+                {
+                    piece.IsEnabled = false;
+                    continue;
+                }
+
+                piece.IsEnabled = true;
+            }
         }
 
         public void MoveTo(int row, int column)

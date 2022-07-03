@@ -10,6 +10,7 @@ namespace ChessGame.GameClasses
 
         public static event BoardChangeHandler? BoardChanged;
 
+
         public static Piece? GetPieceOrNull(int row, int column)
         {
             var coord = new Coordinate(row, column);
