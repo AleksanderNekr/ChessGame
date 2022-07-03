@@ -45,6 +45,15 @@ namespace ChessGame
             SetPawns();
             SetKnights();
             SetBishops();
+            SetRooks();
+        }
+
+        private static void SetRooks()
+        {
+            _ = new Rook(PieceColor.Black, 0, 0);
+            _ = new Rook(PieceColor.Black, 0, 7);
+            _ = new Rook(PieceColor.White, 7, 0);
+            _ = new Rook(PieceColor.White, 7, 7);
         }
 
         private static void SetBishops()
