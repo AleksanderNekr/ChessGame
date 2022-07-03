@@ -40,35 +40,10 @@ namespace ChessGame.GameClasses
         protected override void UpdateValidMoves()
         {
             this.ValidMoves.Clear();
-            this.AddMoves(-1, -1);
-            this.AddMoves(-1, 1);
-            this.AddMoves(1,  -1);
-            this.AddMoves(1,  1);
-        }
-
-        private void AddMoves(int rowDif, int colDif)
-        {
-            int row    = this.Coordinate.Row;
-            int column = this.Coordinate.Column;
-            while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
-            {
-                Piece? place = ChessBoard.GetPieceOrNull(row, column);
-                if (place == null)
-                {
-                    this.ValidMoves.Add(new Coordinate(row, column));
-                    continue;
-                }
-
-                // If ally piece is found, then stop.
-                if (place.Color == this.Color)
-                {
-                    break;
-                }
-
-                // If enemy piece is found, then add it to the valid moves and stop.
-                this.ValidMoves.Add(new Coordinate(row, column));
-                break;
-            }
+            AddRangeMoves(this, -1, -1);
+            AddRangeMoves(this, -1, 1);
+            AddRangeMoves(this, 1,  -1);
+            AddRangeMoves(this, 1,  1);
         }
     }
 }

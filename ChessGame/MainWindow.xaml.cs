@@ -46,6 +46,13 @@ namespace ChessGame
             SetKnights();
             SetBishops();
             SetRooks();
+            SetQueens();
+        }
+
+        private static void SetQueens()
+        {
+            _ = new Queen(PieceColor.Black, 0, 3);
+            _ = new Queen(PieceColor.White, 7, 3);
         }
 
         private static void SetRooks()

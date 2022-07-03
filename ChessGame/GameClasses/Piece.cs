@@ -54,7 +54,7 @@ namespace ChessGame.GameClasses
         /// <summary>
         /// Valid moves of the piece.
         /// </summary>
-        protected List<Coordinate> ValidMoves { get; } = new();
+        internal protected List<Coordinate> ValidMoves { get; } = new();
 
         /// <summary>
         /// White image of the piece.
@@ -130,6 +130,31 @@ namespace ChessGame.GameClasses
         public void MoveTo(int row, int column)
         {
             this.MoveTo(new Coordinate(row, column));
+        }
+
+        internal static void AddRangeMoves(Piece piece, int rowDif, int colDif)
+        {
+            int row    = piece.Coordinate.Row;
+            int column = piece.Coordinate.Column;
+            while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
+            {
+                Piece? place = ChessBoard.GetPieceOrNull(row, column);
+                if (place == null)
+                {
+                    piece.ValidMoves.Add(new Coordinate(row, column));
+                    continue;
+                }
+
+                // If ally piece is found, then stop.
+                if (place.Color == piece.Color)
+                {
+                    break;
+                }
+
+                // If enemy piece is found, then add it to the valid moves and stop.
+                piece.ValidMoves.Add(new Coordinate(row, column));
+                break;
+            }
         }
 
         /// <summary>
