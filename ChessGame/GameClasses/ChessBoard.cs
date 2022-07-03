@@ -57,6 +57,20 @@ namespace ChessGame.GameClasses
         {
             BoardChanged?.Invoke(sender, e);
         }
+
+        /// <summary>
+        /// Removes all pieces from the board.
+        /// </summary>
+        public static void Clear()
+        {
+            for (var row = 0; row < 8; row++)
+            {
+                for (var column = 0; column < 8; column++)
+                {
+                    Board[row, column] = null;
+                }
+            }
+        }
     }
 
     internal sealed class BoardChangedEventArgs : EventArgs

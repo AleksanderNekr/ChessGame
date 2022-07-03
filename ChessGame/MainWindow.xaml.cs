@@ -41,6 +41,21 @@ namespace ChessGame
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
+            ChessBoard.Clear();
+            SetPawns();
+            SetKnights();
+        }
+
+        private static void SetKnights()
+        {
+            _ = new Knight(PieceColor.White, 7, 1);
+            _ = new Knight(PieceColor.White, 7, 6);
+            _ = new Knight(PieceColor.Black, 0, 1);
+            _ = new Knight(PieceColor.Black, 0, 6);
+        }
+
+        private static void SetPawns()
+        {
             for (var i = 0; i < 8; i++)
             {
                 _ = new Pawn(PieceColor.White, 6, i);
@@ -50,7 +65,6 @@ namespace ChessGame
             {
                 _ = new Pawn(PieceColor.Black, 1, i);
             }
-            _ = new Knight(PieceColor.White, 7, 1);
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
