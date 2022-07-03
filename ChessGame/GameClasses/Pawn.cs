@@ -80,8 +80,15 @@ namespace ChessGame.GameClasses
 
         private void UpdatePawnAttackMoves()
         {
-            this.TryToAddAttackMove(columnChange: -1);
-            this.TryToAddAttackMove(columnChange: 1);
+            if (this.Coordinate.Column != 0)
+            {
+                this.TryToAddAttackMove(columnChange: -1);
+            }
+
+            if (this.Coordinate.Column != 7)
+            {
+                this.TryToAddAttackMove(columnChange: 1);
+            }
         }
 
         private void TryToAddAttackMove(int columnChange)

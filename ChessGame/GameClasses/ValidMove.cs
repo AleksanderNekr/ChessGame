@@ -39,7 +39,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        private static Piece? LastClickedPiece { get; set; }
+        internal static Piece? LastClickedPiece { get; set; }
 
         private static ImageBrush RectangleBrush
         {

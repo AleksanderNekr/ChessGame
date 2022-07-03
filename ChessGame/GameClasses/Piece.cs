@@ -8,6 +8,8 @@ namespace ChessGame.GameClasses
 {
     internal abstract class Piece : UserControl
     {
+        private bool _isEnemy;
+
         protected Piece(PieceColor color, int row, int column)
         {
             this.Coordinate         =  new Coordinate(row, column);
@@ -44,6 +46,7 @@ namespace ChessGame.GameClasses
 
         public void MoveTo(Coordinate newCoordinate)
         {
+            this.HideValidMoves();
             Coordinate oldCoordinate = this.Coordinate;
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
@@ -75,6 +78,7 @@ namespace ChessGame.GameClasses
                 if (piece.Color == color)
                 {
                     piece.IsEnabled = false;
+                    UnsetEnemy(piece);
                     continue;
                 }
 
@@ -119,6 +123,12 @@ namespace ChessGame.GameClasses
         private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var piece = (Piece)sender;
+            if (piece._isEnemy)
+            {
+                ValidMove.LastClickedPiece?.MoveTo(piece.Coordinate);
+                return;
+            }
+
             if (piece.IsFocused)
             {
                 // Remove focus from the piece.
@@ -145,9 +155,15 @@ namespace ChessGame.GameClasses
                     continue;
                 }
 
-                place.BorderThickness = new Thickness(1);
-                place.BorderBrush     = Brushes.Red;
+                SetEnemy(place);
             }
+        }
+
+        private static void SetEnemy(Piece place)
+        {
+            place._isEnemy    = true;
+            place.BorderBrush = Brushes.Red;
+            place.IsEnabled   = true;
         }
 
         private void HideValidMoves()
@@ -166,8 +182,15 @@ namespace ChessGame.GameClasses
                     continue;
                 }
 
-                place.BorderBrush = Brushes.Transparent;
+                UnsetEnemy(place);
             }
+        }
+
+        private static void UnsetEnemy(Piece place)
+        {
+            place._isEnemy    = false;
+            place.BorderBrush = Brushes.Transparent;
+            place.IsEnabled   = false;
         }
 
         private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
@@ -188,12 +211,28 @@ namespace ChessGame.GameClasses
 
         private static void Piece_MouseLeave(object sender, MouseEventArgs e)
         {
-            ((Piece)sender).BorderBrush = Brushes.Transparent;
+            var piece = (Piece)sender;
+            if (piece._isEnemy)
+            {
+                piece.BorderThickness = new Thickness(1);
+                piece.BorderBrush     = Brushes.Red;
+                return;
+            }
+
+            piece.BorderBrush = Brushes.Transparent;
         }
 
         private static void Piece_MouseEnter(object sender, MouseEventArgs e)
         {
-            ((Piece)sender).BorderBrush = Brushes.Chartreuse;
+            var piece = (Piece)sender;
+            if (piece._isEnemy)
+            {
+                piece.BorderThickness = new Thickness(2);
+                piece.BorderBrush     = Brushes.Red;
+                return;
+            }
+
+            piece.BorderBrush = Brushes.Chartreuse;
         }
 
         public override string ToString()

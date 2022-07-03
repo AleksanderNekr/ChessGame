@@ -41,8 +41,15 @@ namespace ChessGame
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
-            _ = new Pawn(PieceColor.White, 6, 5);
-            _ = new Pawn(PieceColor.Black, 4, 4);
+            for (var i = 0; i < 8; i++)
+            {
+                _ = new Pawn(PieceColor.White, 6, i);
+            }
+
+            for (var i = 0; i < 8; i++)
+            {
+                _ = new Pawn(PieceColor.Black, 1, i);
+            }
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
