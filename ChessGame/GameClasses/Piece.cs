@@ -202,6 +202,7 @@ namespace ChessGame.GameClasses
             {
                 // Remove focus from the piece.
                 piece.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                piece.IsEnabled = true;
                 return;
             }
 
@@ -248,6 +249,9 @@ namespace ChessGame.GameClasses
                 if (place.Color == this.Color)
                 {
                     ChessBoard.RemovePiece(coordinate);
+                    place._isEnemy    = false;
+                    place.BorderBrush = Brushes.Transparent;
+                    place.IsEnabled   = true;
                     continue;
                 }
 
