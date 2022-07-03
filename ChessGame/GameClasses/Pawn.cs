@@ -45,6 +45,11 @@ namespace ChessGame.GameClasses
         protected override void UpdateMoves()
         {
             this.ValidMoves.Clear();
+            if (this.Coordinate.Row == (this.InitialRow + (this.Move * 6)))
+            {
+                return;
+            }
+
             this.UpdatePawnDefaultMoves();
             this.UpdatePawnAttackMoves();
         }
