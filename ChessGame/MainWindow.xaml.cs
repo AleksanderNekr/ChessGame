@@ -50,6 +50,7 @@ namespace ChessGame
             {
                 _ = new Pawn(PieceColor.Black, 1, i);
             }
+            _ = new Knight(PieceColor.White, 7, 1);
         }
 
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)

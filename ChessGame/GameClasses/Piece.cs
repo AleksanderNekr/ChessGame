@@ -6,10 +6,19 @@ using System.Windows.Media;
 
 namespace ChessGame.GameClasses
 {
+    /// <summary>
+    /// Base class for all chess pieces.
+    /// </summary>
     internal abstract class Piece : UserControl
     {
         private bool _isEnemy;
 
+        /// <summary>
+        /// Constructor for the Piece class.
+        /// </summary>
+        /// <param name="color">The color of the piece.</param>
+        /// <param name="row">The row of the piece.</param>
+        /// <param name="column">The column of the piece.</param>
         protected Piece(PieceColor color, int row, int column)
         {
             this.Coordinate         =  new Coordinate(row, column);
@@ -28,22 +37,49 @@ namespace ChessGame.GameClasses
             ChessBoard.SetPiece(this, this.Coordinate);
         }
 
+        /// <summary>
+        /// Constructor for the Piece class.
+        /// </summary>
+        /// <param name="color">The color of the piece.</param>
+        /// <param name="coordinate">The coordinate of the piece.</param>
         protected Piece(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
         {
         }
 
+        /// <summary>
+        /// Color of the piece.
+        /// </summary>
         public PieceColor Color { get; }
 
-        protected virtual List<Coordinate> ValidMoves { get; } = new();
+        /// <summary>
+        /// Valid moves of the piece.
+        /// </summary>
+        protected List<Coordinate> ValidMoves { get; } = new();
 
+        /// <summary>
+        /// White image of the piece.
+        /// </summary>
         protected abstract ImageBrush WhiteImage { get; }
 
+        /// <summary>
+        /// Black image of the piece.
+        /// </summary>
         protected abstract ImageBrush BlackImage { get; }
 
+        /// <summary>
+        /// Coordinate of the piece.
+        /// </summary>
         internal protected Coordinate Coordinate { get; internal set; }
 
+        /// <summary>
+        /// Event occurs when the piece is clicked.
+        /// </summary>
         internal static event LastClickedHandler? LastClicked;
 
+        /// <summary>
+        /// Moves the piece to the specified coordinate.
+        /// </summary>
+        /// <param name="newCoordinate">The new coordinate of the piece.</param>
         public void MoveTo(Coordinate newCoordinate)
         {
             this.HideValidMoves();
@@ -86,11 +122,19 @@ namespace ChessGame.GameClasses
             }
         }
 
+        /// <summary>
+        /// Moves the piece to the specified coordinate.
+        /// </summary>
+        /// <param name="row">The row of the coordinate.</param>
+        /// <param name="column">The column of the coordinate.</param>
         public void MoveTo(int row, int column)
         {
             this.MoveTo(new Coordinate(row, column));
         }
 
+        /// <summary>
+        /// Updates the valid moves of the piece.
+        /// </summary>
         protected abstract void UpdateValidMoves();
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
@@ -235,14 +279,21 @@ namespace ChessGame.GameClasses
             piece.BorderBrush = Brushes.Chartreuse;
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
 
+        /// <summary>
+        /// Handler for the BoardChangedEvent.
+        /// </summary>
         internal delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
     }
 
+    /// <summary>
+    /// Enum for the piece colors.
+    /// </summary>
     internal enum PieceColor
     {
         White,

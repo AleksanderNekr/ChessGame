@@ -1,23 +1,28 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
 {
+    /// <summary>
+    /// Pawn class.
+    /// </summary>
     internal sealed class Pawn : Piece
     {
+        /// <inheritdoc />
         public Pawn(PieceColor color, int row, int column) : base(color, row, column)
         {
         }
 
+        /// <inheritdoc />
         public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
         {
         }
 
+        /// <inheritdoc />
         protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
-        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
-        protected override List<Coordinate> ValidMoves { get; } = new();
+        /// <inheritdoc />
+        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
         private int Move
         {
@@ -39,9 +44,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        /// <summary>
-        ///     Updates the valid moves of the pawn.
-        /// </summary>
+        /// <inheritdoc />
         protected override void UpdateValidMoves()
         {
             this.ValidMoves.Clear();
