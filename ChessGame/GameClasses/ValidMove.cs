@@ -87,5 +87,10 @@ namespace ChessGame.GameClasses
         protected override void UpdateValidMoves()
         {
         }
+
+        public override Piece Clone()
+        {
+            return (ValidMove)this.MemberwiseClone();
+        }
     }
 }

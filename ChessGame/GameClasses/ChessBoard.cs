@@ -10,7 +10,6 @@ namespace ChessGame.GameClasses
 
         public static event BoardChangeHandler? BoardChanged;
 
-
         public static Piece? GetPieceOrNull(int row, int column)
         {
             var coord = new Coordinate(row, column);
@@ -59,7 +58,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Removes all pieces from the board.
+        ///     Removes all pieces from the board.
         /// </summary>
         public static void Clear()
         {

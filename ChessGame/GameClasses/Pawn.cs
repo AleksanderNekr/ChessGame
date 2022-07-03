@@ -4,7 +4,7 @@ using System.Windows.Media;
 namespace ChessGame.GameClasses
 {
     /// <summary>
-    /// Pawn class.
+    ///     Pawn class.
     /// </summary>
     internal sealed class Pawn : Piece
     {
@@ -55,6 +55,11 @@ namespace ChessGame.GameClasses
 
             this.UpdatePawnDefaultMoves();
             this.UpdatePawnAttackMoves();
+        }
+
+        public override Piece Clone()
+        {
+            return new Pawn(this.Color, this.Coordinate);
         }
 
         private void UpdatePawnDefaultMoves()

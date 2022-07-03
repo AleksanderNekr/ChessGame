@@ -7,14 +7,14 @@ using System.Windows.Media;
 namespace ChessGame.GameClasses
 {
     /// <summary>
-    /// Base class for all chess pieces.
+    ///     Base class for all chess pieces.
     /// </summary>
     internal abstract class Piece : UserControl
     {
         private bool _isEnemy;
 
         /// <summary>
-        /// Constructor for the Piece class.
+        ///     Constructor for the Piece class.
         /// </summary>
         /// <param name="color">The color of the piece.</param>
         /// <param name="row">The row of the piece.</param>
@@ -38,7 +38,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Constructor for the Piece class.
+        ///     Constructor for the Piece class.
         /// </summary>
         /// <param name="color">The color of the piece.</param>
         /// <param name="coordinate">The coordinate of the piece.</param>
@@ -47,37 +47,37 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Color of the piece.
+        ///     Color of the piece.
         /// </summary>
         public PieceColor Color { get; }
 
         /// <summary>
-        /// Valid moves of the piece.
+        ///     Valid moves of the piece.
         /// </summary>
-        internal protected List<Coordinate> ValidMoves { get; } = new();
+        protected List<Coordinate> ValidMoves { get; } = new();
 
         /// <summary>
-        /// White image of the piece.
+        ///     White image of the piece.
         /// </summary>
         protected abstract ImageBrush WhiteImage { get; }
 
         /// <summary>
-        /// Black image of the piece.
+        ///     Black image of the piece.
         /// </summary>
         protected abstract ImageBrush BlackImage { get; }
 
         /// <summary>
-        /// Coordinate of the piece.
+        ///     Coordinate of the piece.
         /// </summary>
         internal protected Coordinate Coordinate { get; internal set; }
 
         /// <summary>
-        /// Event occurs when the piece is clicked.
+        ///     Event occurs when the piece is clicked.
         /// </summary>
         internal static event LastClickedHandler? LastClicked;
 
         /// <summary>
-        /// Moves the piece to the specified coordinate.
+        ///     Moves the piece to the specified coordinate.
         /// </summary>
         /// <param name="newCoordinate">The new coordinate of the piece.</param>
         public void MoveTo(Coordinate newCoordinate)
@@ -123,7 +123,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Moves the piece to the specified coordinate.
+        ///     Moves the piece to the specified coordinate.
         /// </summary>
         /// <param name="row">The row of the coordinate.</param>
         /// <param name="column">The column of the coordinate.</param>
@@ -158,7 +158,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Updates the valid moves of the piece.
+        ///     Updates the valid moves of the piece.
         /// </summary>
         protected abstract void UpdateValidMoves();
 
@@ -192,7 +192,7 @@ namespace ChessGame.GameClasses
         private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var piece = (Piece)sender;
-            if (piece._isEnemy)
+            if (piece._isEnemy && (piece.Color != ValidMove.LastClickedPiece?.Color))
             {
                 ValidMove.LastClickedPiece?.MoveTo(piece.Coordinate);
                 return;
@@ -310,14 +310,16 @@ namespace ChessGame.GameClasses
             return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
 
+        public abstract Piece? Clone();
+
         /// <summary>
-        /// Handler for the BoardChangedEvent.
+        ///     Handler for the BoardChangedEvent.
         /// </summary>
         internal delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
     }
 
     /// <summary>
-    /// Enum for the piece colors.
+    ///     Enum for the piece colors.
     /// </summary>
     internal enum PieceColor
     {

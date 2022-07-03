@@ -11,10 +11,10 @@ namespace ChessGame
         public MainWindow()
         {
             this.InitializeComponent();
-            ChessBoard.BoardChanged += this.ChessBoardBoardChanged;
+            ChessBoard.BoardChanged += this.ChessBoard_BoardChanged;
         }
 
-        private void ChessBoardBoardChanged(Piece sender, BoardChangedEventArgs boardChangedEventArgs)
+        private void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs boardChangedEventArgs)
         {
             this.UpdateGridBoard();
         }
@@ -47,6 +47,13 @@ namespace ChessGame
             SetBishops();
             SetRooks();
             SetQueens();
+            SetKings();
+        }
+
+        private static void SetKings()
+        {
+            _ = new King(PieceColor.Black, 0, 4);
+            _ = new King(PieceColor.White, 7, 4);
         }
 
         private static void SetQueens()

@@ -8,11 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="board.png" />
+        <None Remove="board.png"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Resource Include="Images\board.png" />
+        <Resource Include="Images\board.png"/>
+        <Resource Include="Images\White\Alpha\Bishop.png"/>
     </ItemGroup>
 
 </Project>

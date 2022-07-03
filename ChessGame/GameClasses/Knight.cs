@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace ChessGame.GameClasses
 {
     /// <summary>
-    /// Knight class.
+    ///     Knight class.
     /// </summary>
     internal sealed class Knight : Piece
     {
@@ -37,6 +37,11 @@ namespace ChessGame.GameClasses
             this.TryToAddMove(this.Coordinate.Row + 2, this.Coordinate.Column - 1);
             this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column + 2);
             this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column - 2);
+        }
+
+        public override Piece Clone()
+        {
+            return new Knight(this.Color, this.Coordinate);
         }
 
         private void TryToAddMove(int coordinateRow, int coordinateColumn)

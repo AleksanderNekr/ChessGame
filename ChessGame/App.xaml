@@ -17,7 +17,7 @@
                         ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Knight.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteBishop"
-                        ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Bishop.png"
+                        ImageSource="../../../Images/White/Alpha/Bishop.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteQueen"
                         ImageSource="C:/RiderProjects/ChessGame/ChessGame/Images/White/Alpha/Queen.png"

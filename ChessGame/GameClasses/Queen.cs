@@ -3,10 +3,10 @@ using System.Windows.Media;
 
 namespace ChessGame.GameClasses
 {
-    internal class Queen : Piece
+    internal sealed class Queen : Piece
     {
         /// <summary>
-        /// Constructor for the Piece class.
+        ///     Constructor for the Piece class.
         /// </summary>
         /// <param name="color">The color of the piece.</param>
         /// <param name="row">The row of the piece.</param>
@@ -16,7 +16,7 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// Constructor for the Piece class.
+        ///     Constructor for the Piece class.
         /// </summary>
         /// <param name="color">The color of the piece.</param>
         /// <param name="coordinate">The coordinate of the piece.</param>
@@ -25,17 +25,17 @@ namespace ChessGame.GameClasses
         }
 
         /// <summary>
-        /// White image of the piece.
+        ///     White image of the piece.
         /// </summary>
         protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhiteQueen"];
 
         /// <summary>
-        /// Black image of the piece.
+        ///     Black image of the piece.
         /// </summary>
         protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackQueen"];
 
         /// <summary>
-        /// Updates the valid moves of the piece.
+        ///     Updates the valid moves of the piece.
         /// </summary>
         protected override void UpdateValidMoves()
         {
@@ -48,6 +48,11 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, -1, 1);
             AddRangeMoves(this, 1,  -1);
             AddRangeMoves(this, 1,  1);
+        }
+
+        public override Piece Clone()
+        {
+            return new Queen(this.Color, this.Coordinate);
         }
     }
 }
