@@ -48,5 +48,10 @@ namespace ChessGame.GameClasses
         {
             return $"{this.Row} : {this.Column}";
         }
+
+        public static bool IsCorrectCoordinate(int row, int column)
+        {
+            return (row >= 0) && (column >= 0) && (row < 8) && (column < 8);
+        }
     }
 }

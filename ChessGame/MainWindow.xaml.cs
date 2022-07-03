@@ -44,6 +44,15 @@ namespace ChessGame
             ChessBoard.Clear();
             SetPawns();
             SetKnights();
+            SetBishops();
+        }
+
+        private static void SetBishops()
+        {
+            _ = new Bishop(PieceColor.White, 7, 2);
+            _ = new Bishop(PieceColor.White, 7, 5);
+            _ = new Bishop(PieceColor.Black, 0, 2);
+            _ = new Bishop(PieceColor.Black, 0, 5);
         }
 
         private static void SetKnights()
