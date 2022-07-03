@@ -7,12 +7,8 @@ namespace ChessGame.GameClasses
 {
     internal sealed class ValidMove : Piece
     {
-        private static readonly ImageBrush BrushRectangle = GetBrushRectangle();
-
         public ValidMove(PieceColor color, int row, int column) : base(color, row, column)
         {
-            // Images for both colors are identical, so we can use one image for both colors.
-            this.BlackImage        =  this.WhiteImage;
             this.MouseEnter        += this.ValidMove_MouseEnter;
             this.MouseLeave        += this.ValidMove_MouseLeave;
             this.MouseLeftButtonUp += ValidMove_MouseLeftButtonUp;
@@ -23,7 +19,11 @@ namespace ChessGame.GameClasses
         {
         }
 
-        protected override ImageBrush WhiteImage
+        protected override ImageBrush WhiteImage { get; } = CircleBrush;
+
+        protected override ImageBrush BlackImage { get; } = CircleBrush;
+
+        private static ImageBrush CircleBrush
         {
             get
             {
@@ -39,9 +39,20 @@ namespace ChessGame.GameClasses
             }
         }
 
-        protected override ImageBrush BlackImage { get; }
-
         private static Piece? LastClickedPiece { get; set; }
+
+        private static ImageBrush RectangleBrush
+        {
+            get
+            {
+                var rect = new GeometryDrawing(new SolidColorBrush(),
+                                               new Pen(Brushes.Chartreuse, 1),
+                                               new RectangleGeometry(new Rect()));
+
+                var brush = new ImageBrush(new DrawingImage(rect)) { Opacity = 0.2 };
+                return brush;
+            }
+        }
 
         private static void OnLastClicked(Piece? sender, RoutedEventArgs e)
         {
@@ -60,30 +71,20 @@ namespace ChessGame.GameClasses
             LastClickedPiece.MoveTo(coordinate);
         }
 
-        private void ValidMove_MouseLeave(object sender, MouseEventArgs e)
-        {
-            this.Background = this.WhiteImage;
-        }
-
         private void ValidMove_MouseEnter(object sender, MouseEventArgs e)
         {
-            this.Background = BrushRectangle;
+            this.Background = RectangleBrush;
         }
 
-        private static ImageBrush GetBrushRectangle()
+        private void ValidMove_MouseLeave(object sender, MouseEventArgs e)
         {
-            var rect = new GeometryDrawing(new SolidColorBrush(),
-                                           new Pen(Brushes.Chartreuse, 1),
-                                           new RectangleGeometry(new Rect()));
-
-            var brush = new ImageBrush(new DrawingImage(rect)) { Opacity = 0.2 };
-            return brush;
+            this.Background = CircleBrush;
         }
 
         /// <summary>
-        ///     No need to implement this method.
+        ///     No need to implement this method for valid move.
         /// </summary>
-        protected override void UpdateMoves()
+        protected override void UpdateValidMoves()
         {
         }
     }

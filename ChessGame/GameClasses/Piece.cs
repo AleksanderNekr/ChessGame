@@ -32,7 +32,7 @@ namespace ChessGame.GameClasses
 
         public PieceColor Color { get; }
 
-        public virtual List<Coordinate> ValidMoves { get; } = new();
+        protected virtual List<Coordinate> ValidMoves { get; } = new();
 
         protected abstract ImageBrush WhiteImage { get; }
 
@@ -42,13 +42,13 @@ namespace ChessGame.GameClasses
 
         internal static event LastClickedHandler? LastClicked;
 
-        public void MoveTo(Coordinate coordinate)
+        public void MoveTo(Coordinate newCoordinate)
         {
             Coordinate oldCoordinate = this.Coordinate;
-            ChessBoard.Board[coordinate.Row, coordinate.Column]           = this;
+            ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
-            this.Coordinate                                               = coordinate;
-            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, this.Coordinate));
+            this.Coordinate                                               = newCoordinate;
+            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
         }
 
         public void MoveTo(int row, int column)
@@ -56,7 +56,7 @@ namespace ChessGame.GameClasses
             this.MoveTo(new Coordinate(row, column));
         }
 
-        protected abstract void UpdateMoves();
+        protected abstract void UpdateValidMoves();
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -66,10 +66,11 @@ namespace ChessGame.GameClasses
             }
 
             var piece = (Piece)sender;
-            piece.BorderThickness =  new Thickness(3);
+            piece.BorderThickness =  new Thickness(2);
             piece.BorderBrush     =  Brushes.Chartreuse;
             piece.MouseEnter      -= Piece_MouseEnter;
             piece.MouseLeave      -= Piece_MouseLeave;
+            piece.UpdateValidMoves();
             piece.ShowValidMoves();
             LastClicked?.Invoke(piece, e);
         }
@@ -118,7 +119,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        internal void HideValidMoves()
+        private void HideValidMoves()
         {
             foreach (Coordinate coordinate in this.ValidMoves)
             {
@@ -140,7 +141,7 @@ namespace ChessGame.GameClasses
 
         private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
         {
-            sender.UpdateMoves();
+            sender.UpdateValidMoves();
         }
 
         private void SetBackgroundImage()

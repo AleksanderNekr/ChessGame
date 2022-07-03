@@ -17,7 +17,7 @@ namespace ChessGame.GameClasses
         protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
         protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
-        public override List<Coordinate> ValidMoves { get; } = new();
+        protected override List<Coordinate> ValidMoves { get; } = new();
 
         private int Move
         {
@@ -42,7 +42,7 @@ namespace ChessGame.GameClasses
         /// <summary>
         ///     Updates the valid moves of the pawn.
         /// </summary>
-        protected override void UpdateMoves()
+        protected override void UpdateValidMoves()
         {
             this.ValidMoves.Clear();
             if (this.Coordinate.Row == (this.InitialRow + (this.Move * 6)))

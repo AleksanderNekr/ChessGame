@@ -41,7 +41,7 @@ namespace ChessGame
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
-            _ = new Pawn(PieceColor.White, 4, 5);
+            _ = new Pawn(PieceColor.White, 6, 5);
             _ = new Pawn(PieceColor.Black, 4, 4);
         }
 
