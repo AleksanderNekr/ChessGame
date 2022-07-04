@@ -27,7 +27,7 @@ namespace ChessGame.GameClasses
             this.BorderThickness    =  new Thickness(1);
             this.Focusable          =  true;
             this.FocusVisualStyle   =  null;
-            ChessBoard.BoardChanged += ChessBoard_BoardChanged;
+            ChessBoard.BoardChanged += this.ChessBoard_BoardChanged;
             this.MouseEnter         += Piece_MouseEnter;
             this.MouseLeave         += Piece_MouseLeave;
             this.GotFocus           += Piece_GotFocus;
@@ -87,22 +87,22 @@ namespace ChessGame.GameClasses
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
             this.Coordinate                                               = newCoordinate;
-            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
             this.ChangePlayer();
+            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
         }
 
         private void ChangePlayer()
         {
             if (this.Color == PieceColor.White)
             {
-                LockPieces(PieceColor.White);
+                ChangeUnLockPieces(PieceColor.Black);
                 return;
             }
 
-            LockPieces(PieceColor.Black);
+            ChangeUnLockPieces(PieceColor.White);
         }
 
-        private static void LockPieces(PieceColor color)
+        private static void ChangeUnLockPieces(PieceColor color)
         {
             foreach (Piece? piece in ChessBoard.Board)
             {
@@ -111,14 +111,16 @@ namespace ChessGame.GameClasses
                     continue;
                 }
 
+                // If the piece is the color that we need, unlock it.
                 if (piece.Color == color)
                 {
-                    piece.IsEnabled = false;
-                    UnsetEnemy(piece);
+                    piece.IsEnabled = true;
                     continue;
                 }
 
-                piece.IsEnabled = true;
+                // If the piece is not the color that we need, lock it.
+                piece.IsEnabled   = false;
+                piece.BorderBrush = Brushes.Transparent;
             }
         }
 
@@ -177,6 +179,26 @@ namespace ChessGame.GameClasses
             piece.UpdateValidMoves();
             piece.ShowValidMoves();
             LastClicked?.Invoke(piece, e);
+
+            // OMG! It fixes ShadowBug!
+            UnLockPieces(piece.Color);
+        }
+
+        private static void UnLockPieces(PieceColor pieceColor)
+        {
+            foreach (Piece? piece in ChessBoard.Board)
+            {
+                if (piece == null)
+                {
+                    continue;
+                }
+
+                // If the piece is the color that we need, unlock it.
+                if (piece.Color == pieceColor)
+                {
+                    piece.IsEnabled = true;
+                }
+            }
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -202,7 +224,6 @@ namespace ChessGame.GameClasses
             {
                 // Remove focus from the piece.
                 piece.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                piece.IsEnabled = true;
                 return;
             }
 
@@ -220,16 +241,11 @@ namespace ChessGame.GameClasses
                     continue;
                 }
 
-                if (place.Color == this.Color)
-                {
-                    continue;
-                }
-
-                SetEnemy(place);
+                SetEnemyHighlight(place);
             }
         }
 
-        private static void SetEnemy(Piece place)
+        private static void SetEnemyHighlight(Piece place)
         {
             place._isEnemy    = true;
             place.BorderBrush = Brushes.Red;
@@ -246,27 +262,26 @@ namespace ChessGame.GameClasses
                     continue;
                 }
 
+                // If valid move is found, then remove it.
                 if (place.Color == this.Color)
                 {
                     ChessBoard.RemovePiece(coordinate);
-                    place._isEnemy    = false;
-                    place.BorderBrush = Brushes.Transparent;
-                    place.IsEnabled   = true;
                     continue;
                 }
 
-                UnsetEnemy(place);
+                // If enemy piece is found, then hide its highlight.
+                UnsetEnemyHighlight(place);
             }
         }
 
-        private static void UnsetEnemy(Piece place)
+        private static void UnsetEnemyHighlight(Piece place)
         {
             place._isEnemy    = false;
             place.BorderBrush = Brushes.Transparent;
             place.IsEnabled   = false;
         }
 
-        private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
+        private void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
         {
             sender.UpdateValidMoves();
         }
