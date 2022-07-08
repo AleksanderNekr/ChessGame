@@ -13,6 +13,8 @@ namespace ChessGame.GameClasses
     {
         private bool _isEnemy;
 
+        private static Piece? _lastMovedPiece;
+
         /// <summary>
         ///     Constructor for the Piece class.
         /// </summary>
@@ -89,6 +91,13 @@ namespace ChessGame.GameClasses
             this.Coordinate                                               = newCoordinate;
             this.ChangePlayer();
             ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
+            if (this is Pawn pawn)
+            {
+                pawn.PrevCoord = oldCoordinate;
+                pawn.LastMove  = newCoordinate;
+            }
+
+            _lastMovedPiece = this;
         }
 
         private void ChangePlayer()
@@ -177,11 +186,32 @@ namespace ChessGame.GameClasses
             piece.MouseEnter      -= Piece_MouseEnter;
             piece.MouseLeave      -= Piece_MouseLeave;
             piece.UpdateValidMoves();
+            CheckTakeOnPass(piece);
+
             piece.ShowValidMoves();
             LastClicked?.Invoke(piece, e);
 
             // OMG! It fixes ShadowBug!
             UnLockPieces(piece.Color);
+        }
+
+        private static void CheckTakeOnPass(Piece piece)
+        {
+            if (_lastMovedPiece is not Pawn pawnEnemy || piece is not Pawn pawn)
+            {
+                return;
+            }
+
+            if (pawnEnemy.LastMove.Row != (pawnEnemy.PrevCoord.Row + (pawnEnemy.Move * 2)))
+            {
+                return;
+            }
+
+            if (pawnEnemy.LastMove.Row == pawn.Coordinate.Row)
+            {
+                pawn.ValidMoves.Add(new Coordinate(pawnEnemy.LastMove.Row + pawn.Move,
+                                                   pawnEnemy.LastMove.Column));
+            }
         }
 
         private static void UnLockPieces(PieceColor pieceColor)

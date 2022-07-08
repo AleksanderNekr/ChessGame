@@ -24,7 +24,11 @@ namespace ChessGame.GameClasses
         /// <inheritdoc />
         protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
-        private int Move
+        internal Coordinate LastMove { get; set; }
+
+        internal Coordinate PrevCoord { get; set; }
+
+        internal int Move
         {
             get
             {
@@ -34,7 +38,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        private int InitialRow
+        internal int InitialRow
         {
             get
             {
