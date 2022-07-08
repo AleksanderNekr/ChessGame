@@ -86,18 +86,28 @@ namespace ChessGame.GameClasses
         {
             this.HideValidMoves();
             Coordinate oldCoordinate = this.Coordinate;
+            if (this is Pawn pawn)
+            {
+                pawn.PrevCoord = oldCoordinate;
+                pawn.LastMove  = newCoordinate;
+                CutIfTakeOnPass(newCoordinate, oldCoordinate);
+            }
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
             this.Coordinate                                               = newCoordinate;
             this.ChangePlayer();
             ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
-            if (this is Pawn pawn)
-            {
-                pawn.PrevCoord = oldCoordinate;
-                pawn.LastMove  = newCoordinate;
-            }
 
             _lastMovedPiece = this;
+        }
+
+        private static void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
+        {
+            if ((ChessBoard.GetPieceOrNull(newCoordinate) == null)
+             && ChessBoard.GetPieceOrNull(oldCoordinate.Row, newCoordinate.Column) is Pawn)
+            {
+                ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column] = null;
+            }
         }
 
         private void ChangePlayer()
@@ -186,8 +196,7 @@ namespace ChessGame.GameClasses
             piece.MouseEnter      -= Piece_MouseEnter;
             piece.MouseLeave      -= Piece_MouseLeave;
             piece.UpdateValidMoves();
-            CheckTakeOnPass(piece);
-
+            AddTakeOnPass(piece);
             piece.ShowValidMoves();
             LastClicked?.Invoke(piece, e);
 
@@ -195,7 +204,7 @@ namespace ChessGame.GameClasses
             UnLockPieces(piece.Color);
         }
 
-        private static void CheckTakeOnPass(Piece piece)
+        private static void AddTakeOnPass(Piece piece)
         {
             if (_lastMovedPiece is not Pawn pawnEnemy || piece is not Pawn pawn)
             {
