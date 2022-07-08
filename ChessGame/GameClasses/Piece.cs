@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -92,6 +93,7 @@ namespace ChessGame.GameClasses
                 pawn.LastMove  = newCoordinate;
                 CutIfTakeOnPass(newCoordinate, oldCoordinate);
             }
+
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
             ChessBoard.Board[this.Coordinate.Row, this.Coordinate.Column] = null;
             this.Coordinate                                               = newCoordinate;
@@ -216,11 +218,18 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            if (pawnEnemy.LastMove.Row == pawn.Coordinate.Row)
+            if ((pawnEnemy.LastMove.Row != pawn.Coordinate.Row) || !IsNear(pawnEnemy, pawn))
             {
-                pawn.ValidMoves.Add(new Coordinate(pawnEnemy.LastMove.Row + pawn.Move,
-                                                   pawnEnemy.LastMove.Column));
+                return;
             }
+
+            pawn.ValidMoves.Add(new Coordinate(pawnEnemy.LastMove.Row + pawn.Move,
+                                               pawnEnemy.LastMove.Column));
+        }
+
+        private static bool IsNear(Pawn pawnEnemy, Pawn pawn)
+        {
+            return Math.Abs(pawnEnemy.LastMove.Column - pawn.Coordinate.Column) == 1;
         }
 
         private static void UnLockPieces(PieceColor pieceColor)
