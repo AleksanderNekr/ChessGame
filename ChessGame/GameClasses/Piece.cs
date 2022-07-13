@@ -30,7 +30,7 @@ namespace ChessGame.GameClasses
             this.BorderThickness    =  new Thickness(1);
             this.Focusable          =  true;
             this.FocusVisualStyle   =  null;
-            ChessBoard.BoardChanged += this.ChessBoard_BoardChanged;
+            ChessBoard.BoardChanged += ChessBoard_BoardChanged;
             this.MouseEnter         += Piece_MouseEnter;
             this.MouseLeave         += Piece_MouseLeave;
             this.GotFocus           += Piece_GotFocus;
@@ -87,11 +87,11 @@ namespace ChessGame.GameClasses
         {
             this.HideValidMoves();
             Coordinate oldCoordinate = this.Coordinate;
-            if (this is Pawn pawn)
+            this.IfPawnMove(newCoordinate, oldCoordinate);
+
+            if (ChessBoard.Board[newCoordinate.Row, newCoordinate.Column] != null)
             {
-                pawn.PrevCoord = oldCoordinate;
-                pawn.LastMove  = newCoordinate;
-                CutIfTakeOnPass(newCoordinate, oldCoordinate);
+                ChessBoard.Pieces.Remove(ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]);
             }
 
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
@@ -103,27 +103,45 @@ namespace ChessGame.GameClasses
             _lastMovedPiece = this;
         }
 
+        private void IfPawnMove(Coordinate newCoordinate, Coordinate oldCoordinate)
+        {
+            if (this is not Pawn pawn)
+            {
+                return;
+            }
+
+            pawn.PrevCoord = oldCoordinate;
+            pawn.LastMove  = newCoordinate;
+            CutIfTakeOnPass(newCoordinate, oldCoordinate);
+        }
+
         private static void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
         {
-            if ((ChessBoard.GetPieceOrNull(newCoordinate) == null)
-             && ChessBoard.GetPieceOrNull(oldCoordinate.Row, newCoordinate.Column) is Pawn)
+            Piece? enemy = ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
+            if ((ChessBoard.GetPieceOrNull(newCoordinate) != null) || enemy is not Pawn)
             {
-                ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column] = null;
+                return;
             }
+
+            if (enemy is not ValidMove && (enemy.Color != ValidMove.LastClickedPiece.Color))
+            {
+                ChessBoard.Pieces.Remove(enemy);
+            }
+            ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column] = null;
         }
 
         private void ChangePlayer()
         {
             if (this.Color == PieceColor.White)
             {
-                ChangeUnLockPieces(PieceColor.Black);
+                ChangeUnlockPieces(PieceColor.Black);
                 return;
             }
 
-            ChangeUnLockPieces(PieceColor.White);
+            ChangeUnlockPieces(PieceColor.White);
         }
 
-        private static void ChangeUnLockPieces(PieceColor color)
+        private static void ChangeUnlockPieces(PieceColor color)
         {
             foreach (Piece? piece in ChessBoard.Board)
             {
@@ -203,7 +221,7 @@ namespace ChessGame.GameClasses
             LastClicked?.Invoke(piece, e);
 
             // OMG! It fixes ShadowBug!
-            UnLockPieces(piece.Color);
+            UnlockPieces(piece.Color);
         }
 
         private static void AddTakeOnPass(Piece piece)
@@ -232,7 +250,7 @@ namespace ChessGame.GameClasses
             return Math.Abs(pawnEnemy.LastMove.Column - pawn.Coordinate.Column) == 1;
         }
 
-        private static void UnLockPieces(PieceColor pieceColor)
+        private static void UnlockPieces(PieceColor pieceColor)
         {
             foreach (Piece? piece in ChessBoard.Board)
             {
@@ -329,7 +347,7 @@ namespace ChessGame.GameClasses
             place.IsEnabled   = false;
         }
 
-        private void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
+        private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
         {
             sender.UpdateValidMoves();
         }

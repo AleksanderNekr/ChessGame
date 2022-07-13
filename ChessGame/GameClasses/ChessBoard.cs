@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ChessGame.GameClasses
 {
     internal static class ChessBoard
     {
         public delegate void BoardChangeHandler(Piece sender, BoardChangedEventArgs e);
+
+        public static List<Piece> Pieces = new();
 
         public static Piece?[,] Board { get; } = new Piece?[8, 8];
 
@@ -27,6 +30,7 @@ namespace ChessGame.GameClasses
             Board[coord.Row, coord.Column] = piece;
             piece.Coordinate               = coord;
             OnBoardChanged(piece, new BoardChangedEventArgs(null, coord));
+            Pieces.Add(piece);
         }
 
         public static void SetPiece(Piece piece, Coordinate coordinate)
@@ -45,6 +49,7 @@ namespace ChessGame.GameClasses
 
             Board[coord.Row, coord.Column] = null;
             OnBoardChanged(piece, new BoardChangedEventArgs(coord, null));
+            Pieces.Remove(piece);
         }
 
         public static void RemovePiece(Coordinate coordinate)
@@ -69,6 +74,8 @@ namespace ChessGame.GameClasses
                     Board[row, column] = null;
                 }
             }
+
+            Pieces.Clear();
         }
     }
 
