@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -143,13 +144,8 @@ namespace ChessGame.GameClasses
 
         private static void ChangeUnlockPieces(PieceColor color)
         {
-            foreach (Piece? piece in ChessBoard.Board)
+            foreach (Piece piece in ChessBoard.Pieces)
             {
-                if (piece == null)
-                {
-                    continue;
-                }
-
                 // If the piece is the color that we need, unlock it.
                 if (piece.Color == color)
                 {
@@ -252,18 +248,9 @@ namespace ChessGame.GameClasses
 
         private static void UnlockPieces(PieceColor pieceColor)
         {
-            foreach (Piece? piece in ChessBoard.Board)
+            foreach (Piece piece in ChessBoard.Pieces.Where(piece => piece.Color == pieceColor))
             {
-                if (piece == null)
-                {
-                    continue;
-                }
-
-                // If the piece is the color that we need, unlock it.
-                if (piece.Color == pieceColor)
-                {
-                    piece.IsEnabled = true;
-                }
+                piece.IsEnabled = true;
             }
         }
 
