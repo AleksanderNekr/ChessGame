@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
@@ -38,7 +39,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        internal int InitialRow
+        private int InitialRow
         {
             get
             {
@@ -61,7 +62,7 @@ namespace ChessGame.GameClasses
             this.UpdatePawnAttackMoves();
         }
 
-        public override Piece Clone()
+        public Piece Clone()
         {
             return new Pawn(this.Color, this.Coordinate);
         }
@@ -77,9 +78,9 @@ namespace ChessGame.GameClasses
 
         private bool TryToAddMove(int move)
         {
-            int    moveRow        = this.Coordinate.Row + move;
-            var    newCoordinate  = new Coordinate(moveRow, this.Coordinate.Column);
-            Piece? placeUnderMove = ChessBoard.GetPieceOrNull(newCoordinate);
+            int          moveRow        = this.Coordinate.Row + move;
+            var          newCoordinate  = new Coordinate(moveRow, this.Coordinate.Column);
+            UserControl? placeUnderMove = ChessBoard.GetControlOrNull(newCoordinate);
 
             if (placeUnderMove != null)
             {
@@ -105,10 +106,9 @@ namespace ChessGame.GameClasses
 
         private void TryToAddAttackMove(int columnChange)
         {
-            int    moveRow          = this.Coordinate.Row + this.Move;
-            var    newCoordinate    = new Coordinate(moveRow, this.Coordinate.Column + columnChange);
-            Piece? placeUnderAttack = ChessBoard.GetPieceOrNull(newCoordinate);
-            if ((placeUnderAttack != null) && (placeUnderAttack.Color != this.Color))
+            int moveRow       = this.Coordinate.Row + this.Move;
+            var newCoordinate = new Coordinate(moveRow, this.Coordinate.Column + columnChange);
+            if (ChessBoard.GetControlOrNull(newCoordinate) is Piece enemy && (enemy.Color != this.Color))
             {
                 this.ValidMoves.Add(newCoordinate);
             }

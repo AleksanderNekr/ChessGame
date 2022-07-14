@@ -1,28 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace ChessGame.GameClasses
 {
     internal static class ChessBoard
     {
-        public delegate void BoardChangeHandler(Piece sender, BoardChangedEventArgs e);
+        public delegate void BoardChangeHandler(UserControl sender, BoardChangedEventArgs e);
 
-        public static List<Piece> Pieces = new();
+        public static readonly List<Piece> Pieces = new();
 
-        public static Piece?[,] Board { get; } = new Piece?[8, 8];
+        public static UserControl?[,] Board { get; } = new UserControl?[8, 8];
 
         public static event BoardChangeHandler? BoardChanged;
 
-        public static Piece? GetPieceOrNull(int row, int column)
+        public static UserControl? GetControlOrNull(int row, int column)
         {
             var coord = new Coordinate(row, column);
             return Board[coord.Row, coord.Column];
         }
 
-        public static Piece? GetPieceOrNull(Coordinate coordinate)
+        public static UserControl? GetControlOrNull(Coordinate coordinate)
         {
-            return GetPieceOrNull(coordinate.Row, coordinate.Column);
+            return GetControlOrNull(coordinate.Row, coordinate.Column);
         }
 
         public static void SetPiece(Piece piece, int row, int column)
@@ -39,26 +40,29 @@ namespace ChessGame.GameClasses
             SetPiece(piece, coordinate.Row, coordinate.Column);
         }
 
-        public static void RemovePiece(int row, int column)
+        public static void RemoveControl(int row, int column)
         {
-            var    coord = new Coordinate(row, column);
-            Piece? piece = GetPieceOrNull(coord);
-            if (piece == null)
+            var          coord   = new Coordinate(row, column);
+            UserControl? control = GetControlOrNull(coord);
+            if (control == null)
             {
                 return;
             }
 
             Board[coord.Row, coord.Column] = null;
-            OnBoardChanged(piece, new BoardChangedEventArgs(coord, null));
-            Pieces.Remove(piece);
+            OnBoardChanged(control, new BoardChangedEventArgs(coord, null));
+            if (control is Piece piece)
+            {
+                Pieces.Remove(piece);
+            }
         }
 
-        public static void RemovePiece(Coordinate coordinate)
+        public static void RemoveControl(Coordinate coordinate)
         {
-            RemovePiece(coordinate.Row, coordinate.Column);
+            RemoveControl(coordinate.Row, coordinate.Column);
         }
 
-        internal static void OnBoardChanged(Piece sender, BoardChangedEventArgs e)
+        internal static void OnBoardChanged(UserControl sender, BoardChangedEventArgs e)
         {
             BoardChanged?.Invoke(sender, e);
         }

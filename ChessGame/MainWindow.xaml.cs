@@ -14,7 +14,7 @@ namespace ChessGame
             ChessBoard.BoardChanged += this.ChessBoard_BoardChanged;
         }
 
-        private void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs boardChangedEventArgs)
+        private void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs boardChangedEventArgs)
         {
             this.UpdateGridBoard();
         }
@@ -26,15 +26,15 @@ namespace ChessGame
             {
                 for (var j = 0; j < ChessBoard.Board.GetLength(1); j++)
                 {
-                    Piece? piece = ChessBoard.GetPieceOrNull(i, j);
-                    if (piece == null)
+                    UserControl? control = ChessBoard.GetControlOrNull(i, j);
+                    if (control == null)
                     {
                         continue;
                     }
 
-                    Grid.SetRow(piece, i);
-                    Grid.SetColumn(piece, j);
-                    this.Board.Children.Add(piece);
+                    Grid.SetRow(control, i);
+                    Grid.SetColumn(control, j);
+                    this.Board.Children.Add(control);
                 }
             }
         }

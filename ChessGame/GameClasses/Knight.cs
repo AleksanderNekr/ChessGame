@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
@@ -39,7 +40,7 @@ namespace ChessGame.GameClasses
             this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column - 2);
         }
 
-        public override Piece Clone()
+        public Piece Clone()
         {
             return new Knight(this.Color, this.Coordinate);
         }
@@ -56,11 +57,16 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            Piece? place = ChessBoard.GetPieceOrNull(coordinate);
-            if ((place == null) || (place.Color != this.Color))
+            UserControl? place = ChessBoard.GetControlOrNull(coordinate);
+            if ((place == null) || this.IsEnemy(place))
             {
                 this.ValidMoves.Add(coordinate);
             }
+        }
+
+        private bool IsEnemy(UserControl place)
+        {
+            return place is Piece piece && (piece.Color != this.Color);
         }
     }
 }

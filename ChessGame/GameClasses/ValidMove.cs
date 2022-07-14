@@ -1,29 +1,43 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
 {
-    internal sealed class ValidMove : Piece
+    internal sealed class ValidMove : UserControl
     {
-        public ValidMove(PieceColor color, int row, int column) : base(color, row, column)
+        public ValidMove(int row, int column)
         {
-            this.MouseEnter        += this.ValidMove_MouseEnter;
-            this.MouseLeave        += this.ValidMove_MouseLeave;
-            this.MouseLeftButtonUp += ValidMove_MouseLeftButtonUp;
-            LastClicked            += OnLastClicked;
+            this.MouseEnter               += this.ValidMove_MouseEnter;
+            this.MouseLeave               += this.ValidMove_MouseLeave;
+            this.MouseLeftButtonUp        += ValidMove_MouseLeftButtonUp;
+            Piece.LastClicked             += Piece_LastClicked;
+            this.Coordinate               =  new Coordinate(row, column);
+            this.Cursor                   =  Cursors.Hand;
+            this.BorderThickness          =  new Thickness(1);
+            this.Background               =  Image;
+            this.Focusable                =  true;
+            this.FocusVisualStyle         =  null;
+            ChessBoard.Board[row, column] =  this;
+            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(null, this.Coordinate));
         }
 
-        public ValidMove(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+        private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
+        {
+            LastClickedPiece = sender;
+        }
+
+        private Coordinate Coordinate { get; }
+
+        public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
         {
         }
 
-        protected override ImageBrush WhiteImage { get; } = CircleBrush;
+        private static ImageBrush Image { get; } = CircleBrush;
 
-        protected override ImageBrush BlackImage { get; } = CircleBrush;
-
-        internal static ImageBrush CircleBrush
+        private static ImageBrush CircleBrush
         {
             get
             {
@@ -39,7 +53,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        internal static Piece? LastClickedPiece { get; set; }
+        internal static Piece? LastClickedPiece { get; private set; }
 
         private static ImageBrush RectangleBrush
         {
@@ -52,11 +66,6 @@ namespace ChessGame.GameClasses
                 var brush = new ImageBrush(new DrawingImage(rect)) { Opacity = 0.2 };
                 return brush;
             }
-        }
-
-        private static void OnLastClicked(Piece? sender, RoutedEventArgs e)
-        {
-            LastClickedPiece = sender;
         }
 
         private static void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -79,18 +88,6 @@ namespace ChessGame.GameClasses
         private void ValidMove_MouseLeave(object sender, MouseEventArgs e)
         {
             this.Background = CircleBrush;
-        }
-
-        /// <summary>
-        ///     No need to implement this method for valid move.
-        /// </summary>
-        protected override void UpdateValidMoves()
-        {
-        }
-
-        public override Piece Clone()
-        {
-            return (ValidMove)this.MemberwiseClone();
         }
     }
 }

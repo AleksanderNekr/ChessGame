@@ -46,7 +46,7 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, 0,  1);
         }
 
-        public override Piece Clone()
+        public Piece Clone()
         {
             return new Rook(this.Color, this.Coordinate);
         }

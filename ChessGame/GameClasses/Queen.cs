@@ -50,7 +50,7 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, 1,  1);
         }
 
-        public override Piece Clone()
+        public Piece Clone()
         {
             return new Queen(this.Color, this.Coordinate);
         }

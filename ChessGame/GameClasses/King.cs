@@ -54,7 +54,7 @@ namespace ChessGame.GameClasses
             this.TryToAdd(1,  1);
         }
 
-        public override Piece Clone()
+        public Piece Clone()
         {
             return new King(this.Color, this.Coordinate);
         }
@@ -67,8 +67,7 @@ namespace ChessGame.GameClasses
             }
 
             var    newCoordinate = new Coordinate(this.Coordinate.Row + rowDif, this.Coordinate.Column + colDif);
-            Piece? place         = ChessBoard.GetPieceOrNull(newCoordinate);
-            if ((place != null) && (place.Color == this.Color))
+            if (ChessBoard.GetControlOrNull(newCoordinate) is Piece piece && (piece.Color == this.Color))
             {
                 return;
             }
@@ -91,7 +90,7 @@ namespace ChessGame.GameClasses
                                         : PieceColor.White;
 
             // If there is an enemy piece on the new place, then remember it.
-            Piece? enemy = ChessBoard.GetPieceOrNull(newCoordinate);
+            var enemy = ChessBoard.GetControlOrNull(newCoordinate) as Piece;
 
             // Move the king to the new place.
             ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = null;

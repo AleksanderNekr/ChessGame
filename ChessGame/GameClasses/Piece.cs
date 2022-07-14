@@ -58,7 +58,7 @@ namespace ChessGame.GameClasses
         /// <summary>
         ///     Valid moves of the piece.
         /// </summary>
-        internal protected List<Coordinate> ValidMoves { get; } = new();
+        protected List<Coordinate> ValidMoves { get; } = new();
 
         /// <summary>
         ///     White image of the piece.
@@ -92,7 +92,8 @@ namespace ChessGame.GameClasses
 
             if (ChessBoard.Board[newCoordinate.Row, newCoordinate.Column] != null)
             {
-                ChessBoard.Pieces.Remove(ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]);
+                ChessBoard.Pieces.Remove((Piece)ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]
+                                      ?? throw new InvalidOperationException());
             }
 
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]     = this;
@@ -136,13 +137,13 @@ namespace ChessGame.GameClasses
 
         private static void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
         {
-            Piece? enemy = ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
-            if ((ChessBoard.GetPieceOrNull(newCoordinate) != null) || enemy is not Pawn)
+            var enemy = (Piece?)ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
+            if ((ChessBoard.GetControlOrNull(newCoordinate) != null) || enemy is not Pawn)
             {
                 return;
             }
 
-            if (enemy is not ValidMove && (enemy.Color != ValidMove.LastClickedPiece.Color))
+            if ((ValidMove.LastClickedPiece != null) && (enemy.Color != ValidMove.LastClickedPiece.Color))
             {
                 ChessBoard.Pieces.Remove(enemy);
             }
@@ -194,7 +195,7 @@ namespace ChessGame.GameClasses
             int column = piece.Coordinate.Column;
             while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
             {
-                Piece? place = ChessBoard.GetPieceOrNull(row, column);
+                UserControl? place = ChessBoard.GetControlOrNull(row, column);
                 if (place == null)
                 {
                     piece.ValidMoves.Add(new Coordinate(row, column));
@@ -202,7 +203,7 @@ namespace ChessGame.GameClasses
                 }
 
                 // If ally piece is found, then stop.
-                if (place.Color == piece.Color)
+                if (place is Piece ally && (ally.Color == piece.Color))
                 {
                     break;
                 }
@@ -210,14 +211,6 @@ namespace ChessGame.GameClasses
                 // If enemy piece is found, then add it to the valid moves and stop.
                 piece.ValidMoves.Add(new Coordinate(row, column));
                 break;
-            }
-        }
-
-        public static void UpdateAllValidMoves()
-        {
-            for (var i = 0; i < ChessBoard.Pieces.Count; i++)
-            {
-                ChessBoard.Pieces[i].UpdateValidMoves();
             }
         }
 
@@ -314,14 +307,16 @@ namespace ChessGame.GameClasses
         {
             foreach (Coordinate coordinate in this.ValidMoves)
             {
-                Piece? place = ChessBoard.GetPieceOrNull(coordinate);
-                if (place == null)
+                UserControl? place = ChessBoard.GetControlOrNull(coordinate);
+                switch (place)
                 {
-                    _ = new ValidMove(this.Color, coordinate);
-                    continue;
+                    case null:
+                        _ = new ValidMove(coordinate);
+                        continue;
+                    case Piece piece:
+                        SetEnemyHighlight(piece);
+                        break;
                 }
-
-                SetEnemyHighlight(place);
             }
         }
 
@@ -336,34 +331,43 @@ namespace ChessGame.GameClasses
         {
             foreach (Coordinate coordinate in this.ValidMoves)
             {
-                Piece? place = ChessBoard.GetPieceOrNull(coordinate);
-                if (place == null)
+                UserControl? place = ChessBoard.GetControlOrNull(coordinate);
+                switch (place)
                 {
-                    continue;
+                    case null:
+                        continue;
+                    case ValidMove:
+                        // If valid move is found, then remove it.
+                        ChessBoard.RemoveControl(coordinate);
+                        continue;
+                    default:
+                        // If enemy piece is found, then hide its highlight.
+                        UnsetEnemyHighlight((Piece?)place);
+                        break;
                 }
-
-                // If valid move is found, then remove it.
-                if (place.Color == this.Color)
-                {
-                    ChessBoard.RemovePiece(coordinate);
-                    continue;
-                }
-
-                // If enemy piece is found, then hide its highlight.
-                UnsetEnemyHighlight(place);
             }
         }
 
-        private static void UnsetEnemyHighlight(Piece place)
+        private static void UnsetEnemyHighlight(Piece? place)
         {
+            if (place == null)
+            {
+                return;
+            }
+
             place._isEnemy    = false;
             place.BorderBrush = Brushes.Transparent;
             place.IsEnabled   = false;
         }
 
-        private static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
+        private static void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs e)
         {
-            sender.UpdateValidMoves();
+            if (sender is not Piece piece)
+            {
+                return;
+            }
+
+            piece.UpdateValidMoves();
         }
 
         private void SetBackgroundImage()
@@ -408,8 +412,6 @@ namespace ChessGame.GameClasses
         {
             return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
-
-        public abstract Piece? Clone();
 
         /// <summary>
         ///     Handler for the BoardChangedEvent.
