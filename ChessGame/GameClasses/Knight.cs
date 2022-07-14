@@ -40,11 +40,6 @@ namespace ChessGame.GameClasses
             this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column - 2);
         }
 
-        public Piece Clone()
-        {
-            return new Knight(this.Color, this.Coordinate);
-        }
-
         private void TryToAddMove(int coordinateRow, int coordinateColumn)
         {
             Coordinate coordinate;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
@@ -25,8 +23,6 @@ namespace ChessGame.GameClasses
         public King(PieceColor color, Coordinate coordinate) : base(color, coordinate)
         {
         }
-
-        public bool IsCheck { get; set; } = false;
 
         /// <summary>
         ///     White image of the piece.
@@ -54,19 +50,16 @@ namespace ChessGame.GameClasses
             this.TryToAdd(1,  1);
         }
 
-        public Piece Clone()
-        {
-            return new King(this.Color, this.Coordinate);
-        }
-
         private void TryToAdd(int rowDif, int colDif)
         {
-            if (!Coordinate.IsCorrectCoordinate(this.Coordinate.Row + rowDif, this.Coordinate.Column + colDif))
+            int newRow = this.Coordinate.Row    + rowDif;
+            int newCol = this.Coordinate.Column + colDif;
+            if (!Coordinate.IsCorrectCoordinate(newRow, newCol))
             {
                 return;
             }
 
-            var    newCoordinate = new Coordinate(this.Coordinate.Row + rowDif, this.Coordinate.Column + colDif);
+            var newCoordinate = new Coordinate(newRow, newCol);
             if (ChessBoard.GetControlOrNull(newCoordinate) is Piece piece && (piece.Color == this.Color))
             {
                 return;

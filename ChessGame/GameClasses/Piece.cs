@@ -105,7 +105,7 @@ namespace ChessGame.GameClasses
             _lastMovedPiece = this;
         }
 
-        public static List<Coordinate> GetAllAttackCoordinates(PieceColor color)
+        protected static List<Coordinate> GetAllAttackCoordinates(PieceColor color)
         {
             Dictionary<Coordinate, int> attackCoordinates = new();
             foreach (Piece piece in ChessBoard.Pieces)
@@ -218,6 +218,14 @@ namespace ChessGame.GameClasses
         ///     Updates the valid moves of the piece.
         /// </summary>
         protected abstract void UpdateValidMoves();
+
+        public static void UpdateAllValidMoves()
+        {
+            foreach (Piece piece in ChessBoard.Pieces)
+            {
+                piece.UpdateValidMoves();
+            }
+        }
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -360,7 +368,7 @@ namespace ChessGame.GameClasses
             place.IsEnabled   = false;
         }
 
-        private static void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs e)
+        internal static void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs e)
         {
             if (sender is not Piece piece)
             {

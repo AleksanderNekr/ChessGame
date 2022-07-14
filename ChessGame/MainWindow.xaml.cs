@@ -42,12 +42,15 @@ namespace ChessGame
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
         {
             ChessBoard.Clear();
+            ChessBoard.BoardChanged -= Piece.ChessBoard_BoardChanged;
             SetPawns();
             SetKnights();
             SetBishops();
             SetRooks();
             SetQueens();
             SetKings();
+            ChessBoard.BoardChanged += Piece.ChessBoard_BoardChanged;
+            Piece.UpdateAllValidMoves();
         }
 
         private static void SetKings()

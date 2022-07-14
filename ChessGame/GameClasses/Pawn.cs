@@ -62,11 +62,6 @@ namespace ChessGame.GameClasses
             this.UpdatePawnAttackMoves();
         }
 
-        public Piece Clone()
-        {
-            return new Pawn(this.Color, this.Coordinate);
-        }
-
         private void UpdatePawnDefaultMoves()
         {
             bool isCorrectMove = this.TryToAddMove(this.Move);

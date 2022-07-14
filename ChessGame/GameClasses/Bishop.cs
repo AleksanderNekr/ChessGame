@@ -45,10 +45,5 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, 1,  -1);
             AddRangeMoves(this, 1,  1);
         }
-
-        public Piece Clone()
-        {
-            return new Bishop(this.Color, this.Coordinate);
-        }
     }
 }

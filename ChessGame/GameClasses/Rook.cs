@@ -45,10 +45,5 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, 0,  -1);
             AddRangeMoves(this, 0,  1);
         }
-
-        public Piece Clone()
-        {
-            return new Rook(this.Color, this.Coordinate);
-        }
     }
 }

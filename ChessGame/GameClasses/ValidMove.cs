@@ -24,16 +24,16 @@ namespace ChessGame.GameClasses
             ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(null, this.Coordinate));
         }
 
+        public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
+        {
+        }
+
         private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
         {
             LastClickedPiece = sender;
         }
 
         private Coordinate Coordinate { get; }
-
-        public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
-        {
-        }
 
         private static ImageBrush Image { get; } = CircleBrush;
 

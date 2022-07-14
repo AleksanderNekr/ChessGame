@@ -49,10 +49,5 @@ namespace ChessGame.GameClasses
             AddRangeMoves(this, 1,  -1);
             AddRangeMoves(this, 1,  1);
         }
-
-        public Piece Clone()
-        {
-            return new Queen(this.Color, this.Coordinate);
-        }
     }
 }
