@@ -91,7 +91,7 @@ namespace ChessGame.GameClasses
 
             if (ChessBoard.Board[newCoordinate.Row, newCoordinate.Column] != null)
             {
-                ChessBoard.Pieces.Remove((Piece)ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]
+                ChessBoard.Pieces.Remove(ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]
                                       ?? throw new InvalidOperationException());
             }
 
@@ -149,17 +149,10 @@ namespace ChessGame.GameClasses
 
         private void ChangePlayer()
         {
-            if (this.Color == PieceColor.White)
-            {
-                ChangeUnlockPieces(PieceColor.Black);
-                return;
-            }
+            PieceColor color = this.Color == PieceColor.White
+                                   ? PieceColor.Black
+                                   : PieceColor.White;
 
-            ChangeUnlockPieces(PieceColor.White);
-        }
-
-        private static void ChangeUnlockPieces(PieceColor color)
-        {
             foreach (Piece piece in ChessBoard.Pieces)
             {
                 // If the piece is the color that we need, unlock it.
@@ -173,16 +166,6 @@ namespace ChessGame.GameClasses
                 piece.IsEnabled   = false;
                 piece.BorderBrush = Brushes.Transparent;
             }
-        }
-
-        /// <summary>
-        ///     Moves the piece to the specified coordinate.
-        /// </summary>
-        /// <param name="row">The row of the coordinate.</param>
-        /// <param name="column">The column of the coordinate.</param>
-        public void MoveTo(int row, int column)
-        {
-            this.MoveTo(new Coordinate(row, column));
         }
 
         internal static void AddRangeMoves(Piece piece, int rowDif, int colDif)
@@ -217,7 +200,8 @@ namespace ChessGame.GameClasses
 
         public static void UpdateAllValidMoves()
         {
-            for (var i = 0; i < ChessBoard.Pieces.Count; i++)
+            // Using for loop instead of foreach because we need to change the collection.
+            for (int i = ChessBoard.Pieces.Count - 1; i >= 0; i--)
             {
                 Piece piece = ChessBoard.Pieces[i];
                 piece.UpdateValidMoves();
@@ -226,11 +210,6 @@ namespace ChessGame.GameClasses
 
         private static void Piece_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is ValidMove)
-            {
-                return;
-            }
-
             var piece = (Piece)sender;
             piece.BorderThickness =  new Thickness(2);
             piece.BorderBrush     =  Brushes.Chartreuse;
@@ -242,7 +221,10 @@ namespace ChessGame.GameClasses
             LastClicked?.Invoke(piece, e);
 
             // OMG! It fixes ShadowBug!
-            UnlockPieces(piece.Color);
+            foreach (Piece pieceAlly in ChessBoard.Pieces.Where(pieceAlly => pieceAlly.Color == piece.Color))
+            {
+                pieceAlly.IsEnabled = true;
+            }
         }
 
         private static void AddTakeOnPass(Piece piece)
@@ -257,6 +239,11 @@ namespace ChessGame.GameClasses
                 return;
             }
 
+            static bool IsNear(Pawn pawnEnemy, Pawn pawn)
+            {
+                return Math.Abs(pawnEnemy.LastMove.Column - pawn.Coordinate.Column) == 1;
+            }
+
             if ((pawnEnemy.LastMove.Row != pawn.Coordinate.Row) || !IsNear(pawnEnemy, pawn))
             {
                 return;
@@ -264,19 +251,6 @@ namespace ChessGame.GameClasses
 
             pawn.ValidMoves.Add(new Coordinate(pawnEnemy.LastMove.Row + pawn.Move,
                                                pawnEnemy.LastMove.Column));
-        }
-
-        private static bool IsNear(Pawn pawnEnemy, Pawn pawn)
-        {
-            return Math.Abs(pawnEnemy.LastMove.Column - pawn.Coordinate.Column) == 1;
-        }
-
-        private static void UnlockPieces(PieceColor pieceColor)
-        {
-            foreach (Piece piece in ChessBoard.Pieces.Where(piece => piece.Color == pieceColor))
-            {
-                piece.IsEnabled = true;
-            }
         }
 
         private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -310,10 +284,9 @@ namespace ChessGame.GameClasses
 
         private void ShowValidMoves()
         {
-            for (var i = 0; i < this.ValidMoves.Count; i++)
+            foreach (Coordinate coordinate in this.ValidMoves)
             {
-                Coordinate coordinate = this.ValidMoves[i];
-                Piece?     place      = ChessBoard.GetPieceOrNull(coordinate);
+                Piece? place = ChessBoard.GetPieceOrNull(coordinate);
                 switch (place)
                 {
                     case null:
@@ -396,12 +369,6 @@ namespace ChessGame.GameClasses
             }
 
             piece.BorderBrush = Brushes.Chartreuse;
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
 
 

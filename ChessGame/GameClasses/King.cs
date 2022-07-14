@@ -59,8 +59,9 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            var newCoordinate = new Coordinate(newRow, newCol);
-            if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece piece && (piece.Color == this.Color))
+            var    newCoordinate = new Coordinate(newRow, newCol);
+            Piece? piece         = ChessBoard.GetPieceOrNull(newCoordinate);
+            if ((piece != null) && (piece.Color == this.Color))
             {
                 return;
             }
@@ -74,6 +75,7 @@ namespace ChessGame.GameClasses
             this.ValidMoves.Add(newCoordinate);
         }
 
+/*
         private bool IsUnderAttack(Coordinate newCoordinate)
         {
             Coordinate oldKingCoordinate = this.Coordinate;
@@ -83,7 +85,7 @@ namespace ChessGame.GameClasses
                                         : PieceColor.White;
 
             // If there is an enemy piece on the new place, then remember it.
-            var enemy = ChessBoard.GetPieceOrNull(newCoordinate);
+            Piece? enemy = ChessBoard.GetPieceOrNull(newCoordinate);
 
             // Move the king to the new place.
             ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = null;
@@ -103,11 +105,14 @@ namespace ChessGame.GameClasses
 
             return false;
         }
+*/
 
+/*
         private void RestorePosition(Coordinate newCoordinate, Coordinate oldKingCoordinate, Piece? enemy)
         {
             ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = this;
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = enemy;
         }
+*/
     }
 }

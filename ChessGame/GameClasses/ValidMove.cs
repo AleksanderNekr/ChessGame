@@ -8,11 +8,11 @@ namespace ChessGame.GameClasses
 {
     internal sealed class ValidMove : UserControl
     {
-        public ValidMove(int row, int column)
+        private ValidMove(int row, int column)
         {
             this.MouseEnter        += this.ValidMove_MouseEnter;
             this.MouseLeave        += this.ValidMove_MouseLeave;
-            this.MouseLeftButtonUp += this.ValidMove_MouseLeftButtonUp;
+            this.MouseLeftButtonUp += ValidMove_MouseLeftButtonUp;
             Piece.LastClicked      += Piece_LastClicked;
             this.Coordinate        =  new Coordinate(row, column);
             this.Cursor            =  Cursors.Hand;
@@ -20,7 +20,6 @@ namespace ChessGame.GameClasses
             this.Background        =  Image;
             this.Focusable         =  true;
             this.FocusVisualStyle  =  null;
-            // ChessBoard.Board[row, column] =  this;
             ShowValidMove?.Invoke(this, EventArgs.Empty);
         }
 
@@ -71,7 +70,7 @@ namespace ChessGame.GameClasses
             LastClickedPiece = sender;
         }
 
-        private void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private static void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (LastClickedPiece == null)
             {
