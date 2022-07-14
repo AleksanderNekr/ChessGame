@@ -75,7 +75,7 @@ namespace ChessGame.GameClasses
         {
             int          moveRow        = this.Coordinate.Row + move;
             var          newCoordinate  = new Coordinate(moveRow, this.Coordinate.Column);
-            UserControl? placeUnderMove = ChessBoard.GetControlOrNull(newCoordinate);
+            UserControl? placeUnderMove = ChessBoard.GetPieceOrNull(newCoordinate);
 
             if (placeUnderMove != null)
             {
@@ -103,7 +103,7 @@ namespace ChessGame.GameClasses
         {
             int moveRow       = this.Coordinate.Row + this.Move;
             var newCoordinate = new Coordinate(moveRow, this.Coordinate.Column + columnChange);
-            if (ChessBoard.GetControlOrNull(newCoordinate) is Piece enemy && (enemy.Color != this.Color))
+            if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece enemy && (enemy.Color != this.Color))
             {
                 this.ValidMoves.Add(newCoordinate);
             }

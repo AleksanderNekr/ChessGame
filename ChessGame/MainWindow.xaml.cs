@@ -38,7 +38,7 @@ namespace ChessGame
             {
                 for (var j = 0; j < ChessBoard.Board.GetLength(1); j++)
                 {
-                    UserControl? control = ChessBoard.GetControlOrNull(i, j);
+                    UserControl? control = ChessBoard.GetPieceOrNull(i, j);
                     if (control == null)
                     {
                         continue;

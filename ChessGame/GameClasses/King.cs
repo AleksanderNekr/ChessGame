@@ -60,16 +60,16 @@ namespace ChessGame.GameClasses
             }
 
             var newCoordinate = new Coordinate(newRow, newCol);
-            if (ChessBoard.GetControlOrNull(newCoordinate) is Piece piece && (piece.Color == this.Color))
+            if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece piece && (piece.Color == this.Color))
             {
                 return;
             }
 
             // If going on this place is leading to a check, then it is not a valid move.
-            if (this.IsUnderAttack(newCoordinate))
-            {
-                return;
-            }
+            // if (this.IsUnderAttack(newCoordinate))
+            // {
+            //     return;
+            // }
 
             this.ValidMoves.Add(newCoordinate);
         }
@@ -83,7 +83,7 @@ namespace ChessGame.GameClasses
                                         : PieceColor.White;
 
             // If there is an enemy piece on the new place, then remember it.
-            var enemy = ChessBoard.GetControlOrNull(newCoordinate) as Piece;
+            var enemy = ChessBoard.GetPieceOrNull(newCoordinate);
 
             // Move the king to the new place.
             ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = null;

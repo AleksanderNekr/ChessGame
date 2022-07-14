@@ -52,7 +52,7 @@ namespace ChessGame.GameClasses
                 return;
             }
 
-            UserControl? place = ChessBoard.GetControlOrNull(coordinate);
+            UserControl? place = ChessBoard.GetPieceOrNull(coordinate);
             if ((place == null) || this.IsEnemy(place))
             {
                 this.ValidMoves.Add(coordinate);

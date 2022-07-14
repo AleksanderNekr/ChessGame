@@ -8,11 +8,6 @@ namespace ChessGame.GameClasses
 {
     internal sealed class ValidMove : UserControl
     {
-        internal delegate void ValidMoveEventHandler(ValidMove sender, EventArgs e);
-
-        internal static event ValidMoveEventHandler? ShowValidMove;
-        internal static event ValidMoveEventHandler? HideValidMove;
-
         public ValidMove(int row, int column)
         {
             this.MouseEnter        += this.ValidMove_MouseEnter;
@@ -31,11 +26,6 @@ namespace ChessGame.GameClasses
 
         public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
         {
-        }
-
-        private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
-        {
-            LastClickedPiece = sender;
         }
 
         internal Coordinate Coordinate { get; }
@@ -73,6 +63,14 @@ namespace ChessGame.GameClasses
             }
         }
 
+        internal static event ValidMoveEventHandler? ShowValidMove;
+        internal static event ValidMoveEventHandler? HideValidMove;
+
+        private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
+        {
+            LastClickedPiece = sender;
+        }
+
         private void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (LastClickedPiece == null)
@@ -99,5 +97,7 @@ namespace ChessGame.GameClasses
         {
             HideValidMove?.Invoke(this, EventArgs.Empty);
         }
+
+        internal delegate void ValidMoveEventHandler(ValidMove sender, EventArgs e);
     }
 }

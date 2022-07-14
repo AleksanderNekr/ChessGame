@@ -13,9 +13,8 @@ namespace ChessGame.GameClasses
     /// </summary>
     internal abstract class Piece : UserControl
     {
-        private bool _isEnemy;
-
         private static Piece? _lastMovedPiece;
+        private        bool   _isEnemy;
 
         /// <summary>
         ///     Constructor for the Piece class.
@@ -134,8 +133,8 @@ namespace ChessGame.GameClasses
 
         private static void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
         {
-            var enemy = (Piece?)ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
-            if ((ChessBoard.GetControlOrNull(newCoordinate) != null) || enemy is not Pawn)
+            Piece? enemy = ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
+            if ((ChessBoard.GetPieceOrNull(newCoordinate) != null) || enemy is not Pawn)
             {
                 return;
             }
@@ -192,7 +191,7 @@ namespace ChessGame.GameClasses
             int column = piece.Coordinate.Column;
             while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
             {
-                UserControl? place = ChessBoard.GetControlOrNull(row, column);
+                Piece? place = ChessBoard.GetPieceOrNull(row, column);
                 if (place == null)
                 {
                     piece.ValidMoves.Add(new Coordinate(row, column));
@@ -200,7 +199,7 @@ namespace ChessGame.GameClasses
                 }
 
                 // If ally piece is found, then stop.
-                if (place is Piece ally && (ally.Color == piece.Color))
+                if (place.Color == piece.Color)
                 {
                     break;
                 }
@@ -313,33 +312,26 @@ namespace ChessGame.GameClasses
         {
             for (var i = 0; i < this.ValidMoves.Count; i++)
             {
-                Coordinate   coordinate = this.ValidMoves[i];
-                UserControl? place      = ChessBoard.GetControlOrNull(coordinate);
+                Coordinate coordinate = this.ValidMoves[i];
+                Piece?     place      = ChessBoard.GetPieceOrNull(coordinate);
                 switch (place)
                 {
                     case null:
                         _ = new ValidMove(coordinate);
                         continue;
-                    case Piece piece:
+                    case var piece:
                         SetEnemyHighlight(piece);
                         break;
                 }
             }
         }
 
-        private static void SetEnemyHighlight(Piece place)
-        {
-            place._isEnemy    = true;
-            place.BorderBrush = Brushes.Red;
-            place.IsEnabled   = true;
-        }
-
         private void HideValidMoves()
         {
             foreach (Coordinate validMoveCoord in this.ValidMoves)
             {
-                UserControl? place = ChessBoard.GetControlOrNull(validMoveCoord);
-                if (place is Piece piece)
+                Piece? piece = ChessBoard.GetPieceOrNull(validMoveCoord);
+                if (piece is not null)
                 {
                     UnsetEnemyHighlight(piece);
                     continue;
@@ -350,6 +342,13 @@ namespace ChessGame.GameClasses
             }
         }
 
+        private static void SetEnemyHighlight(Piece place)
+        {
+            place._isEnemy    = true;
+            place.BorderBrush = Brushes.Red;
+            place.IsEnabled   = true;
+        }
+
         private static void UnsetEnemyHighlight(Piece place)
         {
             place._isEnemy    = false;
@@ -357,7 +356,7 @@ namespace ChessGame.GameClasses
             place.IsEnabled   = false;
         }
 
-        internal static void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs e)
+        internal static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
         {
             UpdateAllValidMoves();
         }
