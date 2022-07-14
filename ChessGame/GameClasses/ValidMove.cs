@@ -8,20 +8,25 @@ namespace ChessGame.GameClasses
 {
     internal sealed class ValidMove : UserControl
     {
+        internal delegate void ValidMoveEventHandler(ValidMove sender, EventArgs e);
+
+        internal static event ValidMoveEventHandler? ShowValidMove;
+        internal static event ValidMoveEventHandler? HideValidMove;
+
         public ValidMove(int row, int column)
         {
-            this.MouseEnter               += this.ValidMove_MouseEnter;
-            this.MouseLeave               += this.ValidMove_MouseLeave;
-            this.MouseLeftButtonUp        += ValidMove_MouseLeftButtonUp;
-            Piece.LastClicked             += Piece_LastClicked;
-            this.Coordinate               =  new Coordinate(row, column);
-            this.Cursor                   =  Cursors.Hand;
-            this.BorderThickness          =  new Thickness(1);
-            this.Background               =  Image;
-            this.Focusable                =  true;
-            this.FocusVisualStyle         =  null;
-            ChessBoard.Board[row, column] =  this;
-            ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(null, this.Coordinate));
+            this.MouseEnter        += this.ValidMove_MouseEnter;
+            this.MouseLeave        += this.ValidMove_MouseLeave;
+            this.MouseLeftButtonUp += this.ValidMove_MouseLeftButtonUp;
+            Piece.LastClicked      += Piece_LastClicked;
+            this.Coordinate        =  new Coordinate(row, column);
+            this.Cursor            =  Cursors.Hand;
+            this.BorderThickness   =  new Thickness(1);
+            this.Background        =  Image;
+            this.Focusable         =  true;
+            this.FocusVisualStyle  =  null;
+            // ChessBoard.Board[row, column] =  this;
+            ShowValidMove?.Invoke(this, EventArgs.Empty);
         }
 
         public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
@@ -33,7 +38,7 @@ namespace ChessGame.GameClasses
             LastClickedPiece = sender;
         }
 
-        private Coordinate Coordinate { get; }
+        internal Coordinate Coordinate { get; }
 
         private static ImageBrush Image { get; } = CircleBrush;
 
@@ -68,7 +73,7 @@ namespace ChessGame.GameClasses
             }
         }
 
-        private static void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (LastClickedPiece == null)
             {
@@ -88,6 +93,11 @@ namespace ChessGame.GameClasses
         private void ValidMove_MouseLeave(object sender, MouseEventArgs e)
         {
             this.Background = CircleBrush;
+        }
+
+        internal void Hide()
+        {
+            HideValidMove?.Invoke(this, EventArgs.Empty);
         }
     }
 }

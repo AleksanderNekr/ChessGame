@@ -108,15 +108,12 @@ namespace ChessGame.GameClasses
         protected static List<Coordinate> GetAllAttackCoordinates(PieceColor color)
         {
             Dictionary<Coordinate, int> attackCoordinates = new();
-            foreach (Piece piece in ChessBoard.Pieces)
+            foreach (Piece piece in ChessBoard.Pieces.Where(piece => piece.Color == color))
             {
-                if (piece.Color == color)
+                piece.UpdateValidMoves();
+                foreach (Coordinate validMove in piece.ValidMoves)
                 {
-                    piece.UpdateValidMoves();
-                    foreach (Coordinate validMove in piece.ValidMoves)
-                    {
-                        attackCoordinates.TryAdd(validMove, 0);
-                    }
+                    attackCoordinates.TryAdd(validMove, 0);
                 }
             }
 
@@ -221,8 +218,9 @@ namespace ChessGame.GameClasses
 
         public static void UpdateAllValidMoves()
         {
-            foreach (Piece piece in ChessBoard.Pieces)
+            for (var i = 0; i < ChessBoard.Pieces.Count; i++)
             {
+                Piece piece = ChessBoard.Pieces[i];
                 piece.UpdateValidMoves();
             }
         }
@@ -313,9 +311,10 @@ namespace ChessGame.GameClasses
 
         private void ShowValidMoves()
         {
-            foreach (Coordinate coordinate in this.ValidMoves)
+            for (var i = 0; i < this.ValidMoves.Count; i++)
             {
-                UserControl? place = ChessBoard.GetControlOrNull(coordinate);
+                Coordinate   coordinate = this.ValidMoves[i];
+                UserControl? place      = ChessBoard.GetControlOrNull(coordinate);
                 switch (place)
                 {
                     case null:
@@ -337,32 +336,22 @@ namespace ChessGame.GameClasses
 
         private void HideValidMoves()
         {
-            foreach (Coordinate coordinate in this.ValidMoves)
+            foreach (Coordinate validMoveCoord in this.ValidMoves)
             {
-                UserControl? place = ChessBoard.GetControlOrNull(coordinate);
-                switch (place)
+                UserControl? place = ChessBoard.GetControlOrNull(validMoveCoord);
+                if (place is Piece piece)
                 {
-                    case null:
-                        continue;
-                    case ValidMove:
-                        // If valid move is found, then remove it.
-                        ChessBoard.RemoveControl(coordinate);
-                        continue;
-                    default:
-                        // If enemy piece is found, then hide its highlight.
-                        UnsetEnemyHighlight((Piece?)place);
-                        break;
+                    UnsetEnemyHighlight(piece);
+                    continue;
                 }
+
+                var validMove = new ValidMove(validMoveCoord);
+                validMove.Hide();
             }
         }
 
-        private static void UnsetEnemyHighlight(Piece? place)
+        private static void UnsetEnemyHighlight(Piece place)
         {
-            if (place == null)
-            {
-                return;
-            }
-
             place._isEnemy    = false;
             place.BorderBrush = Brushes.Transparent;
             place.IsEnabled   = false;
@@ -370,12 +359,7 @@ namespace ChessGame.GameClasses
 
         internal static void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs e)
         {
-            if (sender is not Piece piece)
-            {
-                return;
-            }
-
-            piece.UpdateValidMoves();
+            UpdateAllValidMoves();
         }
 
         private void SetBackgroundImage()
@@ -420,6 +404,7 @@ namespace ChessGame.GameClasses
         {
             return $"{this.Color} {this.GetType().Name} on {this.Coordinate}";
         }
+
 
         /// <summary>
         ///     Handler for the BoardChangedEvent.

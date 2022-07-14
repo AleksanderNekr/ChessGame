@@ -12,6 +12,18 @@ namespace ChessGame
         {
             this.InitializeComponent();
             ChessBoard.BoardChanged += this.ChessBoard_BoardChanged;
+            ValidMove.ShowValidMove += this.ShowValidMoveShowValidMove;
+            ValidMove.HideValidMove += this.HideValidMoveHideValidMove;
+        }
+
+        private void HideValidMoveHideValidMove(ValidMove sender, EventArgs e)
+        {
+            this.UpdateGridBoard();
+        }
+
+        private void ShowValidMoveShowValidMove(ValidMove sender, EventArgs e)
+        {
+            this.SetPieceToBoard(sender, sender.Coordinate.Row, sender.Coordinate.Column);
         }
 
         private void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs boardChangedEventArgs)
@@ -32,11 +44,16 @@ namespace ChessGame
                         continue;
                     }
 
-                    Grid.SetRow(control, i);
-                    Grid.SetColumn(control, j);
-                    this.Board.Children.Add(control);
+                    this.SetPieceToBoard(control, i, j);
                 }
             }
+        }
+
+        private void SetPieceToBoard(UserControl control, int i, int j)
+        {
+            Grid.SetRow(control, i);
+            Grid.SetColumn(control, j);
+            this.Board.Children.Add(control);
         }
 
         private void ButtonBase_Click(object sender, RoutedEventArgs e)
