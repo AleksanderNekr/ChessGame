@@ -58,7 +58,7 @@ namespace ChessGame.GameClasses
         /// <summary>
         ///     Valid moves of the piece.
         /// </summary>
-        protected List<Coordinate> ValidMoves { get; } = new();
+        internal protected List<Coordinate> ValidMoves { get; } = new();
 
         /// <summary>
         ///     White image of the piece.
@@ -104,6 +104,24 @@ namespace ChessGame.GameClasses
             _lastMovedPiece = this;
         }
 
+        public static List<Coordinate> GetAllAttackCoordinates(PieceColor color)
+        {
+            Dictionary<Coordinate, int> attackCoordinates = new();
+            foreach (Piece piece in ChessBoard.Pieces)
+            {
+                if (piece.Color == color)
+                {
+                    piece.UpdateValidMoves();
+                    foreach (Coordinate validMove in piece.ValidMoves)
+                    {
+                        attackCoordinates.TryAdd(validMove, 0);
+                    }
+                }
+            }
+
+            return new List<Coordinate>(attackCoordinates.Keys);
+        }
+
         private void IfPawnMove(Coordinate newCoordinate, Coordinate oldCoordinate)
         {
             if (this is not Pawn pawn)
@@ -128,6 +146,7 @@ namespace ChessGame.GameClasses
             {
                 ChessBoard.Pieces.Remove(enemy);
             }
+
             ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column] = null;
         }
 
@@ -191,6 +210,14 @@ namespace ChessGame.GameClasses
                 // If enemy piece is found, then add it to the valid moves and stop.
                 piece.ValidMoves.Add(new Coordinate(row, column));
                 break;
+            }
+        }
+
+        public static void UpdateAllValidMoves()
+        {
+            for (var i = 0; i < ChessBoard.Pieces.Count; i++)
+            {
+                ChessBoard.Pieces[i].UpdateValidMoves();
             }
         }
 

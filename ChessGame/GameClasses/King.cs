@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses
@@ -23,6 +25,8 @@ namespace ChessGame.GameClasses
         public King(PieceColor color, Coordinate coordinate) : base(color, coordinate)
         {
         }
+
+        public bool IsCheck { get; set; } = false;
 
         /// <summary>
         ///     White image of the piece.
@@ -69,7 +73,49 @@ namespace ChessGame.GameClasses
                 return;
             }
 
+            // If going on this place is leading to a check, then it is not a valid move.
+            if (this.IsUnderAttack(newCoordinate))
+            {
+                return;
+            }
+
             this.ValidMoves.Add(newCoordinate);
+        }
+
+        private bool IsUnderAttack(Coordinate newCoordinate)
+        {
+            Coordinate oldKingCoordinate = this.Coordinate;
+
+            PieceColor enemyColor = this.Color == PieceColor.White
+                                        ? PieceColor.Black
+                                        : PieceColor.White;
+
+            // If there is an enemy piece on the new place, then remember it.
+            Piece? enemy = ChessBoard.GetPieceOrNull(newCoordinate);
+
+            // Move the king to the new place.
+            ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = null;
+            ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = this;
+
+            // Check if the king is in check.
+            if (GetAllAttackCoordinates(enemyColor).Contains(newCoordinate))
+            {
+                // If the king is in check, then move the king back to the old place.
+                this.RestorePosition(newCoordinate, oldKingCoordinate, enemy);
+
+                return true;
+            }
+
+            // If the king is not in check, then restore the old position of the king and return false.
+            this.RestorePosition(newCoordinate, oldKingCoordinate, enemy);
+
+            return false;
+        }
+
+        private void RestorePosition(Coordinate newCoordinate, Coordinate oldKingCoordinate, Piece? enemy)
+        {
+            ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = this;
+            ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = enemy;
         }
     }
 }
