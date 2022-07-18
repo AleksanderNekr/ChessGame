@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="myserv" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="myserv">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$/../../Program Files/dotnet/sdk/6.0.301/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_6_default.editorconfig" web="/" />
+            <mapping local="$USER_HOME$/Program Files/dotnet/sdk/6.0.301/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_6_default.editorconfig" web="/" />
             <mapping local="$PROJECT_DIR$/ChessGame.sln" web="/" />
             <mapping local="$PROJECT_DIR$/ChessGame/App.xaml" web="/" />
             <mapping local="$PROJECT_DIR$/ChessGame/App.xaml.cs" web="/" />

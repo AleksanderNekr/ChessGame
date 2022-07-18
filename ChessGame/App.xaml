@@ -4,46 +4,46 @@
              StartupUri="MainWindow.xaml" x:ClassModifier="internal">
     <Application.Resources>
         <ResourceDictionary>
-            <ImageBrush x:Key="Board" ImageSource="../../../Images/board.png" />
+            <ImageBrush x:Key="Board" ImageSource="Images/board.png" />
 
             <!-- White figures -->
             <ImageBrush x:Key="WhitePawn"
-                        ImageSource="../../../Images/White/Alpha/Pawn.png"
+                        ImageSource="Images/White/Alpha/Pawn.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteRook"
-                        ImageSource="../../../Images/White/Alpha/Rook.png"
+                        ImageSource="Images/White/Alpha/Rook.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteKnight"
-                        ImageSource="../../../Images/White/Alpha/Knight.png"
+                        ImageSource="Images/White/Alpha/Knight.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteBishop"
-                        ImageSource="../../../Images/White/Alpha/Bishop.png"
+                        ImageSource="Images/White/Alpha/Bishop.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteQueen"
-                        ImageSource="../../../Images/White/Alpha/Queen.png"
+                        ImageSource="Images/White/Alpha/Queen.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="WhiteKing"
-                        ImageSource="../../../Images/White/Alpha/King.png"
+                        ImageSource="Images/White/Alpha/King.png"
                         Stretch="Uniform" />
 
             <!-- Black figures -->
             <ImageBrush x:Key="BlackPawn"
-                        ImageSource="../../../Images/Black/Alpha/Pawn.png"
+                        ImageSource="Images/Black/Alpha/Pawn.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="BlackRook"
-                        ImageSource="../../../Images/Black/Alpha/Rook.png"
+                        ImageSource="Images/Black/Alpha/Rook.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="BlackKnight"
-                        ImageSource="../../../Images/Black/Alpha/Knight.png"
+                        ImageSource="Images/Black/Alpha/Knight.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="BlackBishop"
-                        ImageSource="../../../Images/Black/Alpha/Bishop.png"
+                        ImageSource="Images/Black/Alpha/Bishop.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="BlackQueen"
-                        ImageSource="../../../Images/Black/Alpha/Queen.png"
+                        ImageSource="Images/Black/Alpha/Queen.png"
                         Stretch="Uniform" />
             <ImageBrush x:Key="BlackKing"
-                        ImageSource="../../../Images/Black/Alpha/King.png"
+                        ImageSource="Images/Black/Alpha/King.png"
                         Stretch="Uniform" />
         </ResourceDictionary>
     </Application.Resources>
