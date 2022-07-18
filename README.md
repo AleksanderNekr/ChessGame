@@ -1,2 +1,3 @@
 # ChessGame
-## Project of the realisation of chess game.
+## Project of the realization of the chess game
+Made with .NET 6, C# 10, WPF.
