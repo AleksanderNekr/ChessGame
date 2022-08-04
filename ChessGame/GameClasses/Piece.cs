@@ -220,7 +220,6 @@ namespace ChessGame.GameClasses
             piece.ShowValidMoves();
             LastClicked?.Invoke(piece, e);
 
-            // OMG! It fixes ShadowBug!
             foreach (Piece pieceAlly in ChessBoard.Pieces.Where(pieceAlly => pieceAlly.Color == piece.Color))
             {
                 pieceAlly.IsEnabled = true;

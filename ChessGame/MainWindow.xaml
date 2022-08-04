@@ -16,10 +16,9 @@
             </TransformGroup>
         </Grid.RenderTransform>
         <!-- Board. -->
-        <Grid x:Name="Board" Height="400" Width="400" RenderTransformOrigin="0.5,0.5" Canvas.Top="46.887"
+        <Grid x:Name="Board" Height="400" Width="400" RenderTransformOrigin="0.5,0.5"
               HorizontalAlignment="Center"
-              VerticalAlignment="Center" Background="{DynamicResource Board}"
-              Canvas.Left="51.407">
+              VerticalAlignment="Center" Background="{DynamicResource Board}">
             <Grid.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform />
@@ -48,7 +47,8 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
         </Grid>
-        <Button Content="Click!" Click="ButtonBase_Click" HorizontalAlignment="Center" VerticalAlignment="Top" BorderBrush="#FFFF2121" RenderTransformOrigin="0.601,1.034" Canvas.Left="186.919" Canvas.Top="5.04" Width="89" Height="24" VerticalContentAlignment="Top" Cursor="Hand" Margin="0,-34,0,0" >
+        <Button Content="Click!" Click="ButtonBase_Click" HorizontalAlignment="Center" VerticalAlignment="Top" BorderBrush="#FFFF2121" RenderTransformOrigin="0.601,1.034"
+                Width="89" Height="24" VerticalContentAlignment="Top" Cursor="Hand" Margin="0,-34,0,0" >
             <Button.Effect>
                 <DropShadowEffect/>
             </Button.Effect>
