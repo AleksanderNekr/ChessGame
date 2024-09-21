@@ -3,65 +3,62 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace ChessGame.GameClasses
+namespace ChessGame.GameClasses;
+
+/// <summary>
+///     Knight class.
+/// </summary>
+internal sealed class Knight : Piece
 {
-    /// <summary>
-    ///     Knight class.
-    /// </summary>
-    internal sealed class Knight : Piece
+    /// <inheritdoc />
+    public Knight(PieceColor color, int row, int column) : base(color, row, column)
     {
-        /// <inheritdoc />
-        public Knight(PieceColor color, int row, int column) : base(color, row, column)
+    }
+
+    /// <inheritdoc />
+    public Knight(PieceColor color, Coordinate coordinate) : base(color, coordinate)
+    {
+    }
+
+    /// <inheritdoc />
+    protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhiteKnight"];
+
+    /// <inheritdoc />
+    protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKnight"];
+
+    /// <inheritdoc />
+    protected override void UpdateValidMoves()
+    {
+        ValidMoves.Clear();
+        TryToAddMove(Coordinate.Row - 2, Coordinate.Column + 1);
+        TryToAddMove(Coordinate.Row - 2, Coordinate.Column - 1);
+        TryToAddMove(Coordinate.Row - 1, Coordinate.Column + 2);
+        TryToAddMove(Coordinate.Row - 1, Coordinate.Column - 2);
+        TryToAddMove(Coordinate.Row + 2, Coordinate.Column + 1);
+        TryToAddMove(Coordinate.Row + 2, Coordinate.Column - 1);
+        TryToAddMove(Coordinate.Row + 1, Coordinate.Column + 2);
+        TryToAddMove(Coordinate.Row + 1, Coordinate.Column - 2);
+    }
+
+    private void TryToAddMove(int coordinateRow, int coordinateColumn)
+    {
+        Coordinate coordinate;
+        try
         {
+            coordinate = new Coordinate(coordinateRow, coordinateColumn);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return;
         }
 
-        /// <inheritdoc />
-        public Knight(PieceColor color, Coordinate coordinate) : base(color, coordinate)
+        UserControl? place = ChessBoard.GetPieceOrNull(coordinate);
+        if (place == null || IsEnemy(place))
         {
-        }
-
-        /// <inheritdoc />
-        protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhiteKnight"];
-
-        /// <inheritdoc />
-        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKnight"];
-
-        /// <inheritdoc />
-        protected override void UpdateValidMoves()
-        {
-            this.ValidMoves.Clear();
-            this.TryToAddMove(this.Coordinate.Row - 2, this.Coordinate.Column + 1);
-            this.TryToAddMove(this.Coordinate.Row - 2, this.Coordinate.Column - 1);
-            this.TryToAddMove(this.Coordinate.Row - 1, this.Coordinate.Column + 2);
-            this.TryToAddMove(this.Coordinate.Row - 1, this.Coordinate.Column - 2);
-            this.TryToAddMove(this.Coordinate.Row + 2, this.Coordinate.Column + 1);
-            this.TryToAddMove(this.Coordinate.Row + 2, this.Coordinate.Column - 1);
-            this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column + 2);
-            this.TryToAddMove(this.Coordinate.Row + 1, this.Coordinate.Column - 2);
-        }
-
-        private void TryToAddMove(int coordinateRow, int coordinateColumn)
-        {
-            Coordinate coordinate;
-            try
-            {
-                coordinate = new Coordinate(coordinateRow, coordinateColumn);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return;
-            }
-
-            UserControl? place = ChessBoard.GetPieceOrNull(coordinate);
-            if ((place == null) || this.IsEnemy(place))
-            {
-                this.ValidMoves.Add(coordinate);
-            }
-        }
-
-        private bool IsEnemy(UserControl place)
-        {
-            return place is Piece piece && (piece.Color != this.Color);
+            ValidMoves.Add(coordinate);
         }
     }
+
+    private bool IsEnemy(UserControl place)
+        => place is Piece piece && piece.Color != Color;
 }

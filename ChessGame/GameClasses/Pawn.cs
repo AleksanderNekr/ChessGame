@@ -2,111 +2,100 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace ChessGame.GameClasses
+namespace ChessGame.GameClasses;
+
+/// <summary>
+///     Pawn class.
+/// </summary>
+internal sealed class Pawn : Piece
 {
-    /// <summary>
-    ///     Pawn class.
-    /// </summary>
-    internal sealed class Pawn : Piece
+    /// <inheritdoc />
+    public Pawn(PieceColor color, int row, int column) : base(color, row, column)
     {
-        /// <inheritdoc />
-        public Pawn(PieceColor color, int row, int column) : base(color, row, column)
+    }
+
+    /// <inheritdoc />
+    public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+    {
+    }
+
+    /// <inheritdoc />
+    protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
+
+    /// <inheritdoc />
+    protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
+
+    internal Coordinate LastMove { get; set; }
+
+    internal Coordinate PrevCoord { get; set; }
+
+    internal int Move
+        => Color == PieceColor.White
+            ? -1
+            : 1;
+
+    private int InitialRow
+        => Color == PieceColor.White
+            ? 6
+            : 1;
+
+    /// <inheritdoc />
+    protected override void UpdateValidMoves()
+    {
+        ValidMoves.Clear();
+        if (Coordinate.Row == InitialRow + Move * 6)
         {
+            return;
         }
 
-        /// <inheritdoc />
-        public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+        UpdatePawnDefaultMoves();
+        UpdatePawnAttackMoves();
+    }
+
+    private void UpdatePawnDefaultMoves()
+    {
+        var isCorrectMove = TryToAddMove(Move);
+        if (isCorrectMove && Coordinate.Row == InitialRow)
         {
+            TryToAddMove(Move * 2);
+        }
+    }
+
+    private bool TryToAddMove(int move)
+    {
+        var moveRow = Coordinate.Row + move;
+        var newCoordinate = new Coordinate(moveRow, Coordinate.Column);
+        UserControl? placeUnderMove = ChessBoard.GetPieceOrNull(newCoordinate);
+
+        if (placeUnderMove != null)
+        {
+            return false;
         }
 
-        /// <inheritdoc />
-        protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
+        ValidMoves.Add(newCoordinate);
+        return true;
+    }
 
-        /// <inheritdoc />
-        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
-
-        internal Coordinate LastMove { get; set; }
-
-        internal Coordinate PrevCoord { get; set; }
-
-        internal int Move
+    private void UpdatePawnAttackMoves()
+    {
+        if (Coordinate.Column != 0)
         {
-            get
-            {
-                return this.Color == PieceColor.White
-                           ? -1
-                           : 1;
-            }
+            TryToAddAttackMove(columnChange: -1);
         }
 
-        private int InitialRow
+        if (Coordinate.Column != 7)
         {
-            get
-            {
-                return this.Color == PieceColor.White
-                           ? 6
-                           : 1;
-            }
+            TryToAddAttackMove(columnChange: 1);
         }
+    }
 
-        /// <inheritdoc />
-        protected override void UpdateValidMoves()
+    private void TryToAddAttackMove(int columnChange)
+    {
+        var moveRow = Coordinate.Row + Move;
+        var newCoordinate = new Coordinate(moveRow, Coordinate.Column + columnChange);
+        if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece enemy && enemy.Color != Color)
         {
-            this.ValidMoves.Clear();
-            if (this.Coordinate.Row == (this.InitialRow + (this.Move * 6)))
-            {
-                return;
-            }
-
-            this.UpdatePawnDefaultMoves();
-            this.UpdatePawnAttackMoves();
-        }
-
-        private void UpdatePawnDefaultMoves()
-        {
-            bool isCorrectMove = this.TryToAddMove(this.Move);
-            if (isCorrectMove && (this.Coordinate.Row == this.InitialRow))
-            {
-                this.TryToAddMove(this.Move * 2);
-            }
-        }
-
-        private bool TryToAddMove(int move)
-        {
-            int          moveRow        = this.Coordinate.Row + move;
-            var          newCoordinate  = new Coordinate(moveRow, this.Coordinate.Column);
-            UserControl? placeUnderMove = ChessBoard.GetPieceOrNull(newCoordinate);
-
-            if (placeUnderMove != null)
-            {
-                return false;
-            }
-
-            this.ValidMoves.Add(newCoordinate);
-            return true;
-        }
-
-        private void UpdatePawnAttackMoves()
-        {
-            if (this.Coordinate.Column != 0)
-            {
-                this.TryToAddAttackMove(columnChange: -1);
-            }
-
-            if (this.Coordinate.Column != 7)
-            {
-                this.TryToAddAttackMove(columnChange: 1);
-            }
-        }
-
-        private void TryToAddAttackMove(int columnChange)
-        {
-            int moveRow       = this.Coordinate.Row + this.Move;
-            var newCoordinate = new Coordinate(moveRow, this.Coordinate.Column + columnChange);
-            if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece enemy && (enemy.Color != this.Color))
-            {
-                this.ValidMoves.Add(newCoordinate);
-            }
+            ValidMoves.Add(newCoordinate);
         }
     }
 }

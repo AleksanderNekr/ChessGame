@@ -1,79 +1,79 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 
-namespace ChessGame.GameClasses
+namespace ChessGame.GameClasses;
+
+internal sealed class King : Piece
 {
-    internal sealed class King : Piece
+    /// <summary>
+    ///     Constructor for the Piece class.
+    /// </summary>
+    /// <param name="color">The color of the piece.</param>
+    /// <param name="row">The row of the piece.</param>
+    /// <param name="column">The column of the piece.</param>
+    public King(PieceColor color, int row, int column) : base(color, row, column)
     {
-        /// <summary>
-        ///     Constructor for the Piece class.
-        /// </summary>
-        /// <param name="color">The color of the piece.</param>
-        /// <param name="row">The row of the piece.</param>
-        /// <param name="column">The column of the piece.</param>
-        public King(PieceColor color, int row, int column) : base(color, row, column)
+    }
+
+    /// <summary>
+    ///     Constructor for the Piece class.
+    /// </summary>
+    /// <param name="color">The color of the piece.</param>
+    /// <param name="coordinate">The coordinate of the piece.</param>
+    public King(PieceColor color, Coordinate coordinate) : base(color, coordinate)
+    {
+    }
+
+    /// <summary>
+    ///     White image of the piece.
+    /// </summary>
+    protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhiteKing"];
+
+    /// <summary>
+    ///     Black image of the piece.
+    /// </summary>
+    protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKing"];
+
+    /// <summary>
+    ///     Updates the valid moves of the piece.
+    /// </summary>
+    protected override void UpdateValidMoves()
+    {
+        ValidMoves.Clear();
+        TryToAdd(-1, 0);
+        TryToAdd(1, 0);
+        TryToAdd(0, -1);
+        TryToAdd(0, 1);
+        TryToAdd(-1, -1);
+        TryToAdd(-1, 1);
+        TryToAdd(1, -1);
+        TryToAdd(1, 1);
+    }
+
+    private void TryToAdd(int rowDif, int colDif)
+    {
+        var newRow = Coordinate.Row + rowDif;
+        var newCol = Coordinate.Column + colDif;
+        if (!Coordinate.IsCorrectCoordinate(newRow, newCol))
         {
+            return;
         }
 
-        /// <summary>
-        ///     Constructor for the Piece class.
-        /// </summary>
-        /// <param name="color">The color of the piece.</param>
-        /// <param name="coordinate">The coordinate of the piece.</param>
-        public King(PieceColor color, Coordinate coordinate) : base(color, coordinate)
+        var newCoordinate = new Coordinate(newRow, newCol);
+        var piece = ChessBoard.GetPieceOrNull(newCoordinate);
+        if (piece != null && piece.Color == Color)
         {
+            return;
         }
 
-        /// <summary>
-        ///     White image of the piece.
-        /// </summary>
-        protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhiteKing"];
+        // If going on this place is leading to a check, then it is not a valid move.
+        // if (this.IsUnderAttack(newCoordinate))
+        // {
+        //     return;
+        // }
 
-        /// <summary>
-        ///     Black image of the piece.
-        /// </summary>
-        protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKing"];
-
-        /// <summary>
-        ///     Updates the valid moves of the piece.
-        /// </summary>
-        protected override void UpdateValidMoves()
-        {
-            this.ValidMoves.Clear();
-            this.TryToAdd(-1, 0);
-            this.TryToAdd(1,  0);
-            this.TryToAdd(0,  -1);
-            this.TryToAdd(0,  1);
-            this.TryToAdd(-1, -1);
-            this.TryToAdd(-1, 1);
-            this.TryToAdd(1,  -1);
-            this.TryToAdd(1,  1);
-        }
-
-        private void TryToAdd(int rowDif, int colDif)
-        {
-            int newRow = this.Coordinate.Row    + rowDif;
-            int newCol = this.Coordinate.Column + colDif;
-            if (!Coordinate.IsCorrectCoordinate(newRow, newCol))
-            {
-                return;
-            }
-
-            var    newCoordinate = new Coordinate(newRow, newCol);
-            Piece? piece         = ChessBoard.GetPieceOrNull(newCoordinate);
-            if ((piece != null) && (piece.Color == this.Color))
-            {
-                return;
-            }
-
-            // If going on this place is leading to a check, then it is not a valid move.
-            // if (this.IsUnderAttack(newCoordinate))
-            // {
-            //     return;
-            // }
-
-            this.ValidMoves.Add(newCoordinate);
-        }
+        ValidMoves.Add(newCoordinate);
+    }
 
 /*
         private bool IsUnderAttack(Coordinate newCoordinate)
@@ -114,5 +114,4 @@ namespace ChessGame.GameClasses
             ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = enemy;
         }
 */
-    }
 }

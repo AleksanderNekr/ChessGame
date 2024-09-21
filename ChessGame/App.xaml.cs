@@ -1,7 +1,6 @@
-﻿namespace ChessGame
+﻿namespace ChessGame;
+
+/// <inheritdoc />
+internal sealed partial class App
 {
-    /// <inheritdoc />
-    internal sealed partial class App
-    {
-    }
 }
