@@ -10,7 +10,7 @@ namespace ChessGame.GameClasses;
 /// <summary>
 ///     Base class for all chess pieces.
 /// </summary>
-internal abstract class Piece : UserControl
+public abstract class Piece : UserControl
 {
     private static Piece? _lastMovedPiece;
     private protected readonly ChessBoard Board;
@@ -339,7 +339,7 @@ internal abstract class Piece : UserControl
 /// <summary>
 ///     Enum for the piece colors.
 /// </summary>
-internal enum PieceColor
+public enum PieceColor
 {
     White,
     Black,

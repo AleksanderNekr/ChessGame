@@ -2,7 +2,7 @@
 
 namespace ChessGame.GameClasses;
 
-internal sealed class Coordinate
+public sealed class Coordinate
 {
     private readonly int _columnCoordinate;
 

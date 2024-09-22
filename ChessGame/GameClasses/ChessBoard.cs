@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
 
-internal sealed class ChessBoard
+public sealed class ChessBoard
 {
     public const int Size = 8;
 
