@@ -1,0 +1,23 @@
+﻿<Window x:Class="DecisionBuilder.TreeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:wpf="clr-namespace:Graphviz4Net.WPF;assembly=Graphviz4Net.WPF"
+        mc:Ignorable="d"
+        Title="Дерево решения" Height="450" Width="800"
+        x:Name="Window">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button Click="AddTree_OnClick">Add</Button>
+        <ScrollViewer Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Visible">
+            <ScrollViewer.Content>
+                <wpf:GraphLayout Name="GraphLayout" />
+            </ScrollViewer.Content>
+        </ScrollViewer>
+    </Grid>
+</Window>

@@ -59,6 +59,15 @@
                         <DropShadowEffect />
                     </Button.Effect>
                 </Button>
+                <Button Content="Дерево" Click="ShowTree_Click" HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Margin="0, 0, 0 , 10"
+                        BorderBrush="#FFFF2121" RenderTransformOrigin="0.601,1.034"
+                        MinWidth="150" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
+                    <Button.Effect>
+                        <DropShadowEffect />
+                    </Button.Effect>
+                </Button>
             </StackPanel>
         </StackPanel>
     </Grid>
