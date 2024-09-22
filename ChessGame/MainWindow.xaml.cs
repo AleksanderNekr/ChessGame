@@ -64,20 +64,23 @@ internal sealed partial class MainWindow
 
     private void ButtonBase_Click(object sender, RoutedEventArgs e)
     {
-        ResetPreset();
+        ResetPreset(() =>
+        {
+            SetPawns();
+            SetKnights();
+            SetBishops();
+            SetRooks();
+            SetQueens();
+            SetKings();
+        });
     }
 
-    private void ResetPreset()
+    private void ResetPreset(Action setPreset)
     {
         _board.Clear();
         _board.AfterBoardChanged -= AfterBoardChanged;
 
-        SetPawns();
-        SetKnights();
-        SetBishops();
-        SetRooks();
-        SetQueens();
-        SetKings();
+        setPreset();
 
         _board.AfterBoardChanged += AfterBoardChanged;
         _board.OnBoardChanged();
@@ -141,7 +144,7 @@ internal sealed partial class MainWindow
 
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
-        var newBoardPresenter = GetNewBoardPresenter(BoardPresenter, _board);
+        var newBoardPresenter = CloneBoardPresenter(BoardPresenter, _board);
         DrawGraph(new TreeNode<Grid>(newBoardPresenter, null));
     }
 
@@ -163,7 +166,7 @@ internal sealed partial class MainWindow
         treeWindow.ShowDialog();
     }
 
-    private static Grid GetNewBoardPresenter(Grid sourceBoardPresenter, ChessBoard sourceChessBoard)
+    private static Grid CloneBoardPresenter(Grid sourceBoardPresenter, ChessBoard sourceChessBoard)
     {
         var newBoardPresenter = new Grid
         {
@@ -222,8 +225,13 @@ internal sealed partial class MainWindow
     }
 
 
-    private void Mate2MovesEasy_Click(object sender, RoutedEventArgs e)
+    private void Mate1MoveEasy_Click(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        ResetPreset(() =>
+        {
+            _ = new King(_board, PieceColor.Black, 0, 4);
+            _ = new King(_board, PieceColor.White, 2, 4);
+            _ = new Rook(_board, PieceColor.White, 7, 7);
+        });
     }
 }

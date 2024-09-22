@@ -44,7 +44,7 @@
                         <DropShadowEffect />
                     </Button.Effect>
                 </Button>
-                <Button Content="Мат в 2 хода (легкий)" Click="Mate2MovesEasy_Click" HorizontalAlignment="Center"
+                <Button Content="Мат в 1 ход (легкий)" Click="Mate1MoveEasy_Click" HorizontalAlignment="Center"
                         FontSize="18"
                         VerticalAlignment="Top"
                         Margin="0, 0, 0 , 10"
