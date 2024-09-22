@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DecisionBuilder\DecisionBuilder.csproj"/>
+        <ProjectReference Include="..\TreeDrawer\TreeDrawer.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessGame", "ChessGame\ChessGame.csproj", "{4AF464D4-DF0B-4596-9E41-949EC5227436}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DecisionBuilder", "DecisionBuilder\DecisionBuilder.csproj", "{F2053D97-36B4-44F5-9E48-74646B80E20F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeDrawer", "TreeDrawer\TreeDrawer.csproj", "{F2053D97-36B4-44F5-9E48-74646B80E20F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

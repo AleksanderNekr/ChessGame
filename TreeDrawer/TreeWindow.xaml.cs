@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace DecisionBuilder;
+namespace TreeDrawer;
 
 public sealed partial class TreeWindow
 {

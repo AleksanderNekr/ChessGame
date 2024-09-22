@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using ChessGame.GameClasses;
-using DecisionBuilder;
+using TreeDrawer;
 
 namespace ChessGame;
 
@@ -145,6 +145,7 @@ internal sealed partial class MainWindow
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
         var newBoardPresenter = CloneBoardPresenter(BoardPresenter, _board);
+        
         DrawGraph(new TreeNode<Grid>(newBoardPresenter, null));
     }
 

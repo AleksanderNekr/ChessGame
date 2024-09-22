@@ -1,6 +1,6 @@
 ﻿using Graphviz4Net.Graphs;
 
-namespace DecisionBuilder;
+namespace TreeDrawer;
 
 internal abstract class GraphBuilder<TNode>
 {
