@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,38 +13,41 @@ namespace ChessGame.GameClasses;
 internal abstract class Piece : UserControl
 {
     private static Piece? _lastMovedPiece;
+    private protected readonly ChessBoard Board;
     private bool _isEnemy;
 
     /// <summary>
     ///     Constructor for the Piece class.
     /// </summary>
+    /// <param name="board">The chess board</param>
     /// <param name="color">The color of the piece.</param>
     /// <param name="row">The row of the piece.</param>
     /// <param name="column">The column of the piece.</param>
-    protected Piece(PieceColor color, int row, int column)
+    protected Piece(ChessBoard board, PieceColor color, int row, int column)
     {
+        Board = board;
         Coordinate = new Coordinate(row, column);
         Color = color;
         Cursor = Cursors.Hand;
         BorderThickness = new Thickness(1);
         Focusable = true;
         FocusVisualStyle = null;
-        ChessBoard.BoardChanged += ChessBoard_BoardChanged;
         MouseEnter += Piece_MouseEnter;
         MouseLeave += Piece_MouseLeave;
         GotFocus += Piece_GotFocus;
         LostFocus += Piece_LostFocus;
         MouseLeftButtonUp += Piece_MouseLeftButtonUp;
         SetBackgroundImage();
-        ChessBoard.SetPiece(this, Coordinate);
+        Board.SetPiece(this, Coordinate);
     }
 
     /// <summary>
     ///     Constructor for the Piece class.
     /// </summary>
+    /// <param name="board">The chess board</param>
     /// <param name="color">The color of the piece.</param>
     /// <param name="coordinate">The coordinate of the piece.</param>
-    protected Piece(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+    protected Piece(ChessBoard board, PieceColor color, Coordinate coordinate) : this(board, color, coordinate.Row, coordinate.Column)
     {
     }
 
@@ -89,25 +91,20 @@ internal abstract class Piece : UserControl
         var oldCoordinate = Coordinate;
         IfPawnMove(newCoordinate, oldCoordinate);
 
-        if (ChessBoard.Board[newCoordinate.Row, newCoordinate.Column] != null)
-        {
-            ChessBoard.Pieces.Remove(ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]
-                                     ?? throw new InvalidOperationException());
-        }
+        Board.MovePiece(this, newCoordinate.Row, newCoordinate.Column);
 
-        ChessBoard.Board[newCoordinate.Row, newCoordinate.Column] = this;
-        ChessBoard.Board[Coordinate.Row, Coordinate.Column] = null;
         Coordinate = newCoordinate;
-        ChangePlayer();
-        ChessBoard.OnBoardChanged(this, new BoardChangedEventArgs(oldCoordinate, newCoordinate));
+        Board.ChangePlayer(Color);
 
         _lastMovedPiece = this;
+
+        Board.OnBoardChanged();
     }
 
-    protected static List<Coordinate> GetAllAttackCoordinates(PieceColor color)
+    protected List<Coordinate> GetAllAttackCoordinates(PieceColor color)
     {
         Dictionary<Coordinate, int> attackCoordinates = new();
-        foreach (var piece in ChessBoard.Pieces.Where(piece => piece.Color == color))
+        foreach (var piece in Board.GetPlayerPieces(color))
         {
             piece.UpdateValidMoves();
             foreach (var validMove in piece.ValidMoves)
@@ -131,50 +128,29 @@ internal abstract class Piece : UserControl
         CutIfTakeOnPass(newCoordinate, oldCoordinate);
     }
 
-    private static void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
+    private void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
     {
-        var enemy = ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column];
-        if (ChessBoard.GetPieceOrNull(newCoordinate) != null || enemy is not Pawn)
+        var enemy = Board.GetPieceOrNull(oldCoordinate.Row, newCoordinate.Column);
+        if (Board.GetPieceOrNull(newCoordinate) != null || enemy is not Pawn)
         {
             return;
         }
 
         if (ValidMove.LastClickedPiece != null && enemy.Color != ValidMove.LastClickedPiece.Color)
         {
-            ChessBoard.Pieces.Remove(enemy);
+            Board.RemovePiece(enemy.Coordinate);
         }
 
-        ChessBoard.Board[oldCoordinate.Row, newCoordinate.Column] = null;
+        Board.RemovePiece(oldCoordinate.Row, newCoordinate.Column);
     }
 
-    private void ChangePlayer()
-    {
-        var color = Color == PieceColor.White
-            ? PieceColor.Black
-            : PieceColor.White;
-
-        foreach (var piece in ChessBoard.Pieces)
-        {
-            // If the piece is the color that we need, unlock it.
-            if (piece.Color == color)
-            {
-                piece.IsEnabled = true;
-                continue;
-            }
-
-            // If the piece is not the color that we need, lock it.
-            piece.IsEnabled = false;
-            piece.BorderBrush = Brushes.Transparent;
-        }
-    }
-
-    internal static void AddRangeMoves(Piece piece, int rowDif, int colDif)
+    internal void AddRangeMoves(Piece piece, int rowDif, int colDif)
     {
         var row = piece.Coordinate.Row;
         var column = piece.Coordinate.Column;
         while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
         {
-            var place = ChessBoard.GetPieceOrNull(row, column);
+            var place = Board.GetPieceOrNull(row, column);
             if (place == null)
             {
                 piece.ValidMoves.Add(new Coordinate(row, column));
@@ -196,19 +172,9 @@ internal abstract class Piece : UserControl
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    protected abstract void UpdateValidMoves();
+    protected internal abstract void UpdateValidMoves();
 
-    public static void UpdateAllValidMoves()
-    {
-        // Using for loop instead of foreach because we need to change the collection.
-        for (var i = ChessBoard.Pieces.Count - 1; i >= 0; i--)
-        {
-            var piece = ChessBoard.Pieces[i];
-            piece.UpdateValidMoves();
-        }
-    }
-
-    private static void Piece_GotFocus(object sender, RoutedEventArgs e)
+    private void Piece_GotFocus(object sender, RoutedEventArgs e)
     {
         var piece = (Piece)sender;
         piece.BorderThickness = new Thickness(2);
@@ -220,7 +186,7 @@ internal abstract class Piece : UserControl
         piece.ShowValidMoves();
         LastClicked?.Invoke(piece, e);
 
-        foreach (var pieceAlly in ChessBoard.Pieces.Where(pieceAlly => pieceAlly.Color == piece.Color))
+        foreach (var pieceAlly in Board.GetPlayerPieces(piece.Color))
         {
             pieceAlly.IsEnabled = true;
         }
@@ -283,7 +249,7 @@ internal abstract class Piece : UserControl
     {
         foreach (var coordinate in ValidMoves)
         {
-            var place = ChessBoard.GetPieceOrNull(coordinate);
+            var place = Board.GetPieceOrNull(coordinate);
             switch (place)
             {
                 case null:
@@ -300,7 +266,7 @@ internal abstract class Piece : UserControl
     {
         foreach (var validMoveCoord in ValidMoves)
         {
-            var piece = ChessBoard.GetPieceOrNull(validMoveCoord);
+            var piece = Board.GetPieceOrNull(validMoveCoord);
             if (piece is not null)
             {
                 UnsetEnemyHighlight(piece);
@@ -324,11 +290,6 @@ internal abstract class Piece : UserControl
         place._isEnemy = false;
         place.BorderBrush = Brushes.Transparent;
         place.IsEnabled = false;
-    }
-
-    internal static void ChessBoard_BoardChanged(Piece sender, BoardChangedEventArgs e)
-    {
-        UpdateAllValidMoves();
     }
 
     private void SetBackgroundImage()

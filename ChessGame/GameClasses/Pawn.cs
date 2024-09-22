@@ -10,12 +10,12 @@ namespace ChessGame.GameClasses;
 internal sealed class Pawn : Piece
 {
     /// <inheritdoc />
-    public Pawn(PieceColor color, int row, int column) : base(color, row, column)
+    public Pawn(ChessBoard board, PieceColor color, int row, int column) : base(board, color, row, column)
     {
     }
 
     /// <inheritdoc />
-    public Pawn(PieceColor color, Coordinate coordinate) : this(color, coordinate.Row, coordinate.Column)
+    public Pawn(ChessBoard board, PieceColor color, Coordinate coordinate) : this(board, color, coordinate.Row, coordinate.Column)
     {
     }
 
@@ -39,8 +39,7 @@ internal sealed class Pawn : Piece
             ? 6
             : 1;
 
-    /// <inheritdoc />
-    protected override void UpdateValidMoves()
+    protected internal override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         if (Coordinate.Row == InitialRow + Move * 6)
@@ -65,7 +64,7 @@ internal sealed class Pawn : Piece
     {
         var moveRow = Coordinate.Row + move;
         var newCoordinate = new Coordinate(moveRow, Coordinate.Column);
-        UserControl? placeUnderMove = ChessBoard.GetPieceOrNull(newCoordinate);
+        UserControl? placeUnderMove = Board.GetPieceOrNull(newCoordinate);
 
         if (placeUnderMove != null)
         {
@@ -93,7 +92,7 @@ internal sealed class Pawn : Piece
     {
         var moveRow = Coordinate.Row + Move;
         var newCoordinate = new Coordinate(moveRow, Coordinate.Column + columnChange);
-        if (ChessBoard.GetPieceOrNull(newCoordinate) is Piece enemy && enemy.Color != Color)
+        if (Board.GetPieceOrNull(newCoordinate) is { } enemy && enemy.Color != Color)
         {
             ValidMoves.Add(newCoordinate);
         }

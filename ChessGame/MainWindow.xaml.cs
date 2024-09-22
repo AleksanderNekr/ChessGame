@@ -2,18 +2,27 @@
 using System.Windows;
 using System.Windows.Controls;
 using ChessGame.GameClasses;
+using DecisionBuilder;
 
 namespace ChessGame;
 
 /// <inheritdoc cref="System.Windows.Window" />
 internal sealed partial class MainWindow
 {
+    private readonly ChessBoard _board;
+
     public MainWindow()
     {
         InitializeComponent();
-        ChessBoard.BoardChanged += ChessBoard_BoardChanged;
+        _board = new ChessBoard();
+        _board.AfterBoardChanged += AfterBoardChanged;
         ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
         ValidMove.HideValidMove += HideValidMoveHideValidMove;
+    }
+
+    private void AfterBoardChanged()
+    {
+        UpdateGridBoard();
     }
 
     private void HideValidMoveHideValidMove(ValidMove sender, EventArgs e)
@@ -26,19 +35,14 @@ internal sealed partial class MainWindow
         SetPieceToBoard(sender, sender.Coordinate.Row, sender.Coordinate.Column);
     }
 
-    private void ChessBoard_BoardChanged(UserControl sender, BoardChangedEventArgs boardChangedEventArgs)
-    {
-        UpdateGridBoard();
-    }
-
     private void UpdateGridBoard()
     {
-        Board.Children.Clear();
-        for (var i = 0; i < ChessBoard.Board.GetLength(0); i++)
+        BoardPresenter.Children.Clear();
+        for (var i = 0; i < ChessBoard.Size; i++)
         {
-            for (var j = 0; j < ChessBoard.Board.GetLength(1); j++)
+            for (var j = 0; j < ChessBoard.Size; j++)
             {
-                UserControl? control = ChessBoard.GetPieceOrNull(i, j);
+                UserControl? control = _board.GetPieceOrNull(i, j);
                 if (control == null)
                 {
                     continue;
@@ -53,76 +57,130 @@ internal sealed partial class MainWindow
     {
         Grid.SetRow(control, i);
         Grid.SetColumn(control, j);
-        Board.Children.Add(control);
+        BoardPresenter.Children.Add(control);
     }
 
     private void ButtonBase_Click(object sender, RoutedEventArgs e)
     {
-        ChessBoard.Clear();
-        ChessBoard.BoardChanged -= Piece.ChessBoard_BoardChanged;
+        ResetPreset();
+    }
+
+    private void ResetPreset()
+    {
+        _board.Clear();
+        _board.AfterBoardChanged -= AfterBoardChanged;
+
         SetPawns();
         SetKnights();
         SetBishops();
         SetRooks();
         SetQueens();
         SetKings();
-        ChessBoard.BoardChanged += Piece.ChessBoard_BoardChanged;
-        Piece.UpdateAllValidMoves();
+
+        _board.AfterBoardChanged += AfterBoardChanged;
+        _board.OnBoardChanged();
     }
 
-    private static void SetKings()
+    private void SetKings()
     {
-        _ = new King(PieceColor.Black, 0, 4);
-        _ = new King(PieceColor.White, 7, 4);
+        _ = new King(_board, PieceColor.Black, 0, 4);
+        _ = new King(_board, PieceColor.White, 7, 4);
     }
 
-    private static void SetQueens()
+    private void SetQueens()
     {
-        _ = new Queen(PieceColor.Black, 0, 3);
-        _ = new Queen(PieceColor.White, 7, 3);
+        _ = new Queen(_board, PieceColor.Black, 0, 3);
+        _ = new Queen(_board, PieceColor.White, 7, 3);
     }
 
-    private static void SetRooks()
+    private void SetRooks()
     {
-        _ = new Rook(PieceColor.Black, 0, 0);
-        _ = new Rook(PieceColor.Black, 0, 7);
-        _ = new Rook(PieceColor.White, 7, 0);
-        _ = new Rook(PieceColor.White, 7, 7);
+        _ = new Rook(_board, PieceColor.Black, 0, 0);
+        _ = new Rook(_board, PieceColor.Black, 0, 7);
+        _ = new Rook(_board, PieceColor.White, 7, 0);
+        _ = new Rook(_board, PieceColor.White, 7, 7);
     }
 
-    private static void SetBishops()
+    private void SetBishops()
     {
-        _ = new Bishop(PieceColor.White, 7, 2);
-        _ = new Bishop(PieceColor.White, 7, 5);
-        _ = new Bishop(PieceColor.Black, 0, 2);
-        _ = new Bishop(PieceColor.Black, 0, 5);
+        _ = new Bishop(_board, PieceColor.White, 7, 2);
+        _ = new Bishop(_board, PieceColor.White, 7, 5);
+        _ = new Bishop(_board, PieceColor.Black, 0, 2);
+        _ = new Bishop(_board, PieceColor.Black, 0, 5);
     }
 
-    private static void SetKnights()
+    private void SetKnights()
     {
-        _ = new Knight(PieceColor.White, 7, 1);
-        _ = new Knight(PieceColor.White, 7, 6);
-        _ = new Knight(PieceColor.Black, 0, 1);
-        _ = new Knight(PieceColor.Black, 0, 6);
+        _ = new Knight(_board, PieceColor.White, 7, 1);
+        _ = new Knight(_board, PieceColor.White, 7, 6);
+        _ = new Knight(_board, PieceColor.Black, 0, 1);
+        _ = new Knight(_board, PieceColor.Black, 0, 6);
     }
 
-    private static void SetPawns()
+    private void SetPawns()
     {
         for (var i = 0; i < 8; i++)
         {
-            _ = new Pawn(PieceColor.White, 6, i);
+            _ = new Pawn(_board, PieceColor.White, 6, i);
         }
 
         for (var i = 0; i < 8; i++)
         {
-            _ = new Pawn(PieceColor.Black, 1, i);
+            _ = new Pawn(_board, PieceColor.Black, 1, i);
         }
     }
 
     private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         var newSize = Math.Min(e.NewSize.Width, e.NewSize.Height) - 140;
-        Board.Width = newSize;
-        Board.Height = newSize;
+        BoardPresenter.Width = newSize;
+        BoardPresenter.Height = newSize;
+    }
+
+    private void ShowTree_Click(object sender, RoutedEventArgs e)
+    {
+        var graph = TreeWindow.NewGraph<Grid>();
+        var board = new ChessBoard();
+
+        var boardPresenter = BoardPresenter;
+        var grid = new Grid
+        {
+            Width = boardPresenter.Width,
+            Height = boardPresenter.Height,
+            Background = boardPresenter.Background,
+        };
+
+        foreach (UIElement boardChild in boardPresenter.Children)
+        {
+            if (boardChild is Piece piece)
+            {
+                switch (piece)
+                {
+                    case Pawn pawn:
+                        grid.Children.Add(new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column));
+                        break;
+                    case Knight knight:
+                        grid.Children.Add(new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column));
+                        break;
+                    case Bishop bishop:
+                        grid.Children.Add(new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column));
+                        break;
+                    case Rook rook:
+                        grid.Children.Add(new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column));
+                        break;
+                    case Queen queen:
+                        grid.Children.Add(new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column));
+                        break;
+                    case King king:
+                        grid.Children.Add(new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column));
+                        break;
+                }
+            }
+        }
+
+        TreeWindow.AddTreeRoot(graph, grid);
+        var tree = new TreeWindow();
+        tree.BuildGraph(graph);
+        tree.ShowDialog();
     }
 }

@@ -11,12 +11,12 @@ namespace ChessGame.GameClasses;
 internal sealed class Knight : Piece
 {
     /// <inheritdoc />
-    public Knight(PieceColor color, int row, int column) : base(color, row, column)
+    public Knight(ChessBoard board, PieceColor color, int row, int column) : base(board, color, row, column)
     {
     }
 
     /// <inheritdoc />
-    public Knight(PieceColor color, Coordinate coordinate) : base(color, coordinate)
+    public Knight(ChessBoard board, PieceColor color, Coordinate coordinate) : base(board, color, coordinate)
     {
     }
 
@@ -27,7 +27,7 @@ internal sealed class Knight : Piece
     protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKnight"];
 
     /// <inheritdoc />
-    protected override void UpdateValidMoves()
+    protected internal override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         TryToAddMove(Coordinate.Row - 2, Coordinate.Column + 1);
@@ -52,7 +52,7 @@ internal sealed class Knight : Piece
             return;
         }
 
-        UserControl? place = ChessBoard.GetPieceOrNull(coordinate);
+        UserControl? place = Board.GetPieceOrNull(coordinate);
         if (place == null || IsEnemy(place))
         {
             ValidMoves.Add(coordinate);

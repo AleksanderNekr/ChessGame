@@ -1,42 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
 
-internal static class ChessBoard
+internal sealed class ChessBoard
 {
-    public delegate void BoardChangeHandler(Piece sender, BoardChangedEventArgs e);
+    public const int Size = 8;
 
-    public static readonly List<Piece> Pieces = new();
+    private readonly List<Piece> _pieces = new();
+    public Action? AfterBoardChanged = null;
 
-    public static Piece?[,] Board { get; } = new Piece?[8, 8];
+    private Piece?[,] Board { get; } = new Piece?[Size, Size];
 
-    public static event BoardChangeHandler? BoardChanged;
-
-    public static Piece? GetPieceOrNull(int row, int column)
+    public Piece? GetPieceOrNull(int row, int column)
     {
         var coord = new Coordinate(row, column);
         return Board[coord.Row, coord.Column];
     }
 
-    public static Piece? GetPieceOrNull(Coordinate coordinate)
+    public Piece? GetPieceOrNull(Coordinate coordinate)
         => GetPieceOrNull(coordinate.Row, coordinate.Column);
 
-    public static void SetPiece(Piece piece, int row, int column)
+    private void SetPiece(Piece piece, int row, int column)
     {
         var coord = new Coordinate(row, column);
         Board[coord.Row, coord.Column] = piece;
         piece.Coordinate = coord;
-        OnBoardChanged(piece, new BoardChangedEventArgs(null, coord));
-        Pieces.Add(piece);
+        _pieces.Add(piece);
+
+        OnBoardChanged();
     }
 
-    public static void SetPiece(Piece piece, Coordinate coordinate)
+    public void SetPiece(Piece piece, Coordinate coordinate)
     {
         SetPiece(piece, coordinate.Row, coordinate.Column);
     }
 
-    public static void RemovePiece(int row, int column)
+    public void RemovePiece(int row, int column)
     {
         var coord = new Coordinate(row, column);
         var piece = GetPieceOrNull(coord);
@@ -46,46 +48,83 @@ internal static class ChessBoard
         }
 
         Board[coord.Row, coord.Column] = null;
-        OnBoardChanged(piece, new BoardChangedEventArgs(coord, null));
-        Pieces.Remove(piece);
+        _pieces.Remove(piece);
+
+        OnBoardChanged();
     }
 
-    public static void RemovePiece(Coordinate coordinate)
+    public void RemovePiece(Coordinate coordinate)
     {
         RemovePiece(coordinate.Row, coordinate.Column);
     }
 
-    internal static void OnBoardChanged(Piece sender, BoardChangedEventArgs e)
+    internal void OnBoardChanged()
     {
-        BoardChanged?.Invoke(sender, e);
+        AfterBoardChanged?.Invoke();
+        UpdateAllValidMoves();
     }
 
     /// <summary>
     ///     Removes all pieces from the board.
     /// </summary>
-    public static void Clear()
+    public void Clear()
     {
-        for (var row = 0; row < 8; row++)
+        for (var row = 0; row < Size; row++)
         {
-            for (var column = 0; column < 8; column++)
+            for (var column = 0; column < Size; column++)
             {
                 Board[row, column] = null;
             }
         }
 
-        Pieces.Clear();
+        _pieces.Clear();
     }
-}
 
-internal sealed class BoardChangedEventArgs : EventArgs
-{
-    public BoardChangedEventArgs(Coordinate? oldCoordinate, Coordinate? newCoordinate)
+    public IEnumerable<Piece> GetPlayerPieces(PieceColor color)
+        => _pieces.Where(piece => piece.Color == color);
+
+    private bool HasPieceAt(int row, int column)
+        => Board[row, column] != null;
+
+    public void ChangePlayer(PieceColor currentPlayerColor)
     {
-        OldCoordinate = oldCoordinate;
-        NewCoordinate = newCoordinate;
+        var nextPlayerColor = currentPlayerColor == PieceColor.White
+            ? PieceColor.Black
+            : PieceColor.White;
+
+        foreach (var piece in _pieces)
+        {
+            // If the piece is the color that we need, unlock it.
+            if (piece.Color == nextPlayerColor)
+            {
+                piece.IsEnabled = true;
+                continue;
+            }
+
+            // If the piece is not the color that we need, lock it.
+            piece.IsEnabled = false;
+            piece.BorderBrush = Brushes.Transparent;
+        }
     }
 
-    public Coordinate? OldCoordinate { get; }
+    private void UpdateAllValidMoves()
+    {
+        // Using for loop instead of foreach because we need to change the collection.
+        for (var i = _pieces.Count - 1; i >= 0; i--)
+        {
+            var piece = _pieces[i];
+            piece.UpdateValidMoves();
+        }
+    }
 
-    public Coordinate? NewCoordinate { get; }
+    public void MovePiece(Piece piece, int newCoordinateRow, int newCoordinateColumn)
+    {
+        if (HasPieceAt(newCoordinateRow, newCoordinateColumn))
+        {
+            RemovePiece(newCoordinateRow, newCoordinateColumn);
+        }
+
+        Board[piece.Coordinate.Row, piece.Coordinate.Column] = null;
+        SetPiece(piece, newCoordinateRow, newCoordinateColumn);
+    }
 }
