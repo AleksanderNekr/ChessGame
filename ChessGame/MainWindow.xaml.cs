@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +10,7 @@ namespace ChessGame;
 /// <inheritdoc cref="System.Windows.Window" />
 internal sealed partial class MainWindow
 {
+    private const double BoardsSize = 250;
     private readonly ChessBoard _board;
 
     public MainWindow()
@@ -142,33 +142,12 @@ internal sealed partial class MainWindow
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
         var newBoardPresenter = GetNewBoardPresenter(BoardPresenter, _board);
-        DrawGraph();
+        DrawGraph(new TreeNode<Grid>(newBoardPresenter, null));
     }
 
-    private void DrawGraph()
+    private void DrawGraph(TreeNode<Grid> root)
     {
         var treeWindow = new TreeWindow();
-
-        var root = new TreeNode<string>(
-            "Root",
-            new[]
-            {
-                new TreeNode<string>(
-                    "Child 1",
-                    new[]
-                    {
-                        new TreeNode<string>("Child 1.1", Array.Empty<TreeNode<string>>()),
-                        new TreeNode<string>("Child 1.2", Array.Empty<TreeNode<string>>()),
-                    }),
-                new TreeNode<string>(
-                    "Child 2",
-                    new[]
-                    {
-                        new TreeNode<string>("Child 2.1", Array.Empty<TreeNode<string>>()),
-                        new TreeNode<string>("Child 2.2", Array.Empty<TreeNode<string>>()),
-                    }),
-            }
-        );
 
         treeWindow.DrawTree(root);
 
@@ -188,8 +167,8 @@ internal sealed partial class MainWindow
     {
         var newBoardPresenter = new Grid
         {
-            Height = 250,
-            Width = 250,
+            Height = BoardsSize,
+            Width = BoardsSize,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Background = sourceBoardPresenter.Background.Clone(),

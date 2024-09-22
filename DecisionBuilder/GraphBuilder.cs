@@ -1,5 +1,4 @@
 ﻿using Graphviz4Net.Graphs;
-using Graphviz4Net.WPF.ViewModels;
 
 namespace DecisionBuilder;
 
@@ -27,7 +26,7 @@ internal abstract class GraphBuilder<TNode>
         foreach (var child in root.Children)
         {
             graph.AddVertex(child.Value);
-            graph.AddEdge(new Edge<TNode>(root.Value, child.Value, destinationArrow: "\u2193", sourceArrow: null));
+            graph.AddEdge(new Edge<TNode>(root.Value, child.Value));
             AddChildren(graph, child);
         }
     }
