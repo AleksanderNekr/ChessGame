@@ -154,13 +154,13 @@ internal sealed partial class MainWindow
         ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
         ValidMove.HideValidMove -= HideValidMoveHideValidMove;
 
-        treeWindow.ShowDialog();
-
         treeWindow.Closing += (_, _) =>
         {
             ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
             ValidMove.HideValidMove += HideValidMoveHideValidMove;
         };
+
+        treeWindow.ShowDialog();
     }
 
     private static Grid GetNewBoardPresenter(Grid sourceBoardPresenter, ChessBoard sourceChessBoard)
