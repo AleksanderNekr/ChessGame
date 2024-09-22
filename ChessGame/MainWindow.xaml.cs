@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -140,26 +141,71 @@ internal sealed partial class MainWindow
 
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
+        var newBoardPresenter = GetNewBoardPresenter(BoardPresenter, _board);
+        DrawGraph();
+    }
+
+    private void DrawGraph()
+    {
+        var treeWindow = new TreeWindow();
+
+        var root = new TreeNode<string>(
+            "Root",
+            new[]
+            {
+                new TreeNode<string>(
+                    "Child 1",
+                    new[]
+                    {
+                        new TreeNode<string>("Child 1.1", Array.Empty<TreeNode<string>>()),
+                        new TreeNode<string>("Child 1.2", Array.Empty<TreeNode<string>>()),
+                    }),
+                new TreeNode<string>(
+                    "Child 2",
+                    new[]
+                    {
+                        new TreeNode<string>("Child 2.1", Array.Empty<TreeNode<string>>()),
+                        new TreeNode<string>("Child 2.2", Array.Empty<TreeNode<string>>()),
+                    }),
+            }
+        );
+
+        treeWindow.DrawTree(root);
+
+        ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
+        ValidMove.HideValidMove -= HideValidMoveHideValidMove;
+
+        treeWindow.ShowDialog();
+
+        treeWindow.Closing += (_, _) =>
+        {
+            ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
+            ValidMove.HideValidMove += HideValidMoveHideValidMove;
+        };
+    }
+
+    private static Grid GetNewBoardPresenter(Grid sourceBoardPresenter, ChessBoard sourceChessBoard)
+    {
         var newBoardPresenter = new Grid
         {
             Height = 250,
             Width = 250,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            Background = BoardPresenter.Background.Clone(),
-            RenderTransform = BoardPresenter.RenderTransform.Clone(),
+            Background = sourceBoardPresenter.Background.Clone(),
+            RenderTransform = sourceBoardPresenter.RenderTransform.Clone(),
         };
-        foreach (var row in BoardPresenter.RowDefinitions)
+        foreach (var row in sourceBoardPresenter.RowDefinitions)
         {
             newBoardPresenter.RowDefinitions.Add(new RowDefinition { Height = row.Height });
         }
-        foreach (var col in BoardPresenter.ColumnDefinitions)
+        foreach (var col in sourceBoardPresenter.ColumnDefinitions)
         {
             newBoardPresenter.ColumnDefinitions.Add(new ColumnDefinition { Width = col.Width });
         }
 
         var newWindowBoard = new ChessBoard();
-        foreach (var piece in _board.GetPlayerPieces(PieceColor.Black).Union(_board.GetPlayerPieces(PieceColor.White)))
+        foreach (var piece in sourceChessBoard.GetPlayerPieces(PieceColor.Black).Union(sourceChessBoard.GetPlayerPieces(PieceColor.White)))
         {
             Piece _ = piece switch
             {
@@ -173,21 +219,7 @@ internal sealed partial class MainWindow
             };
         }
         FillBoardPresenter(newBoardPresenter, newWindowBoard);
-
-        var graph = TreeWindow.NewGraph<Grid>();
-        TreeWindow.AddTreeRoot(graph, newBoardPresenter);
-        var tree = new TreeWindow();
-        tree.BuildGraph(graph);
-        ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
-        ValidMove.HideValidMove -= HideValidMoveHideValidMove;
-        tree.ShowDialog();
-        tree.Closing += (_, _) =>
-        {
-            ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
-            ValidMove.HideValidMove += HideValidMoveHideValidMove;
-        };
-
-        return;
+        return newBoardPresenter;
 
         static void FillBoardPresenter(Grid boardPresenter, ChessBoard source)
         {
@@ -209,6 +241,7 @@ internal sealed partial class MainWindow
             }
         }
     }
+
 
     private void Mate2MovesEasy_Click(object sender, RoutedEventArgs e)
     {

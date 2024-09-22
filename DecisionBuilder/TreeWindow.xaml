@@ -12,7 +12,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button Click="AddTree_OnClick">Add</Button>
         <ScrollViewer Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Visible">
             <ScrollViewer.Content>
