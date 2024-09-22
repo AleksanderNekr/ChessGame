@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using ChessGame.GameClasses;
@@ -139,48 +140,78 @@ internal sealed partial class MainWindow
 
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
-        var graph = TreeWindow.NewGraph<Grid>();
-        var board = new ChessBoard();
-
-        var boardPresenter = BoardPresenter;
-        var grid = new Grid
+        var newBoardPresenter = new Grid
         {
-            Width = boardPresenter.Width,
-            Height = boardPresenter.Height,
-            Background = boardPresenter.Background,
+            Height = 250,
+            Width = 250,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = BoardPresenter.Background.Clone(),
+            RenderTransform = BoardPresenter.RenderTransform.Clone(),
+        };
+        foreach (var row in BoardPresenter.RowDefinitions)
+        {
+            newBoardPresenter.RowDefinitions.Add(new RowDefinition { Height = row.Height });
+        }
+        foreach (var col in BoardPresenter.ColumnDefinitions)
+        {
+            newBoardPresenter.ColumnDefinitions.Add(new ColumnDefinition { Width = col.Width });
+        }
+
+        var newWindowBoard = new ChessBoard();
+        foreach (var piece in _board.GetPlayerPieces(PieceColor.Black).Union(_board.GetPlayerPieces(PieceColor.White)))
+        {
+            Piece _ = piece switch
+            {
+                Pawn pawn => new Pawn(newWindowBoard, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
+                Knight knight => new Knight(newWindowBoard, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
+                Bishop bishop => new Bishop(newWindowBoard, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
+                Rook rook => new Rook(newWindowBoard, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
+                Queen queen => new Queen(newWindowBoard, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
+                King king => new King(newWindowBoard, king.Color, king.Coordinate.Row, king.Coordinate.Column),
+                _ => throw new ArgumentOutOfRangeException(nameof(piece)),
+            };
+        }
+        FillBoardPresenter(newBoardPresenter, newWindowBoard);
+
+        var graph = TreeWindow.NewGraph<Grid>();
+        TreeWindow.AddTreeRoot(graph, newBoardPresenter);
+        var tree = new TreeWindow();
+        tree.BuildGraph(graph);
+        ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
+        ValidMove.HideValidMove -= HideValidMoveHideValidMove;
+        tree.ShowDialog();
+        tree.Closing += (_, _) =>
+        {
+            ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
+            ValidMove.HideValidMove += HideValidMoveHideValidMove;
         };
 
-        foreach (UIElement boardChild in boardPresenter.Children)
+        return;
+
+        static void FillBoardPresenter(Grid boardPresenter, ChessBoard source)
         {
-            if (boardChild is Piece piece)
+            boardPresenter.Children.Clear();
+            for (var i = 0; i < ChessBoard.Size; i++)
             {
-                switch (piece)
+                for (var j = 0; j < ChessBoard.Size; j++)
                 {
-                    case Pawn pawn:
-                        grid.Children.Add(new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column));
-                        break;
-                    case Knight knight:
-                        grid.Children.Add(new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column));
-                        break;
-                    case Bishop bishop:
-                        grid.Children.Add(new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column));
-                        break;
-                    case Rook rook:
-                        grid.Children.Add(new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column));
-                        break;
-                    case Queen queen:
-                        grid.Children.Add(new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column));
-                        break;
-                    case King king:
-                        grid.Children.Add(new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column));
-                        break;
+                    UserControl? control = source.GetPieceOrNull(i, j);
+                    if (control == null)
+                    {
+                        continue;
+                    }
+
+                    Grid.SetRow(control, i);
+                    Grid.SetColumn(control, j);
+                    boardPresenter.Children.Add(control);
                 }
             }
         }
+    }
 
-        TreeWindow.AddTreeRoot(graph, grid);
-        var tree = new TreeWindow();
-        tree.BuildGraph(graph);
-        tree.ShowDialog();
+    private void Mate2MovesEasy_Click(object sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }

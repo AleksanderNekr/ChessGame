@@ -8,26 +8,11 @@
         SizeChanged="MainWindow_SizeChanged">
     <Grid HorizontalAlignment="Left" VerticalAlignment="Top"
           RenderTransformOrigin="0.5,0.5" Margin="41,47,0, 0">
-        <Grid.RenderTransform>
-            <TransformGroup>
-                <ScaleTransform />
-                <SkewTransform AngleX="-0.103" />
-                <RotateTransform />
-                <TranslateTransform X="-0.498" />
-            </TransformGroup>
-        </Grid.RenderTransform>
         <StackPanel Orientation="Horizontal">
             <!-- Board. -->
             <Grid x:Name="BoardPresenter" Height="400" Width="400" RenderTransformOrigin="0.5,0.5"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center" Background="{DynamicResource Board}">
-                <Grid.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform />
-                        <SkewTransform />
-                        <RotateTransform />
-                    </TransformGroup>
-                </Grid.RenderTransform>
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition />
@@ -51,19 +36,28 @@
             </Grid>
             <StackPanel Orientation="Vertical" Margin="30, 0">
                 <Button Content="Стандартная расстановка" Click="ButtonBase_Click" HorizontalAlignment="Center"
+                        FontSize="18"
                         VerticalAlignment="Top"
                         Margin="0, 0, 0 , 10"
-                        BorderBrush="#FFFF2121" RenderTransformOrigin="0.601,1.034"
-                        MinWidth="150" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
+                        MinWidth="250" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
+                    <Button.Effect>
+                        <DropShadowEffect />
+                    </Button.Effect>
+                </Button>
+                <Button Content="Мат в 2 хода (легкий)" Click="Mate2MovesEasy_Click" HorizontalAlignment="Center"
+                        FontSize="18"
+                        VerticalAlignment="Top"
+                        Margin="0, 0, 0 , 10"
+                        MinWidth="250" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
                     <Button.Effect>
                         <DropShadowEffect />
                     </Button.Effect>
                 </Button>
                 <Button Content="Дерево" Click="ShowTree_Click" HorizontalAlignment="Center"
+                        FontSize="18"
                         VerticalAlignment="Top"
                         Margin="0, 0, 0 , 10"
-                        BorderBrush="#FFFF2121" RenderTransformOrigin="0.601,1.034"
-                        MinWidth="150" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
+                        MinWidth="250" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
                     <Button.Effect>
                         <DropShadowEffect />
                     </Button.Effect>
