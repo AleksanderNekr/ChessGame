@@ -334,6 +334,12 @@ public abstract class Piece : UserControl
     ///     Handler for the BoardChangedEvent.
     /// </summary>
     internal delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
+
+    internal IEnumerable<Coordinate> GetValidMoves()
+    {
+        UpdateValidMoves();
+        return ValidMoves;
+    }
 }
 
 /// <summary>

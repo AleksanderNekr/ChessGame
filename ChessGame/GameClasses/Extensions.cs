@@ -11,23 +11,7 @@ internal static class Extensions
 
     public static Grid Clone(this Grid sourceBoardPresenter)
     {
-        var newBoardPresenter = new Grid
-        {
-            Height = BoardsSize,
-            Width = BoardsSize,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Background = sourceBoardPresenter.Background.Clone(),
-            RenderTransform = sourceBoardPresenter.RenderTransform.Clone(),
-        };
-        foreach (var row in sourceBoardPresenter.RowDefinitions)
-        {
-            newBoardPresenter.RowDefinitions.Add(new RowDefinition { Height = row.Height });
-        }
-        foreach (var col in sourceBoardPresenter.ColumnDefinitions)
-        {
-            newBoardPresenter.ColumnDefinitions.Add(new ColumnDefinition { Width = col.Width });
-        }
+        var newBoardPresenter = CloneWithoutPieces(sourceBoardPresenter);
 
         var newWindowBoard = new ChessBoard();
         foreach (var piece in sourceBoardPresenter.Children.OfType<Piece>())
@@ -65,5 +49,55 @@ internal static class Extensions
                 }
             }
         }
+    }
+
+    public static Grid CloneWithoutPieces(this Grid sourceBoardPresenter)
+    {
+        var newBoardPresenter = new Grid
+        {
+            Height = BoardsSize,
+            Width = BoardsSize,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = sourceBoardPresenter.Background.Clone(),
+            RenderTransform = sourceBoardPresenter.RenderTransform.Clone(),
+        };
+        foreach (var row in sourceBoardPresenter.RowDefinitions)
+        {
+            newBoardPresenter.RowDefinitions.Add(new RowDefinition { Height = row.Height });
+        }
+        foreach (var col in sourceBoardPresenter.ColumnDefinitions)
+        {
+            newBoardPresenter.ColumnDefinitions.Add(new ColumnDefinition { Width = col.Width });
+        }
+
+        return newBoardPresenter;
+    }
+
+    public static void SetPieceToBoard(this Grid boardPresenter, UserControl control, int i, int j)
+    {
+        Grid.SetRow(control, i);
+        Grid.SetColumn(control, j);
+        boardPresenter.Children.Add(control);
+    }
+
+    public static Grid ApplyBoardLayout(this Grid boardPresenter, ChessBoard board)
+    {
+        boardPresenter.Children.Clear();
+        for (var i = 0; i < ChessBoard.Size; i++)
+        {
+            for (var j = 0; j < ChessBoard.Size; j++)
+            {
+                UserControl? control = board.GetPieceOrNull(i, j);
+                if (control == null)
+                {
+                    continue;
+                }
+
+                boardPresenter.SetPieceToBoard(control, i, j);
+            }
+        }
+        
+        return boardPresenter;
     }
 }

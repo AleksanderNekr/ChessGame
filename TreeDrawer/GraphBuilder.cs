@@ -18,7 +18,7 @@ internal abstract class GraphBuilder<TNode>
 
     private static void AddChildren(Graph<TNode> graph, TreeNode<TNode> root)
     {
-        if (root.Children is null || !root.Children.Any())
+        if (!root.Children.Any())
         {
             return;
         }
@@ -32,4 +32,10 @@ internal abstract class GraphBuilder<TNode>
     }
 }
 
-public sealed record TreeNode<T>(T Value, IEnumerable<TreeNode<T>>? Children);
+public sealed record TreeNode<T>(T Value, IList<TreeNode<T>> Children)
+{
+    public void AddChild(TreeNode<T> child)
+    {
+        Children.Add(child);
+    }
+}

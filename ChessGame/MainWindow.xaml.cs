@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using ChessGame.GameClasses;
@@ -10,59 +11,37 @@ namespace ChessGame;
 internal sealed partial class MainWindow
 {
     private readonly ChessBoard _board;
+    private ChessBoard? _solutionBoard;
+    private PieceColor? _startColor;
 
     public MainWindow()
     {
         InitializeComponent();
         _board = new ChessBoard();
-        _board.AfterBoardChanged += AfterBoardChanged;
+        _board.AfterBoardChanged += AfterBoardChangedHandle;
         ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
         ValidMove.HideValidMove += HideValidMoveHideValidMove;
     }
 
-    private void AfterBoardChanged()
+    private void AfterBoardChangedHandle()
     {
-        UpdateGridBoard();
+        BoardPresenter.ApplyBoardLayout(_board);
     }
 
     private void HideValidMoveHideValidMove(ValidMove sender, EventArgs e)
     {
-        UpdateGridBoard();
+        BoardPresenter.ApplyBoardLayout(_board);
     }
 
     private void ShowValidMoveShowValidMove(ValidMove sender, EventArgs e)
     {
-        SetPieceToBoard(sender, sender.Coordinate.Row, sender.Coordinate.Column);
-    }
-
-    private void UpdateGridBoard()
-    {
-        BoardPresenter.Children.Clear();
-        for (var i = 0; i < ChessBoard.Size; i++)
-        {
-            for (var j = 0; j < ChessBoard.Size; j++)
-            {
-                UserControl? control = _board.GetPieceOrNull(i, j);
-                if (control == null)
-                {
-                    continue;
-                }
-
-                SetPieceToBoard(control, i, j);
-            }
-        }
-    }
-
-    private void SetPieceToBoard(UserControl control, int i, int j)
-    {
-        Grid.SetRow(control, i);
-        Grid.SetColumn(control, j);
-        BoardPresenter.Children.Add(control);
+        BoardPresenter.SetPieceToBoard(sender, sender.Coordinate.Row, sender.Coordinate.Column);
     }
 
     private void ButtonBase_Click(object sender, RoutedEventArgs e)
     {
-        ResetPreset(() =>
+        _board.AfterBoardChanged -= AfterBoardChangedHandle;
+        _board.ResetPreset(() =>
         {
             SetPawns();
             SetKnights();
@@ -71,16 +50,7 @@ internal sealed partial class MainWindow
             SetQueens();
             SetKings();
         });
-    }
-
-    private void ResetPreset(Action setPreset)
-    {
-        _board.Clear();
-        _board.AfterBoardChanged -= AfterBoardChanged;
-
-        setPreset();
-
-        _board.AfterBoardChanged += AfterBoardChanged;
+        _board.AfterBoardChanged += AfterBoardChangedHandle;
         _board.OnBoardChanged();
     }
 
@@ -142,9 +112,35 @@ internal sealed partial class MainWindow
 
     private void ShowTree_Click(object sender, RoutedEventArgs e)
     {
-        var newBoardPresenter = BoardPresenter.Clone();
-        
-        DrawGraph(new TreeNode<Grid>(newBoardPresenter, null));
+        if (_solutionBoard is null || _startColor is null)
+        {
+            MessageBox.Show("Сначала выберите задачу");
+            return;
+        }
+
+        var newBoard = _board.Clone();
+        DecisionsMaker decisionsMaker = new();
+        var boardsTree = decisionsMaker.BuildDecisionTree(newBoard, _solutionBoard, _startColor.Value);
+
+        var grid = BoardPresenter.Clone();
+        var gridsTree = new TreeNode<Grid>(grid, new List<TreeNode<Grid>>());
+        gridsTree = BoardsToGrids(boardsTree, gridsTree);
+
+        DrawGraph(gridsTree);
+    }
+
+    private TreeNode<Grid> BoardsToGrids(TreeNode<ChessBoard> root, TreeNode<Grid> gridsTree)
+    {
+        var boardRoot = gridsTree.Value;
+        foreach (var child in root.Children)
+        {
+            var gridNode = new TreeNode<Grid>(boardRoot.Clone().ApplyBoardLayout(child.Value), new List<TreeNode<Grid>>());
+            gridsTree.AddChild(gridNode);
+
+            BoardsToGrids(child, gridNode);
+        }
+
+        return gridsTree;
     }
 
     private void DrawGraph(TreeNode<Grid> root)
@@ -167,11 +163,23 @@ internal sealed partial class MainWindow
 
     private void Mate1MoveEasy_Click(object sender, RoutedEventArgs e)
     {
-        ResetPreset(() =>
+        _startColor = PieceColor.White;
+        _board.AfterBoardChanged -= AfterBoardChangedHandle;
+        _board.ResetPreset(() =>
         {
             _ = new King(_board, PieceColor.Black, 0, 4);
             _ = new King(_board, PieceColor.White, 2, 4);
             _ = new Rook(_board, PieceColor.White, 7, 7);
+        });
+        _board.AfterBoardChanged += AfterBoardChangedHandle;
+        _board.OnBoardChanged();
+
+        _solutionBoard = new ChessBoard();
+        _solutionBoard.ResetPreset(() =>
+        {
+            _ = new King(_solutionBoard, PieceColor.Black, 0, 4);
+            _ = new King(_solutionBoard, PieceColor.White, 2, 4);
+            _ = new Rook(_solutionBoard, PieceColor.White, 7, 0);
         });
     }
 }
