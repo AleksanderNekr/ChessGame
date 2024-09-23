@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using ChessGame.GameClasses;
 using TreeDrawer;
 
@@ -123,18 +125,27 @@ internal sealed partial class MainWindow
         var boardsTree = decisionsMaker.BuildDecisionTree(newBoard, _solutionBoard, _startColor.Value);
 
         var grid = BoardPresenter.Clone();
-        var gridsTree = new TreeNode<Grid>(grid, new List<TreeNode<Grid>>());
+        var hField = TextBlock(0, "H = {0}");
+        var gField = TextBlock(0, "G = {0}");
+        var num = TextBlock(0, "№ {0}");
+        var fField = TextBlock(0, "F = {0}");
+        var gridsTree = new TreeNode<StackPanel>(NodePanel(grid, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
         gridsTree = BoardsToGrids(boardsTree, gridsTree);
 
         DrawGraph(gridsTree);
     }
 
-    private TreeNode<Grid> BoardsToGrids(TreeNode<ChessBoard> root, TreeNode<Grid> gridsTree)
+    private TreeNode<StackPanel> BoardsToGrids(TreeNode<VisualNodeContainer> root, TreeNode<StackPanel> gridsTree)
     {
         var boardRoot = gridsTree.Value;
         foreach (var child in root.Children)
         {
-            var gridNode = new TreeNode<Grid>(boardRoot.Clone().ApplyBoardLayout(child.Value), new List<TreeNode<Grid>>());
+            var boardLayout = boardRoot.Children.OfType<Grid>().Single().Clone().ApplyBoardLayout(child.Value.Board);
+            var hField = TextBlock(child.Value.HNumber, "H = {0}");
+            var gField = TextBlock(child.Value.GNumber, "G = {0}");
+            var num = TextBlock(child.Value.Step, "№ {0}");
+            var fField = TextBlock(child.Value.FNumber, "F = {0}");
+            var gridNode = new TreeNode<StackPanel>(NodePanel(boardLayout, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
             gridsTree.AddChild(gridNode);
 
             BoardsToGrids(child, gridNode);
@@ -143,7 +154,7 @@ internal sealed partial class MainWindow
         return gridsTree;
     }
 
-    private void DrawGraph(TreeNode<Grid> root)
+    private void DrawGraph<T>(TreeNode<T> root) where T : FrameworkElement
     {
         var treeWindow = new TreeWindow();
 
@@ -182,4 +193,36 @@ internal sealed partial class MainWindow
             _ = new Rook(_solutionBoard, PieceColor.White, 7, 0);
         });
     }
+
+    private static StackPanel NodePanel(Grid board, params FrameworkElement[] elements)
+    {
+        var panel = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin = new Thickness(0),
+            Background = new SolidColorBrush(Colors.Bisque),
+        };
+        var leftPanel = new StackPanel
+        {
+            Orientation = Orientation.Vertical,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        panel.Children.Add(leftPanel);
+        panel.Children.Add(board);
+        foreach (var element in elements)
+        {
+            element.Margin = new Thickness(20, 5, 20, 5);
+            if (element is TextBlock textBlock)
+            {
+                textBlock.FontSize = 20;
+                textBlock.FontWeight = FontWeights.SemiBold;
+            }
+            leftPanel.Children.Add(element);
+        }
+
+        return panel;
+    }
+
+    private static TextBlock TextBlock<T>(T element, string? template = null) where T : notnull
+        => new() { Text = template is null ? element.ToString() : string.Format(template, element) };
 }
