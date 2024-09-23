@@ -10,7 +10,6 @@ public sealed class ChessBoard
 {
     public const int Size = 8;
 
-    private readonly List<Piece> _pieces = new();
     internal Action? AfterBoardChanged = null;
 
     private Piece?[,] Board { get; } = new Piece?[Size, Size];
@@ -29,7 +28,6 @@ public sealed class ChessBoard
         var coord = new Coordinate(row, column);
         Board[coord.Row, coord.Column] = piece;
         piece.Coordinate = coord;
-        _pieces.Add(piece);
 
         OnBoardChanged();
     }
@@ -49,7 +47,6 @@ public sealed class ChessBoard
         }
 
         Board[coord.Row, coord.Column] = null;
-        _pieces.Remove(piece);
 
         OnBoardChanged();
     }
@@ -77,12 +74,10 @@ public sealed class ChessBoard
                 Board[row, column] = null;
             }
         }
-
-        _pieces.Clear();
     }
 
     public IEnumerable<Piece> GetPlayerPieces(PieceColor color)
-        => _pieces.Where(piece => piece.Color == color);
+        => Board.Cast<Piece?>().Where(piece => piece is not null && piece.Color == color)!;
 
     private bool HasPieceAt(int row, int column)
         => Board[row, column] != null;
@@ -93,10 +88,10 @@ public sealed class ChessBoard
             ? PieceColor.Black
             : PieceColor.White;
 
-        foreach (var piece in _pieces)
+        foreach (var piece in Board.Cast<Piece?>().Where(piece => piece is not null))
         {
             // If the piece is the color that we need, unlock it.
-            if (piece.Color == nextPlayerColor)
+            if (piece!.Color == nextPlayerColor)
             {
                 piece.IsEnabled = true;
                 continue;
@@ -111,10 +106,14 @@ public sealed class ChessBoard
     private void UpdateAllValidMoves()
     {
         // Using for loop instead of foreach because we need to change the collection.
-        for (var i = _pieces.Count - 1; i >= 0; i--)
+        for (var row = 0; row < Size; row++)
         {
-            var piece = _pieces[i];
-            piece.UpdateValidMoves();
+            for (var column = 0; column < Size; column++)
+            {
+                var piece = Board[row, column];
+
+                piece?.UpdateValidMoves();
+            }
         }
     }
 
@@ -168,7 +167,7 @@ public sealed class ChessBoard
             return false;
         }
 
-        if (_pieces.Count != other._pieces.Count)
+        if (GetPiecesCount() != other.GetPiecesCount())
         {
             return false;
         }
@@ -179,7 +178,7 @@ public sealed class ChessBoard
             {
                 var piece = Board[row, col];
                 var otherPiece = other.Board[row, col];
-                if (piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
+                if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
                 {
                     return false;
                 }
@@ -192,7 +191,7 @@ public sealed class ChessBoard
     public ChessBoard Clone()
     {
         var newBoard = new ChessBoard();
-        foreach (var piece in _pieces)
+        foreach (var piece in Board.Cast<Piece?>().Where(piece => piece is not null))
         {
             Piece _ = piece switch
             {
@@ -215,4 +214,26 @@ public sealed class ChessBoard
 
         setPreset();
     }
+
+    public int CalculateDifferentCells(ChessBoard finalBoard)
+    {
+        var count = 0;
+        for (var row = 0; row < Size; row++)
+        {
+            for (var col = 0; col < Size; col++)
+            {
+                var piece = Board[row, col];
+                var otherPiece = finalBoard.Board[row, col];
+                if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    public int GetPiecesCount()
+        => Board.Cast<Piece?>().Count(piece => piece != null);
 }

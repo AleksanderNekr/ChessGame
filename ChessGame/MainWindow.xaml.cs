@@ -23,6 +23,14 @@ internal sealed partial class MainWindow
         _board.AfterBoardChanged += AfterBoardChangedHandle;
         ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
         ValidMove.HideValidMove += HideValidMoveHideValidMove;
+        
+        _solutionBoard = new ChessBoard();
+        _solutionBoard.ResetPreset(() =>
+        {
+            _ = new King(_solutionBoard, PieceColor.Black, 0, 4);
+            _ = new King(_solutionBoard, PieceColor.White, 2, 4);
+            _ = new Rook(_solutionBoard, PieceColor.White, 0, 7);
+        });
     }
 
     private void AfterBoardChangedHandle()
@@ -190,7 +198,7 @@ internal sealed partial class MainWindow
         {
             _ = new King(_solutionBoard, PieceColor.Black, 0, 4);
             _ = new King(_solutionBoard, PieceColor.White, 2, 4);
-            _ = new Rook(_solutionBoard, PieceColor.White, 7, 0);
+            _ = new Rook(_solutionBoard, PieceColor.White, 0, 7);
         });
     }
 

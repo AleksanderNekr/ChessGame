@@ -2,9 +2,7 @@
 
 namespace ChessGame;
 
-internal sealed record VisualNodeContainer(ChessBoard Board, int HNumber, int Step)
+internal sealed record VisualNodeContainer(ChessBoard Board, int HNumber, int Step, int GNumber)
 {
-    public int GNumber { get; set; }
-
     public int FNumber => HNumber + GNumber;
 }
