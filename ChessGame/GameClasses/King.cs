@@ -1,9 +1,11 @@
-﻿using System.Windows;
+﻿using System;
+using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
 
-internal sealed class King : Piece
+public sealed class King : Piece
 {
     /// <summary>
     ///     Constructor for the Piece class.
@@ -39,7 +41,7 @@ internal sealed class King : Piece
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    protected internal override void UpdateValidMoves()
+    public override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         TryToAdd(-1, 0);
@@ -68,52 +70,56 @@ internal sealed class King : Piece
             return;
         }
 
-        // If going on this place is leading to a check, then it is not a valid move.
-        // if (this.IsUnderAttack(newCoordinate))
-        // {
-        //     return;
-        // }
+        if (IsUnderAttack(newCoordinate))
+        {
+            return;
+        }
 
         ValidMoves.Add(newCoordinate);
     }
 
-/*
-        private bool IsUnderAttack(Coordinate newCoordinate)
+
+    private bool IsUnderAttack(Coordinate newCoordinate)
+    {
+        var enemyPieces = Board.GetPlayerPieces(1 - Color);
+
+        var enemyPawns = enemyPieces.Where(piece => piece is Pawn).Cast<Pawn>();
+        if (EnemyPawnAttacks(newCoordinate))
         {
-            Coordinate oldKingCoordinate = this.Coordinate;
+            return true;
+        }
 
-            PieceColor enemyColor = this.Color == PieceColor.White
-                                        ? PieceColor.Black
-                                        : PieceColor.White;
+        if (EnemyKingIsNearTo(newCoordinate))
+        {
+            return true;
+        }
 
-            // If there is an enemy piece on the new place, then remember it.
-            Piece? enemy = ChessBoard.GetPieceOrNull(newCoordinate);
+        var otherEnemyPieces = enemyPieces.Where(piece => piece is not Pawn);
+        return otherEnemyPieces.Any(enemyPiece => enemyPiece
+            .GetValidMoves()
+            .Any(validMove => validMove.Row == newCoordinate.Row && validMove.Column == newCoordinate.Column));
 
-            // Move the king to the new place.
-            ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = null;
-            ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = this;
+        bool EnemyPawnAttacks(Coordinate coordinate)
+            => enemyPawns.Any(enemyPawn => enemyPawn
+                .GetValidMoves()
+                .Where(validEnemyPawnMove => validEnemyPawnMove.Column != enemyPawn.Coordinate.Column)
+                .Any(validEnemyPawnMove => validEnemyPawnMove.Row == coordinate.Row && validEnemyPawnMove.Column == coordinate.Column));
+    }
 
-            // Check if the king is in check.
-            if (GetAllAttackCoordinates(enemyColor).Contains(newCoordinate))
-            {
-                // If the king is in check, then move the king back to the old place.
-                this.RestorePosition(newCoordinate, oldKingCoordinate, enemy);
-
-                return true;
-            }
-
-            // If the king is not in check, then restore the old position of the king and return false.
-            this.RestorePosition(newCoordinate, oldKingCoordinate, enemy);
-
+    private bool EnemyKingIsNearTo(Coordinate newCoordinate)
+    {
+        var enemyKing = Board.GetPlayerPieces(1 - Color).FirstOrDefault(piece => piece is King);
+        if (enemyKing == null)
+        {
             return false;
         }
-*/
 
-/*
-        private void RestorePosition(Coordinate newCoordinate, Coordinate oldKingCoordinate, Piece? enemy)
+        var enemyKingCoordinate = enemyKing.Coordinate;
+        if (enemyKingCoordinate.Row == newCoordinate.Row && Math.Abs(enemyKingCoordinate.Column - newCoordinate.Column) == 1)
         {
-            ChessBoard.Board[oldKingCoordinate.Row, oldKingCoordinate.Column] = this;
-            ChessBoard.Board[newCoordinate.Row, newCoordinate.Column]         = enemy;
+            return true;
         }
-*/
+
+        return enemyKingCoordinate.Column == newCoordinate.Column && Math.Abs(enemyKingCoordinate.Row - newCoordinate.Row) == 1;
+    }
 }

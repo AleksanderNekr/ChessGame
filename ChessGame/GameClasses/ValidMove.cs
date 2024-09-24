@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
 
-internal sealed class ValidMove : UserControl
+public sealed class ValidMove : UserControl, IDisposable
 {
     private ValidMove(int row, int column)
     {
@@ -27,7 +27,7 @@ internal sealed class ValidMove : UserControl
     {
     }
 
-    internal Coordinate Coordinate { get; }
+    public Coordinate Coordinate { get; }
 
     private static ImageBrush Image { get; } = CircleBrush;
 
@@ -47,7 +47,7 @@ internal sealed class ValidMove : UserControl
         }
     }
 
-    internal static Piece? LastClickedPiece { get; private set; }
+    public static Piece? LastClickedPiece { get; private set; }
 
     private static ImageBrush RectangleBrush
     {
@@ -62,15 +62,14 @@ internal sealed class ValidMove : UserControl
         }
     }
 
-    internal static event ValidMoveEventHandler? ShowValidMove;
-    internal static event ValidMoveEventHandler? HideValidMove;
+    public static event ValidMoveEventHandler? ShowValidMove;
 
     private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
     {
         LastClickedPiece = sender;
     }
 
-    private static void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    private void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (LastClickedPiece == null)
         {
@@ -80,6 +79,8 @@ internal sealed class ValidMove : UserControl
         var validMove = (ValidMove)sender;
         var coordinate = validMove.Coordinate;
         LastClickedPiece.MoveTo(coordinate);
+        
+        Dispose();
     }
 
     private void ValidMove_MouseEnter(object sender, MouseEventArgs e)
@@ -92,10 +93,18 @@ internal sealed class ValidMove : UserControl
         Background = CircleBrush;
     }
 
-    internal void Hide()
-    {
-        HideValidMove?.Invoke(this, EventArgs.Empty);
-    }
+    public delegate void ValidMoveEventHandler(ValidMove sender, EventArgs e);
 
-    internal delegate void ValidMoveEventHandler(ValidMove sender, EventArgs e);
+    public void Dispose()
+    {
+        MouseEnter -= ValidMove_MouseEnter;
+        MouseLeave -= ValidMove_MouseLeave;
+        MouseLeftButtonUp -= ValidMove_MouseLeftButtonUp;
+        Piece.LastClicked -= Piece_LastClicked;
+        
+        Cursor = Cursors.Arrow;
+        BorderThickness = new Thickness(0);
+        Background = Brushes.Transparent;
+        Focusable = false;
+    }
 }

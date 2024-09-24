@@ -8,7 +8,7 @@ namespace ChessGame.GameClasses;
 /// <summary>
 ///     Knight class.
 /// </summary>
-internal sealed class Knight : Piece
+public sealed class Knight : Piece
 {
     /// <inheritdoc />
     public Knight(ChessBoard board, PieceColor color, int row, int column) : base(board, color, row, column)
@@ -27,7 +27,7 @@ internal sealed class Knight : Piece
     protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKnight"];
 
     /// <inheritdoc />
-    protected internal override void UpdateValidMoves()
+    public override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         TryToAddMove(Coordinate.Row - 2, Coordinate.Column + 1);

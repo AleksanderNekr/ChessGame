@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
@@ -10,32 +9,34 @@ public sealed class ChessBoard
 {
     public const int Size = 8;
 
-    internal Action? AfterBoardChanged = null;
+    private readonly Piece?[,] _board = new Piece?[Size, Size];
+    private readonly List<Piece> _blackPieces = new();
+    private readonly List<Piece> _whitePieces = new();
 
-    private Piece?[,] Board { get; } = new Piece?[Size, Size];
+    public Action? AfterBoardChanged;
+
+    private ChessBoard() { }
+
+    public static ChessBoard Init(Action<ChessBoard>? setPresetAction = null)
+    {
+        var board = new ChessBoard();
+        board.DisableValidMovesUpdate();
+        setPresetAction?.Invoke(board);
+        board.EnableValidMovesUpdate();
+
+        board.OnBoardChanged();
+
+        return board;
+    }
 
     public Piece? GetPieceOrNull(int row, int column)
     {
         var coord = new Coordinate(row, column);
-        return Board[coord.Row, coord.Column];
+        return _board[coord.Row, coord.Column];
     }
 
     public Piece? GetPieceOrNull(Coordinate coordinate)
         => GetPieceOrNull(coordinate.Row, coordinate.Column);
-
-    private void SetPiece(Piece piece, int row, int column)
-    {
-        var coord = new Coordinate(row, column);
-        Board[coord.Row, coord.Column] = piece;
-        piece.Coordinate = coord;
-
-        OnBoardChanged();
-    }
-
-    public void SetPiece(Piece piece, Coordinate coordinate)
-    {
-        SetPiece(piece, coordinate.Row, coordinate.Column);
-    }
 
     public void RemovePiece(int row, int column)
     {
@@ -46,9 +47,19 @@ public sealed class ChessBoard
             return;
         }
 
-        Board[coord.Row, coord.Column] = null;
+        _board[coord.Row, coord.Column] = null;
 
-        OnBoardChanged();
+        switch (piece.Color)
+        {
+            case PieceColor.White:
+                _whitePieces.Remove(piece);
+                break;
+            case PieceColor.Black:
+                _blackPieces.Remove(piece);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public void RemovePiece(Coordinate coordinate)
@@ -56,66 +67,10 @@ public sealed class ChessBoard
         RemovePiece(coordinate.Row, coordinate.Column);
     }
 
-    internal void OnBoardChanged()
-    {
-        AfterBoardChanged?.Invoke();
-        UpdateAllValidMoves();
-    }
-
-    /// <summary>
-    ///     Removes all pieces from the board.
-    /// </summary>
-    public void Clear()
-    {
-        for (var row = 0; row < Size; row++)
-        {
-            for (var column = 0; column < Size; column++)
-            {
-                Board[row, column] = null;
-            }
-        }
-    }
-
-    public IEnumerable<Piece> GetPlayerPieces(PieceColor color)
-        => Board.Cast<Piece?>().Where(piece => piece is not null && piece.Color == color)!;
-
-    private bool HasPieceAt(int row, int column)
-        => Board[row, column] != null;
-
-    public void ChangePlayer(PieceColor currentPlayerColor)
-    {
-        var nextPlayerColor = currentPlayerColor == PieceColor.White
-            ? PieceColor.Black
-            : PieceColor.White;
-
-        foreach (var piece in Board.Cast<Piece?>().Where(piece => piece is not null))
-        {
-            // If the piece is the color that we need, unlock it.
-            if (piece!.Color == nextPlayerColor)
-            {
-                piece.IsEnabled = true;
-                continue;
-            }
-
-            // If the piece is not the color that we need, lock it.
-            piece.IsEnabled = false;
-            piece.BorderBrush = Brushes.Transparent;
-        }
-    }
-
-    private void UpdateAllValidMoves()
-    {
-        // Using for loop instead of foreach because we need to change the collection.
-        for (var row = 0; row < Size; row++)
-        {
-            for (var column = 0; column < Size; column++)
-            {
-                var piece = Board[row, column];
-
-                piece?.UpdateValidMoves();
-            }
-        }
-    }
+    public IList<Piece> GetPlayerPieces(PieceColor color)
+        => color == PieceColor.White
+            ? _whitePieces
+            : _blackPieces;
 
     public void MovePiece(Piece piece, int newCoordinateRow, int newCoordinateColumn)
     {
@@ -124,8 +79,11 @@ public sealed class ChessBoard
             RemovePiece(newCoordinateRow, newCoordinateColumn);
         }
 
-        Board[piece.Coordinate.Row, piece.Coordinate.Column] = null;
+        _board[piece.Coordinate.Row, piece.Coordinate.Column] = null;
         SetPiece(piece, newCoordinateRow, newCoordinateColumn);
+
+        OnBoardChanged();
+        ChangePlayer(1 - piece.Color);
     }
 
     public override int GetHashCode()
@@ -136,7 +94,7 @@ public sealed class ChessBoard
         {
             for (var col = 0; col < Size; col++)
             {
-                var piece = Board[row, col];
+                var piece = _board[row, col];
                 if (piece is null)
                 {
                     continue;
@@ -150,7 +108,7 @@ public sealed class ChessBoard
                     Rook => "4",
                     Queen => "5",
                     King => "6",
-                    _ => throw new ArgumentOutOfRangeException(nameof(piece))
+                    _ => throw new ArgumentOutOfRangeException(nameof(piece)),
                 };
 
                 hash += $"{row}{col}{pieceType}";
@@ -176,8 +134,8 @@ public sealed class ChessBoard
         {
             for (var col = 0; col < Size; col++)
             {
-                var piece = Board[row, col];
-                var otherPiece = other.Board[row, col];
+                var piece = _board[row, col];
+                var otherPiece = other._board[row, col];
                 if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
                 {
                     return false;
@@ -190,29 +148,24 @@ public sealed class ChessBoard
 
     public ChessBoard Clone()
     {
-        var newBoard = new ChessBoard();
-        foreach (var piece in Board.Cast<Piece?>().Where(piece => piece is not null))
+        var newBoard = Init(board =>
         {
-            Piece _ = piece switch
+            foreach (var piece in _whitePieces.Concat(_blackPieces))
             {
-                Pawn pawn => new Pawn(newBoard, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
-                Knight knight => new Knight(newBoard, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
-                Bishop bishop => new Bishop(newBoard, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
-                Rook rook => new Rook(newBoard, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
-                Queen queen => new Queen(newBoard, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
-                King king => new King(newBoard, king.Color, king.Coordinate.Row, king.Coordinate.Column),
-                _ => throw new ArgumentOutOfRangeException(nameof(piece)),
-            };
-        }
+                Piece _ = piece switch
+                {
+                    Pawn pawn => new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
+                    Knight knight => new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
+                    Bishop bishop => new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
+                    Rook rook => new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
+                    Queen queen => new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
+                    King king => new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column),
+                    _ => throw new ArgumentOutOfRangeException(nameof(piece)),
+                };
+            }
+        });
 
         return newBoard;
-    }
-
-    public void ResetPreset(Action setPreset)
-    {
-        Clear();
-
-        setPreset();
     }
 
     public int CalculateDifferentCells(ChessBoard finalBoard)
@@ -222,8 +175,8 @@ public sealed class ChessBoard
         {
             for (var col = 0; col < Size; col++)
             {
-                var piece = Board[row, col];
-                var otherPiece = finalBoard.Board[row, col];
+                var piece = _board[row, col];
+                var otherPiece = finalBoard._board[row, col];
                 if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
                 {
                     count++;
@@ -234,6 +187,106 @@ public sealed class ChessBoard
         return count;
     }
 
-    public int GetPiecesCount()
-        => Board.Cast<Piece?>().Count(piece => piece != null);
+    public void AddNewPiece(Piece piece, Coordinate coordinate)
+    {
+        SetPiece(piece, coordinate);
+        switch (piece.Color)
+        {
+            case PieceColor.White:
+                _whitePieces.Add(piece);
+                break;
+            case PieceColor.Black:
+                _blackPieces.Add(piece);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void ChangePlayer(PieceColor nextPlayerColor)
+    {
+        switch (nextPlayerColor)
+        {
+            case PieceColor.White:
+                _whitePieces.ForEach(piece => piece.IsEnabled = true);
+                _blackPieces.ForEach(piece =>
+                {
+                    piece.IsEnabled = false;
+                    piece.BorderBrush = Brushes.Transparent;
+                });
+                break;
+            case PieceColor.Black:
+                _blackPieces.ForEach(piece => piece.IsEnabled = true);
+                _whitePieces.ForEach(piece =>
+                {
+                    piece.IsEnabled = false;
+                    piece.BorderBrush = Brushes.Transparent;
+                });
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(nextPlayerColor), nextPlayerColor, null);
+        }
+    }
+
+    private void SetPiece(Piece piece, int row, int column)
+    {
+        var coord = new Coordinate(row, column);
+        _board[coord.Row, coord.Column] = piece;
+        piece.Coordinate = coord;
+    }
+
+    private void SetPiece(Piece piece, Coordinate coordinate)
+    {
+        SetPiece(piece, coordinate.Row, coordinate.Column);
+    }
+
+    private void EnableValidMovesUpdate()
+    {
+        AfterBoardChanged -= UpdateAllValidMoves;
+        AfterBoardChanged += UpdateAllValidMoves;
+    }
+
+    private void DisableValidMovesUpdate()
+    {
+        AfterBoardChanged -= UpdateAllValidMoves;
+    }
+
+    private void OnBoardChanged()
+    {
+        AfterBoardChanged?.Invoke();
+    }
+
+    /// <summary>
+    ///     Removes all pieces from the board.
+    /// </summary>
+    private void Clear()
+    {
+        for (var row = 0; row < Size; row++)
+        {
+            for (var column = 0; column < Size; column++)
+            {
+                _board[row, column] = null;
+            }
+        }
+    }
+
+    private bool HasPieceAt(int row, int column)
+        => _board[row, column] != null;
+
+    private void UpdateAllValidMoves()
+    {
+        // Using for loop instead of foreach because we need to change the collection.
+        for (var row = 0; row < Size; row++)
+        {
+            for (var column = 0; column < Size; column++)
+            {
+                var piece = _board[row, column];
+
+                piece?.UpdateValidMoves();
+            }
+        }
+    }
+
+    private int GetPiecesCount()
+        => _whitePieces.Count + _blackPieces.Count;
 }

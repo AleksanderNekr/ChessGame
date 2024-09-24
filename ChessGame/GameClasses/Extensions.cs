@@ -5,7 +5,7 @@ using System.Windows.Controls;
 
 namespace ChessGame.GameClasses;
 
-internal static class Extensions
+public static class Extensions
 {
     private const double BoardsSize = 250;
 
@@ -13,20 +13,23 @@ internal static class Extensions
     {
         var newBoardPresenter = CloneWithoutPieces(sourceBoardPresenter);
 
-        var newWindowBoard = new ChessBoard();
-        foreach (var piece in sourceBoardPresenter.Children.OfType<Piece>())
+        var newWindowBoard = ChessBoard.Init(board =>
         {
-            Piece _ = piece switch
+            foreach (var piece in sourceBoardPresenter.Children.OfType<Piece>())
             {
-                Pawn pawn => new Pawn(newWindowBoard, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
-                Knight knight => new Knight(newWindowBoard, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
-                Bishop bishop => new Bishop(newWindowBoard, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
-                Rook rook => new Rook(newWindowBoard, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
-                Queen queen => new Queen(newWindowBoard, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
-                King king => new King(newWindowBoard, king.Color, king.Coordinate.Row, king.Coordinate.Column),
-                _ => throw new ArgumentOutOfRangeException(nameof(piece)),
-            };
-        }
+                Piece _ = piece switch
+                {
+                    Pawn pawn => new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
+                    Knight knight => new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
+                    Bishop bishop => new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
+                    Rook rook => new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
+                    Queen queen => new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
+                    King king => new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column),
+                    _ => throw new ArgumentOutOfRangeException(nameof(piece)),
+                };
+            }
+        });
+
         FillBoardPresenter(newBoardPresenter, newWindowBoard);
         return newBoardPresenter;
 
@@ -76,6 +79,11 @@ internal static class Extensions
 
     public static void SetPieceToBoard(this Grid boardPresenter, UserControl control, int i, int j)
     {
+        if (boardPresenter.Children.Contains(control))
+        {
+            boardPresenter.Children.Remove(control);
+        }
+
         Grid.SetRow(control, i);
         Grid.SetColumn(control, j);
         boardPresenter.Children.Add(control);
@@ -97,7 +105,7 @@ internal static class Extensions
                 boardPresenter.SetPieceToBoard(control, i, j);
             }
         }
-        
+
         return boardPresenter;
     }
 }

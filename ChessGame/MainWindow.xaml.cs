@@ -12,33 +12,29 @@ namespace ChessGame;
 /// <inheritdoc cref="System.Windows.Window" />
 internal sealed partial class MainWindow
 {
-    private readonly ChessBoard _board;
+    private ChessBoard _board;
     private ChessBoard? _solutionBoard;
     private PieceColor? _startColor;
 
     public MainWindow()
     {
         InitializeComponent();
-        _board = new ChessBoard();
+        _board = ChessBoard.Init(SetDefaultPreset);
+
         _board.AfterBoardChanged += AfterBoardChangedHandle;
         ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
-        ValidMove.HideValidMove += HideValidMoveHideValidMove;
-        
-        _solutionBoard = new ChessBoard();
-        _solutionBoard.ResetPreset(() =>
+
+        _solutionBoard = ChessBoard.Init(board =>
         {
-            _ = new King(_solutionBoard, PieceColor.Black, 0, 4);
-            _ = new King(_solutionBoard, PieceColor.White, 2, 4);
-            _ = new Rook(_solutionBoard, PieceColor.White, 0, 7);
+            _ = new King(board, PieceColor.Black, 0, 4);
+            _ = new King(board, PieceColor.White, 2, 4);
+            _ = new Rook(board, PieceColor.White, 0, 7);
         });
+        _startColor = PieceColor.White;
+        AfterBoardChangedHandle();
     }
 
     private void AfterBoardChangedHandle()
-    {
-        BoardPresenter.ApplyBoardLayout(_board);
-    }
-
-    private void HideValidMoveHideValidMove(ValidMove sender, EventArgs e)
     {
         BoardPresenter.ApplyBoardLayout(_board);
     }
@@ -50,66 +46,70 @@ internal sealed partial class MainWindow
 
     private void ButtonBase_Click(object sender, RoutedEventArgs e)
     {
-        _board.AfterBoardChanged -= AfterBoardChangedHandle;
-        _board.ResetPreset(() =>
+        _board = ChessBoard.Init(b =>
         {
-            SetPawns();
-            SetKnights();
-            SetBishops();
-            SetRooks();
-            SetQueens();
-            SetKings();
+            SetDefaultPreset(b);
+            b.AfterBoardChanged += AfterBoardChangedHandle;
         });
-        _board.AfterBoardChanged += AfterBoardChangedHandle;
-        _board.OnBoardChanged();
+        AfterBoardChangedHandle();
     }
 
-    private void SetKings()
+    private static void SetDefaultPreset(ChessBoard board)
     {
-        _ = new King(_board, PieceColor.Black, 0, 4);
-        _ = new King(_board, PieceColor.White, 7, 4);
+        SetPawns(board);
+        SetKnights(board);
+        SetBishops(board);
+        SetRooks(board);
+        SetQueens(board);
+        SetKings(board);
     }
 
-    private void SetQueens()
+    private static void SetKings(ChessBoard board)
     {
-        _ = new Queen(_board, PieceColor.Black, 0, 3);
-        _ = new Queen(_board, PieceColor.White, 7, 3);
+        _ = new King(board, PieceColor.Black, 0, 4);
+        _ = new King(board, PieceColor.White, 7, 4);
     }
 
-    private void SetRooks()
+    private static void SetQueens(ChessBoard board)
     {
-        _ = new Rook(_board, PieceColor.Black, 0, 0);
-        _ = new Rook(_board, PieceColor.Black, 0, 7);
-        _ = new Rook(_board, PieceColor.White, 7, 0);
-        _ = new Rook(_board, PieceColor.White, 7, 7);
+        _ = new Queen(board, PieceColor.Black, 0, 3);
+        _ = new Queen(board, PieceColor.White, 7, 3);
     }
 
-    private void SetBishops()
+    private static void SetRooks(ChessBoard board)
     {
-        _ = new Bishop(_board, PieceColor.White, 7, 2);
-        _ = new Bishop(_board, PieceColor.White, 7, 5);
-        _ = new Bishop(_board, PieceColor.Black, 0, 2);
-        _ = new Bishop(_board, PieceColor.Black, 0, 5);
+        _ = new Rook(board, PieceColor.Black, 0, 0);
+        _ = new Rook(board, PieceColor.Black, 0, 7);
+        _ = new Rook(board, PieceColor.White, 7, 0);
+        _ = new Rook(board, PieceColor.White, 7, 7);
     }
 
-    private void SetKnights()
+    private static void SetBishops(ChessBoard board)
     {
-        _ = new Knight(_board, PieceColor.White, 7, 1);
-        _ = new Knight(_board, PieceColor.White, 7, 6);
-        _ = new Knight(_board, PieceColor.Black, 0, 1);
-        _ = new Knight(_board, PieceColor.Black, 0, 6);
+        _ = new Bishop(board, PieceColor.White, 7, 2);
+        _ = new Bishop(board, PieceColor.White, 7, 5);
+        _ = new Bishop(board, PieceColor.Black, 0, 2);
+        _ = new Bishop(board, PieceColor.Black, 0, 5);
     }
 
-    private void SetPawns()
+    private static void SetKnights(ChessBoard board)
+    {
+        _ = new Knight(board, PieceColor.White, 7, 1);
+        _ = new Knight(board, PieceColor.White, 7, 6);
+        _ = new Knight(board, PieceColor.Black, 0, 1);
+        _ = new Knight(board, PieceColor.Black, 0, 6);
+    }
+
+    private static void SetPawns(ChessBoard board)
     {
         for (var i = 0; i < 8; i++)
         {
-            _ = new Pawn(_board, PieceColor.White, 6, i);
+            _ = new Pawn(board, PieceColor.White, 6, i);
         }
 
         for (var i = 0; i < 8; i++)
         {
-            _ = new Pawn(_board, PieceColor.Black, 1, i);
+            _ = new Pawn(board, PieceColor.Black, 1, i);
         }
     }
 
@@ -169,12 +169,10 @@ internal sealed partial class MainWindow
         treeWindow.DrawTree(root);
 
         ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
-        ValidMove.HideValidMove -= HideValidMoveHideValidMove;
 
         treeWindow.Closing += (_, _) =>
         {
             ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
-            ValidMove.HideValidMove += HideValidMoveHideValidMove;
         };
 
         treeWindow.ShowDialog();
@@ -183,22 +181,20 @@ internal sealed partial class MainWindow
     private void Mate1MoveEasy_Click(object sender, RoutedEventArgs e)
     {
         _startColor = PieceColor.White;
-        _board.AfterBoardChanged -= AfterBoardChangedHandle;
-        _board.ResetPreset(() =>
+        _board = ChessBoard.Init(b =>
         {
-            _ = new King(_board, PieceColor.Black, 0, 4);
-            _ = new King(_board, PieceColor.White, 2, 4);
-            _ = new Rook(_board, PieceColor.White, 7, 7);
+            _ = new King(b, PieceColor.Black, 0, 4);
+            _ = new King(b, PieceColor.White, 2, 4);
+            _ = new Rook(b, PieceColor.White, 7, 7);
+            _board.AfterBoardChanged += AfterBoardChangedHandle;
         });
-        _board.AfterBoardChanged += AfterBoardChangedHandle;
-        _board.OnBoardChanged();
+        AfterBoardChangedHandle();
 
-        _solutionBoard = new ChessBoard();
-        _solutionBoard.ResetPreset(() =>
+        _solutionBoard = ChessBoard.Init(board =>
         {
-            _ = new King(_solutionBoard, PieceColor.Black, 0, 4);
-            _ = new King(_solutionBoard, PieceColor.White, 2, 4);
-            _ = new Rook(_solutionBoard, PieceColor.White, 0, 7);
+            _ = new King(board, PieceColor.Black, 0, 4);
+            _ = new King(board, PieceColor.White, 2, 4);
+            _ = new Rook(board, PieceColor.White, 0, 7);
         });
     }
 

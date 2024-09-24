@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -12,9 +11,9 @@ namespace ChessGame.GameClasses;
 /// </summary>
 public abstract class Piece : UserControl
 {
-    private static Piece? _lastMovedPiece;
     private protected readonly ChessBoard Board;
     private bool _isEnemy;
+    private List<ValidMove> _validMoves = new();
 
     /// <summary>
     ///     Constructor for the Piece class.
@@ -38,7 +37,7 @@ public abstract class Piece : UserControl
         LostFocus += Piece_LostFocus;
         MouseLeftButtonUp += Piece_MouseLeftButtonUp;
         SetBackgroundImage();
-        Board.SetPiece(this, Coordinate);
+        Board.AddNewPiece(this, Coordinate);
     }
 
     /// <summary>
@@ -74,12 +73,12 @@ public abstract class Piece : UserControl
     /// <summary>
     ///     Coordinate of the piece.
     /// </summary>
-    protected internal Coordinate Coordinate { get; internal set; }
+    public Coordinate Coordinate { get; set; }
 
     /// <summary>
     ///     Event occurs when the piece is clicked.
     /// </summary>
-    internal static event LastClickedHandler? LastClicked;
+    public static event LastClickedHandler? LastClicked;
 
     /// <summary>
     ///     Moves the piece to the specified coordinate.
@@ -87,64 +86,19 @@ public abstract class Piece : UserControl
     /// <param name="newCoordinate">The new coordinate of the piece.</param>
     public void MoveTo(Coordinate newCoordinate)
     {
+        MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
         HideValidMoves();
-        var oldCoordinate = Coordinate;
-        IfPawnMove(newCoordinate, oldCoordinate);
-
+        
         Board.MovePiece(this, newCoordinate.Row, newCoordinate.Column);
-
         Coordinate = newCoordinate;
-        Board.ChangePlayer(Color);
-
-        _lastMovedPiece = this;
-
-        Board.OnBoardChanged();
     }
 
-    protected List<Coordinate> GetAllAttackCoordinates(PieceColor color)
-    {
-        Dictionary<Coordinate, int> attackCoordinates = new();
-        foreach (var piece in Board.GetPlayerPieces(color))
-        {
-            piece.UpdateValidMoves();
-            foreach (var validMove in piece.ValidMoves)
-            {
-                attackCoordinates.TryAdd(validMove, 0);
-            }
-        }
+    /// <summary>
+    ///     Updates the valid moves of the piece.
+    /// </summary>
+    public abstract void UpdateValidMoves();
 
-        return new List<Coordinate>(attackCoordinates.Keys);
-    }
-
-    private void IfPawnMove(Coordinate newCoordinate, Coordinate oldCoordinate)
-    {
-        if (this is not Pawn pawn)
-        {
-            return;
-        }
-
-        pawn.PrevCoord = oldCoordinate;
-        pawn.LastMove = newCoordinate;
-        CutIfTakeOnPass(newCoordinate, oldCoordinate);
-    }
-
-    private void CutIfTakeOnPass(Coordinate newCoordinate, Coordinate oldCoordinate)
-    {
-        var enemy = Board.GetPieceOrNull(oldCoordinate.Row, newCoordinate.Column);
-        if (Board.GetPieceOrNull(newCoordinate) != null || enemy is not Pawn)
-        {
-            return;
-        }
-
-        if (ValidMove.LastClickedPiece != null && enemy.Color != ValidMove.LastClickedPiece.Color)
-        {
-            Board.RemovePiece(enemy.Coordinate);
-        }
-
-        Board.RemovePiece(oldCoordinate.Row, newCoordinate.Column);
-    }
-
-    internal void AddRangeMoves(Piece piece, int rowDif, int colDif)
+    protected void AddRangeMoves(Piece piece, int rowDif, int colDif)
     {
         var row = piece.Coordinate.Row;
         var column = piece.Coordinate.Column;
@@ -169,11 +123,6 @@ public abstract class Piece : UserControl
         }
     }
 
-    /// <summary>
-    ///     Updates the valid moves of the piece.
-    /// </summary>
-    protected internal abstract void UpdateValidMoves();
-
     private void Piece_GotFocus(object sender, RoutedEventArgs e)
     {
         var piece = (Piece)sender;
@@ -181,8 +130,7 @@ public abstract class Piece : UserControl
         piece.BorderBrush = Brushes.Chartreuse;
         piece.MouseEnter -= Piece_MouseEnter;
         piece.MouseLeave -= Piece_MouseLeave;
-        piece.UpdateValidMoves();
-        AddTakeOnPass(piece);
+        // AddTakeOnPass(piece);
         piece.ShowValidMoves();
         LastClicked?.Invoke(piece, e);
 
@@ -190,30 +138,6 @@ public abstract class Piece : UserControl
         {
             pieceAlly.IsEnabled = true;
         }
-    }
-
-    private static void AddTakeOnPass(Piece piece)
-    {
-        if (_lastMovedPiece is not Pawn pawnEnemy || piece is not Pawn pawn)
-        {
-            return;
-        }
-
-        if (pawnEnemy.LastMove.Row != pawnEnemy.PrevCoord.Row + pawnEnemy.Move * 2)
-        {
-            return;
-        }
-
-        static bool IsNear(Pawn pawnEnemy, Pawn pawn)
-            => Math.Abs(pawnEnemy.LastMove.Column - pawn.Coordinate.Column) == 1;
-
-        if (pawnEnemy.LastMove.Row != pawn.Coordinate.Row || !IsNear(pawnEnemy, pawn))
-        {
-            return;
-        }
-
-        pawn.ValidMoves.Add(new Coordinate(pawnEnemy.LastMove.Row + pawn.Move,
-            pawnEnemy.LastMove.Column));
     }
 
     private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -253,9 +177,9 @@ public abstract class Piece : UserControl
             switch (place)
             {
                 case null:
-                    _ = new ValidMove(coordinate);
+                    _validMoves.Add(new ValidMove(coordinate));
                     continue;
-                case var piece:
+                case var piece when piece.Color != Color:
                     SetEnemyHighlight(piece);
                     break;
             }
@@ -270,12 +194,11 @@ public abstract class Piece : UserControl
             if (piece is not null)
             {
                 UnsetEnemyHighlight(piece);
-                continue;
             }
-
-            var validMove = new ValidMove(validMoveCoord);
-            validMove.Hide();
         }
+        
+        _validMoves.ForEach(validMove => validMove.Dispose());
+        _validMoves.Clear();
     }
 
     private static void SetEnemyHighlight(Piece place)
@@ -329,17 +252,14 @@ public abstract class Piece : UserControl
         piece.BorderBrush = Brushes.Chartreuse;
     }
 
+    public IEnumerable<Coordinate> GetValidMoves()
+        => ValidMoves;
+
 
     /// <summary>
     ///     Handler for the BoardChangedEvent.
     /// </summary>
-    internal delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
-
-    internal IEnumerable<Coordinate> GetValidMoves()
-    {
-        UpdateValidMoves();
-        return ValidMoves;
-    }
+    public delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
 }
 
 /// <summary>

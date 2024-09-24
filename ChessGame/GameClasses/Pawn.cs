@@ -7,7 +7,7 @@ namespace ChessGame.GameClasses;
 /// <summary>
 ///     Pawn class.
 /// </summary>
-internal sealed class Pawn : Piece
+public sealed class Pawn : Piece
 {
     /// <inheritdoc />
     public Pawn(ChessBoard board, PieceColor color, int row, int column) : base(board, color, row, column)
@@ -25,11 +25,11 @@ internal sealed class Pawn : Piece
     /// <inheritdoc />
     protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
-    internal Coordinate LastMove { get; set; }
+    public Coordinate LastMove { get; set; }
 
-    internal Coordinate PrevCoord { get; set; }
+    public Coordinate PrevCoord { get; set; }
 
-    internal int Move
+    public int Move
         => Color == PieceColor.White
             ? -1
             : 1;
@@ -39,7 +39,7 @@ internal sealed class Pawn : Piece
             ? 6
             : 1;
 
-    protected internal override void UpdateValidMoves()
+    public override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         if (Coordinate.Row == InitialRow + Move * 6)

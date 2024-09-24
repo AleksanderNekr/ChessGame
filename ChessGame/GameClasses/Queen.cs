@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
 
-internal sealed class Queen : Piece
+public sealed class Queen : Piece
 {
     /// <summary>
     ///     Constructor for the Piece class.
@@ -28,7 +28,7 @@ internal sealed class Queen : Piece
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    protected internal override void UpdateValidMoves()
+    public override void UpdateValidMoves()
     {
         ValidMoves.Clear();
         AddRangeMoves(this, -1, 0);

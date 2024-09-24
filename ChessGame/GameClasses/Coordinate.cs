@@ -8,13 +8,13 @@ public sealed class Coordinate
 
     private readonly int _rowCoordinate;
 
-    internal Coordinate(int coordinateRow, int coordinateColumn)
+    public Coordinate(int coordinateRow, int coordinateColumn)
     {
         Row = coordinateRow;
         Column = coordinateColumn;
     }
 
-    internal int Row
+    public int Row
     {
         get => _rowCoordinate;
 
@@ -31,7 +31,7 @@ public sealed class Coordinate
         }
     }
 
-    internal int Column
+    public int Column
     {
         get => _columnCoordinate;
 
