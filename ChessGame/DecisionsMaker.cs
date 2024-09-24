@@ -5,9 +5,9 @@ using TreeDrawer;
 
 namespace ChessGame;
 
-internal sealed class DecisionsMaker
+public sealed class DecisionsMaker
 {
-    private const int DepthLimit = 10;
+    private const int DepthLimit = 4;
     private readonly HashSet<(ChessBoard VisitedBoard, int G)> _visitedBoards = new();
     private bool _breakFlag;
     private TreeNode<VisualNodeContainer> _root = null!;
@@ -34,7 +34,7 @@ internal sealed class DecisionsMaker
                 return;
             }
 
-            if (depth >= DepthLimit)
+            if (node.GetDepth() >= DepthLimit)
             {
                 return;
             }
@@ -82,7 +82,7 @@ internal sealed class DecisionsMaker
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();
-            if (node.Value.FNumber < minF && node.Children.Count == 0)
+            if ((node.Value.FNumber < minF || minNode is null) && node.Children.Count == 0)
             {
                 minF = node.Value.GNumber;
                 minNode = node;
