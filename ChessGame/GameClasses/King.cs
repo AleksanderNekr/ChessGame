@@ -81,29 +81,30 @@ public sealed class King : Piece
 
     private bool IsUnderAttack(Coordinate newCoordinate)
     {
-        var enemyPieces = Board.GetPlayerPieces(1 - Color);
-
-        var enemyPawns = enemyPieces.Where(piece => piece is Pawn).Cast<Pawn>();
-        if (EnemyPawnAttacks(newCoordinate))
-        {
-            return true;
-        }
+        var enemyPieces = Board.GetPlayerPieces(1 - Board.GetCurrentPlayer());
 
         if (EnemyKingIsNearTo(newCoordinate))
         {
             return true;
         }
 
-        var otherEnemyPieces = enemyPieces.Where(piece => piece is not Pawn);
-        return otherEnemyPieces.Any(enemyPiece => enemyPiece
-            .GetValidMoves()
-            .Any(validMove => validMove.Row == newCoordinate.Row && validMove.Column == newCoordinate.Column));
+        if (EnemyPawnAttacks(newCoordinate))
+        {
+            return true;
+        }
+
+        return enemyPieces
+            .Where(piece => piece is not Pawn)
+            .Any(enemyPiece => enemyPiece
+                .GetValidMoves()
+                .Any(validMove => validMove.Row == newCoordinate.Row && validMove.Column == newCoordinate.Column));
 
         bool EnemyPawnAttacks(Coordinate coordinate)
-            => enemyPawns.Any(enemyPawn => enemyPawn
-                .GetValidMoves()
-                .Where(validEnemyPawnMove => validEnemyPawnMove.Column != enemyPawn.Coordinate.Column)
-                .Any(validEnemyPawnMove => validEnemyPawnMove.Row == coordinate.Row && validEnemyPawnMove.Column == coordinate.Column));
+            => enemyPieces
+                .Where(piece => piece is Pawn)
+                .Any(enemyPawn => ((Pawn)enemyPawn)
+                    .GetAttackCoordinates()
+                    .Any(validEnemyPawnMove => validEnemyPawnMove.Row == coordinate.Row && validEnemyPawnMove.Column == coordinate.Column));
     }
 
     private bool EnemyKingIsNearTo(Coordinate newCoordinate)

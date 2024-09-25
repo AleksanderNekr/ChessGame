@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -88,7 +89,20 @@ public sealed class Pawn : Piece
         }
     }
 
-    private void TryToAddAttackMove(int columnChange)
+    public IEnumerable<Coordinate> GetAttackCoordinates()
+    {
+        if (Coordinate.Column != 0)
+        {
+            yield return TryToAddAttackMove(columnChange: -1);
+        }
+
+        if (Coordinate.Column != 7)
+        {
+            yield return TryToAddAttackMove(columnChange: 1);
+        }
+    }
+
+    private Coordinate TryToAddAttackMove(int columnChange)
     {
         var moveRow = Coordinate.Row + Move;
         var newCoordinate = new Coordinate(moveRow, Coordinate.Column + columnChange);
@@ -96,5 +110,7 @@ public sealed class Pawn : Piece
         {
             ValidMoves.Add(newCoordinate);
         }
+
+        return newCoordinate;
     }
 }
