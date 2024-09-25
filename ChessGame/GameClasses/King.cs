@@ -115,11 +115,8 @@ public sealed class King : Piece
         }
 
         var enemyKingCoordinate = enemyKing.Coordinate;
-        if (enemyKingCoordinate.Row == newCoordinate.Row && Math.Abs(enemyKingCoordinate.Column - newCoordinate.Column) == 1)
-        {
-            return true;
-        }
 
-        return enemyKingCoordinate.Column == newCoordinate.Column && Math.Abs(enemyKingCoordinate.Row - newCoordinate.Row) == 1;
+        return Math.Abs(enemyKingCoordinate.Column - newCoordinate.Column) <= 1
+               && Math.Abs(enemyKingCoordinate.Row - newCoordinate.Row) <= 1;
     }
 }
