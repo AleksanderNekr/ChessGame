@@ -186,7 +186,7 @@ internal sealed partial class MainWindow
             _ = new King(b, PieceColor.Black, 0, 4);
             _ = new King(b, PieceColor.White, 2, 4);
             _ = new Rook(b, PieceColor.White, 7, 7);
-            _board.AfterBoardChanged += AfterBoardChangedHandle;
+            b.AfterBoardChanged += AfterBoardChangedHandle;
         });
         AfterBoardChangedHandle();
 

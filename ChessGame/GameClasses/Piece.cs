@@ -12,8 +12,7 @@ namespace ChessGame.GameClasses;
 public abstract class Piece : UserControl
 {
     private protected readonly ChessBoard Board;
-    private bool _isEnemy;
-    private List<ValidMove> _validMoves = new();
+    private readonly List<ValidMove> _validMoves = new();
 
     /// <summary>
     ///     Constructor for the Piece class.
@@ -88,7 +87,7 @@ public abstract class Piece : UserControl
     {
         MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
         HideValidMoves();
-        
+
         Board.MovePiece(this, newCoordinate.Row, newCoordinate.Column);
         Coordinate = newCoordinate;
     }
@@ -130,14 +129,9 @@ public abstract class Piece : UserControl
         piece.BorderBrush = Brushes.Chartreuse;
         piece.MouseEnter -= Piece_MouseEnter;
         piece.MouseLeave -= Piece_MouseLeave;
-        // AddTakeOnPass(piece);
+
         piece.ShowValidMoves();
         LastClicked?.Invoke(piece, e);
-
-        foreach (var pieceAlly in Board.GetPlayerPieces(piece.Color))
-        {
-            pieceAlly.IsEnabled = true;
-        }
     }
 
     private static void Piece_LostFocus(object sender, RoutedEventArgs e)
@@ -150,12 +144,12 @@ public abstract class Piece : UserControl
         piece.HideValidMoves();
     }
 
-    private static void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    private void Piece_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         var piece = (Piece)sender;
-        if (piece._isEnemy && piece.Color != ValidMove.LastClickedPiece?.Color)
+        if (piece.IsEnemy())
         {
-            ValidMove.LastClickedPiece?.MoveTo(piece.Coordinate);
+            Board.LastClickedPiece?.MoveTo(piece.Coordinate);
             return;
         }
 
@@ -167,7 +161,11 @@ public abstract class Piece : UserControl
         }
 
         piece.Focus();
+        Board.LastClickedPiece = piece;
     }
+
+    private bool IsEnemy()
+        => Color != Board.GetCurrentPlayer();
 
     private void ShowValidMoves()
     {
@@ -177,7 +175,7 @@ public abstract class Piece : UserControl
             switch (place)
             {
                 case null:
-                    _validMoves.Add(new ValidMove(coordinate));
+                    _validMoves.Add(new ValidMove(Board, coordinate));
                     continue;
                 case var piece when piece.Color != Color:
                     SetEnemyHighlight(piece);
@@ -196,21 +194,19 @@ public abstract class Piece : UserControl
                 UnsetEnemyHighlight(piece);
             }
         }
-        
+
         _validMoves.ForEach(validMove => validMove.Dispose());
         _validMoves.Clear();
     }
 
     private static void SetEnemyHighlight(Piece place)
     {
-        place._isEnemy = true;
         place.BorderBrush = Brushes.Red;
         place.IsEnabled = true;
     }
 
     private static void UnsetEnemyHighlight(Piece place)
     {
-        place._isEnemy = false;
         place.BorderBrush = Brushes.Transparent;
         place.IsEnabled = false;
     }
@@ -229,7 +225,7 @@ public abstract class Piece : UserControl
     private static void Piece_MouseLeave(object sender, MouseEventArgs e)
     {
         var piece = (Piece)sender;
-        if (piece._isEnemy)
+        if (piece.IsEnemy())
         {
             piece.BorderThickness = new Thickness(1);
             piece.BorderBrush = Brushes.Red;
@@ -242,7 +238,7 @@ public abstract class Piece : UserControl
     private static void Piece_MouseEnter(object sender, MouseEventArgs e)
     {
         var piece = (Piece)sender;
-        if (piece._isEnemy)
+        if (piece.IsEnemy())
         {
             piece.BorderThickness = new Thickness(2);
             piece.BorderBrush = Brushes.Red;

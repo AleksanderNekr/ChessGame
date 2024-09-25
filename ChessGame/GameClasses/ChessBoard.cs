@@ -14,14 +14,21 @@ public sealed class ChessBoard
     private readonly List<Piece> _whitePieces = new();
 
     public Action? AfterBoardChanged;
+    private PieceColor _currentPlayer;
 
     private ChessBoard() { }
+    public Piece? LastClickedPiece { get; set; }
 
-    public static ChessBoard Init(Action<ChessBoard>? setPresetAction = null)
+    public static ChessBoard Init(Action<ChessBoard>? setPresetAction = null, PieceColor firstPlayer = PieceColor.White)
     {
-        var board = new ChessBoard();
+        var board = new ChessBoard
+        {
+            _currentPlayer = 1 - firstPlayer,
+        };
+
         board.DisableValidMovesUpdate();
         setPresetAction?.Invoke(board);
+        board.ChangePlayer();
         board.EnableValidMovesUpdate();
 
         board.OnBoardChanged();
@@ -38,35 +45,6 @@ public sealed class ChessBoard
     public Piece? GetPieceOrNull(Coordinate coordinate)
         => GetPieceOrNull(coordinate.Row, coordinate.Column);
 
-    public void RemovePiece(int row, int column)
-    {
-        var coord = new Coordinate(row, column);
-        var piece = GetPieceOrNull(coord);
-        if (piece == null)
-        {
-            return;
-        }
-
-        _board[coord.Row, coord.Column] = null;
-
-        switch (piece.Color)
-        {
-            case PieceColor.White:
-                _whitePieces.Remove(piece);
-                break;
-            case PieceColor.Black:
-                _blackPieces.Remove(piece);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
-    public void RemovePiece(Coordinate coordinate)
-    {
-        RemovePiece(coordinate.Row, coordinate.Column);
-    }
-
     public IList<Piece> GetPlayerPieces(PieceColor color)
         => color == PieceColor.White
             ? _whitePieces
@@ -82,8 +60,8 @@ public sealed class ChessBoard
         _board[piece.Coordinate.Row, piece.Coordinate.Column] = null;
         SetPiece(piece, newCoordinateRow, newCoordinateColumn);
 
+        ChangePlayer();
         OnBoardChanged();
-        ChangePlayer(1 - piece.Color);
     }
 
     public override int GetHashCode()
@@ -149,21 +127,22 @@ public sealed class ChessBoard
     public ChessBoard Clone()
     {
         var newBoard = Init(board =>
-        {
-            foreach (var piece in _whitePieces.Concat(_blackPieces))
             {
-                Piece _ = piece switch
+                foreach (var piece in _whitePieces.Concat(_blackPieces))
                 {
-                    Pawn pawn => new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
-                    Knight knight => new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
-                    Bishop bishop => new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
-                    Rook rook => new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
-                    Queen queen => new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
-                    King king => new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column),
-                    _ => throw new ArgumentOutOfRangeException(nameof(piece)),
-                };
-            }
-        });
+                    Piece _ = piece switch
+                    {
+                        Pawn pawn => new Pawn(board, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
+                        Knight knight => new Knight(board, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
+                        Bishop bishop => new Bishop(board, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
+                        Rook rook => new Rook(board, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
+                        Queen queen => new Queen(board, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
+                        King king => new King(board, king.Color, king.Coordinate.Row, king.Coordinate.Column),
+                        _ => throw new ArgumentOutOfRangeException(nameof(piece)),
+                    };
+                }
+            },
+            _currentPlayer);
 
         return newBoard;
     }
@@ -203,9 +182,10 @@ public sealed class ChessBoard
         }
     }
 
-    private void ChangePlayer(PieceColor nextPlayerColor)
+    private void ChangePlayer()
     {
-        switch (nextPlayerColor)
+        var newPlayerColor = 1 - _currentPlayer;
+        switch (newPlayerColor)
         {
             case PieceColor.White:
                 _whitePieces.ForEach(piece => piece.IsEnabled = true);
@@ -223,9 +203,9 @@ public sealed class ChessBoard
                     piece.BorderBrush = Brushes.Transparent;
                 });
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(nextPlayerColor), nextPlayerColor, null);
         }
+
+        _currentPlayer = newPlayerColor;
     }
 
     private void SetPiece(Piece piece, int row, int column)
@@ -256,17 +236,27 @@ public sealed class ChessBoard
         AfterBoardChanged?.Invoke();
     }
 
-    /// <summary>
-    ///     Removes all pieces from the board.
-    /// </summary>
-    private void Clear()
+    private void RemovePiece(int row, int column)
     {
-        for (var row = 0; row < Size; row++)
+        var coord = new Coordinate(row, column);
+        var piece = GetPieceOrNull(coord);
+        if (piece == null)
         {
-            for (var column = 0; column < Size; column++)
-            {
-                _board[row, column] = null;
-            }
+            return;
+        }
+
+        _board[coord.Row, coord.Column] = null;
+
+        switch (piece.Color)
+        {
+            case PieceColor.White:
+                _whitePieces.Remove(piece);
+                break;
+            case PieceColor.Black:
+                _blackPieces.Remove(piece);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -289,4 +279,7 @@ public sealed class ChessBoard
 
     private int GetPiecesCount()
         => _whitePieces.Count + _blackPieces.Count;
+
+    public PieceColor GetCurrentPlayer()
+        => _currentPlayer;
 }

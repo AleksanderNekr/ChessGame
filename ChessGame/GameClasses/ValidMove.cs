@@ -8,12 +8,14 @@ namespace ChessGame.GameClasses;
 
 public sealed class ValidMove : UserControl, IDisposable
 {
-    private ValidMove(int row, int column)
+    private readonly ChessBoard _board;
+
+    private ValidMove(ChessBoard board, int row, int column)
     {
+        _board = board;
         MouseEnter += ValidMove_MouseEnter;
         MouseLeave += ValidMove_MouseLeave;
         MouseLeftButtonUp += ValidMove_MouseLeftButtonUp;
-        Piece.LastClicked += Piece_LastClicked;
         Coordinate = new Coordinate(row, column);
         Cursor = Cursors.Hand;
         BorderThickness = new Thickness(1);
@@ -23,7 +25,7 @@ public sealed class ValidMove : UserControl, IDisposable
         ShowValidMove?.Invoke(this, EventArgs.Empty);
     }
 
-    public ValidMove(Coordinate coordinate) : this(coordinate.Row, coordinate.Column)
+    public ValidMove(ChessBoard board, Coordinate coordinate) : this(board, coordinate.Row, coordinate.Column)
     {
     }
 
@@ -47,8 +49,6 @@ public sealed class ValidMove : UserControl, IDisposable
         }
     }
 
-    public static Piece? LastClickedPiece { get; private set; }
-
     private static ImageBrush RectangleBrush
     {
         get
@@ -64,22 +64,12 @@ public sealed class ValidMove : UserControl, IDisposable
 
     public static event ValidMoveEventHandler? ShowValidMove;
 
-    private static void Piece_LastClicked(Piece sender, RoutedEventArgs e)
-    {
-        LastClickedPiece = sender;
-    }
-
     private void ValidMove_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        if (LastClickedPiece == null)
-        {
-            throw new NullReferenceException("LastClickedPiece is null.");
-        }
-
         var validMove = (ValidMove)sender;
         var coordinate = validMove.Coordinate;
-        LastClickedPiece.MoveTo(coordinate);
-        
+        _board.LastClickedPiece?.MoveTo(coordinate);
+
         Dispose();
     }
 
@@ -100,8 +90,7 @@ public sealed class ValidMove : UserControl, IDisposable
         MouseEnter -= ValidMove_MouseEnter;
         MouseLeave -= ValidMove_MouseLeave;
         MouseLeftButtonUp -= ValidMove_MouseLeftButtonUp;
-        Piece.LastClicked -= Piece_LastClicked;
-        
+
         Cursor = Cursors.Arrow;
         BorderThickness = new Thickness(0);
         Background = Brushes.Transparent;
