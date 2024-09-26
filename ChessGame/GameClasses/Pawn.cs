@@ -101,7 +101,13 @@ public sealed class Pawn : Piece
     private Coordinate TryToAddAttackMove(bool checkCheck, int columnChange)
     {
         var moveRow = Coordinate.Row + Move;
-        var newCoordinate = new Coordinate(moveRow, Coordinate.Column + columnChange);
+        var moveColumn = Coordinate.Column + columnChange;
+        if (moveColumn < 0 || moveColumn > 7 || moveRow < 0 || moveRow > 7)
+        {
+            return Coordinate;
+        }
+
+        var newCoordinate = new Coordinate(moveRow, moveColumn);
         if (Board.GetPieceOrNull(newCoordinate) is { } enemy
             && enemy.Color != Color
             && !(checkCheck && MoveThereWillCauseCheck(newCoordinate)))
