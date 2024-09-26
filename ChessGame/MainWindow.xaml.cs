@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -12,16 +13,24 @@ namespace ChessGame;
 /// <inheritdoc cref="System.Windows.Window" />
 internal sealed partial class MainWindow
 {
+    private const double BuildTreeTimeout = 30;
     private ChessBoard _board;
     private ChessBoard? _solutionBoard;
     private PieceColor? _startColor;
+    private CancellationTokenSource _cancellationTokenSource;
+    private bool _isTreeBuilding;
 
     public MainWindow()
     {
         InitializeComponent();
-        _board = ChessBoard.Init(SetDefaultPreset);
+        Enumerable.Range(1, 4).ToList().ForEach(x => DepthCombobox.Items.Add(x));
+        DepthCombobox.SelectedValue = 4;
+        _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(BuildTreeTimeout));
 
+        _board = ChessBoard.Init(SetDefaultPreset);
         _board.AfterBoardChanged += AfterBoardChangedHandle;
+        _board.GameFinished += OnGameFinished;
+
         ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
 
         _solutionBoard = ChessBoard.Init(board =>
@@ -32,6 +41,11 @@ internal sealed partial class MainWindow
         });
         _startColor = PieceColor.White;
         AfterBoardChangedHandle();
+    }
+
+    private static void OnGameFinished(PieceColor sender)
+    {
+        MessageBox.Show(sender == PieceColor.White ? "Победили белые!" : "Победили черные!");
     }
 
     private void AfterBoardChangedHandle()
@@ -120,27 +134,33 @@ internal sealed partial class MainWindow
         BoardPresenter.Height = newSize;
     }
 
-    private void ShowTree_Click(object sender, RoutedEventArgs e)
+    private async void ShowTree_Click(object sender, RoutedEventArgs e)
     {
-        if (_solutionBoard is null || _startColor is null)
+        _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(BuildTreeTimeout));
+        if (_startColor is null)
         {
             MessageBox.Show("Сначала выберите задачу");
             return;
         }
 
-        var newBoard = _board.Clone();
+        var newBoard = _board.Clone(_startColor.Value);
         DecisionsMaker decisionsMaker = new();
-        var boardsTree = decisionsMaker.BuildDecisionTree(newBoard, _solutionBoard, _startColor.Value);
+        _isTreeBuilding = true;
+        var boardsTree = await decisionsMaker.BuildDecisionTreeAsync(newBoard, _solutionBoard, (int)DepthCombobox.SelectedValue, _cancellationTokenSource.Token).ConfigureAwait(false);
+        _isTreeBuilding = false;
 
-        var grid = BoardPresenter.Clone();
-        var hField = TextBlock(0, "H = {0}");
-        var gField = TextBlock(0, "G = {0}");
-        var num = TextBlock(0, "№ {0}");
-        var fField = TextBlock(0, "F = {0}");
-        var gridsTree = new TreeNode<StackPanel>(NodePanel(grid, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
-        gridsTree = BoardsToGrids(boardsTree, gridsTree);
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            var grid = BoardPresenter.Clone();
+            var hField = TextBlock(0, "H = {0}");
+            var gField = TextBlock(0, "G = {0}");
+            var num = TextBlock(0, "№ {0}");
+            var fField = TextBlock(0, "F = {0}");
+            var gridsTree = new TreeNode<StackPanel>(NodePanel(grid, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
+            gridsTree = BoardsToGrids(boardsTree, gridsTree);
 
-        DrawGraph(gridsTree);
+            DrawGraph(gridsTree);
+        });
     }
 
     private TreeNode<StackPanel> BoardsToGrids(TreeNode<VisualNodeContainer> root, TreeNode<StackPanel> gridsTree)
@@ -187,15 +207,11 @@ internal sealed partial class MainWindow
             _ = new King(b, PieceColor.White, 2, 4);
             _ = new Rook(b, PieceColor.White, 7, 7);
             b.AfterBoardChanged += AfterBoardChangedHandle;
+            b.GameFinished += OnGameFinished;
         });
         AfterBoardChangedHandle();
 
-        _solutionBoard = ChessBoard.Init(board =>
-        {
-            _ = new King(board, PieceColor.Black, 0, 4);
-            _ = new King(board, PieceColor.White, 2, 4);
-            _ = new Rook(board, PieceColor.White, 0, 7);
-        });
+        _solutionBoard = null;
     }
 
     private static StackPanel NodePanel(Grid board, params FrameworkElement[] elements)
@@ -229,4 +245,20 @@ internal sealed partial class MainWindow
 
     private static TextBlock TextBlock<T>(T element, string? template = null) where T : notnull
         => new() { Text = template is null ? element.ToString() : string.Format(template, element) };
+
+    private void Mate2Moves_Click(object sender, RoutedEventArgs e)
+    {
+        _startColor = PieceColor.White;
+        _board = ChessBoard.Init(b =>
+        {
+            _ = new King(b, PieceColor.Black, 0, 4);
+            _ = new King(b, PieceColor.White, 2, 4);
+            _ = new Rook(b, PieceColor.White, 7, 5);
+            b.AfterBoardChanged += AfterBoardChangedHandle;
+            b.GameFinished += OnGameFinished;
+        });
+        AfterBoardChangedHandle();
+
+        _solutionBoard = null;
+    }
 }
