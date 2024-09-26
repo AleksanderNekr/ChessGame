@@ -13,7 +13,7 @@ namespace ChessGame;
 /// <inheritdoc cref="System.Windows.Window" />
 internal sealed partial class MainWindow
 {
-    private const double BuildTreeTimeout = 30;
+    private const double BuildTreeTimeout = 7;
     private ChessBoard _board;
     private ChessBoard? _solutionBoard;
     private PieceColor? _startColor;
@@ -25,6 +25,9 @@ internal sealed partial class MainWindow
         InitializeComponent();
         Enumerable.Range(1, 4).ToList().ForEach(x => DepthCombobox.Items.Add(x));
         DepthCombobox.SelectedValue = 4;
+        Enumerable.Range(1, 20).ToList().ForEach(x => FineCombobox.Items.Add(x));
+        FineCombobox.SelectedValue = 1;
+
         _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(BuildTreeTimeout));
 
         _board = ChessBoard.Init(SetDefaultPreset);
@@ -146,7 +149,12 @@ internal sealed partial class MainWindow
         var newBoard = _board.Clone(_startColor.Value);
         DecisionsMaker decisionsMaker = new();
         _isTreeBuilding = true;
-        var boardsTree = await decisionsMaker.BuildDecisionTreeAsync(newBoard, _solutionBoard, (int)DepthCombobox.SelectedValue, _cancellationTokenSource.Token).ConfigureAwait(false);
+        var boardsTree = await decisionsMaker.BuildDecisionTreeAsync(
+            newBoard,
+            _solutionBoard,
+            (int)DepthCombobox.SelectedValue,
+            (int)FineCombobox.SelectedValue,
+            _cancellationTokenSource.Token).ConfigureAwait(false);
         _isTreeBuilding = false;
 
         Application.Current.Dispatcher.Invoke(() =>

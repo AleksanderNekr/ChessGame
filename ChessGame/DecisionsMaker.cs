@@ -17,8 +17,14 @@ public sealed class DecisionsMaker
     private TreeNode<VisualNodeContainer> _root = null!;
     private int _step;
     private PieceColor _player;
+    private int _fine;
 
-    public async Task<TreeNode<VisualNodeContainer>> BuildDecisionTreeAsync(ChessBoard currentBoard, ChessBoard? finalBoard, int depthLimit, CancellationToken cancellationToken)
+    public async Task<TreeNode<VisualNodeContainer>> BuildDecisionTreeAsync(
+        ChessBoard currentBoard,
+        ChessBoard? finalBoard,
+        int depthLimit,
+        int fine,
+        CancellationToken cancellationToken)
     {
         _visitedBoards.Clear();
         _visitedBoards.Add((currentBoard, int.MaxValue));
@@ -27,6 +33,7 @@ public sealed class DecisionsMaker
         _breakFlag = false;
         _depthLimit = depthLimit;
         _player = currentBoard.GetCurrentPlayer();
+        _fine = fine;
         try
         {
             await BuildBranchesAndBoundsTreeAsync(_root, finalBoard, cancellationToken);
@@ -73,15 +80,17 @@ public sealed class DecisionsMaker
 
                     try
                     {
+                        var loss = CalculateLoss(newBoard);
                         var newG = finalBoard is not null
                             ? await newBoard.CalculateDifferentCellsAsync(finalBoard, cancellationToken)
-                            : CalculateLoss(newBoard);
+                            : loss;
+                        newG += _fine;
 
                         var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, _step, newG), new List<TreeNode<VisualNodeContainer>>());
                         node.AddChild(newNode);
                         _visitedBoards.Add((newBoard, newG));
 
-                        if (newG == 0 || _breakFlag)
+                        if (loss == 0 || _breakFlag)
                         {
                             _breakFlag = true;
                             return;
