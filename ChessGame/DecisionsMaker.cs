@@ -16,6 +16,7 @@ public sealed class DecisionsMaker
     private bool _breakFlag;
     private TreeNode<VisualNodeContainer> _root = null!;
     private int _step;
+    private PieceColor _player;
 
     public async Task<TreeNode<VisualNodeContainer>> BuildDecisionTreeAsync(ChessBoard currentBoard, ChessBoard? finalBoard, int depthLimit, CancellationToken cancellationToken)
     {
@@ -25,6 +26,7 @@ public sealed class DecisionsMaker
         _step = 0;
         _breakFlag = false;
         _depthLimit = depthLimit;
+        _player = currentBoard.GetCurrentPlayer();
         try
         {
             await BuildBranchesAndBoundsTreeAsync(_root, finalBoard, cancellationToken);
@@ -73,9 +75,7 @@ public sealed class DecisionsMaker
                     {
                         var newG = finalBoard is not null
                             ? await newBoard.CalculateDifferentCellsAsync(finalBoard, cancellationToken)
-                            : FinishCondition(newBoard, null)
-                                ? 0
-                                : 1;
+                            : CalculateLoss(newBoard);
 
                         var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, _step, newG), new List<TreeNode<VisualNodeContainer>>());
                         node.AddChild(newNode);
@@ -98,6 +98,12 @@ public sealed class DecisionsMaker
             node = FindLeafWithMinF();
         }
     }
+
+    private int CalculateLoss(ChessBoard newBoard)
+        // Number of available opponents moves
+        => newBoard
+            .GetPlayerPieces(1 - _player)
+            .Sum(piece => piece.GetValidMoves().Count());
 
     private static bool FinishCondition(ChessBoard board, ChessBoard? finalBoard)
         => (finalBoard is null && board.GetWinner() is not null) || (finalBoard is not null && board.Equals(finalBoard));
