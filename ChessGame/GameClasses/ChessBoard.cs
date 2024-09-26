@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
@@ -14,7 +16,10 @@ public sealed class ChessBoard
     private readonly List<Piece> _whitePieces = new();
 
     public Action? AfterBoardChanged;
+    public Action<PieceColor>? GameFinished;
+
     private PieceColor _currentPlayer;
+    private PieceColor? _winner;
 
     private ChessBoard() { }
     public Piece? LastClickedPiece { get; set; }
@@ -124,7 +129,7 @@ public sealed class ChessBoard
         return true;
     }
 
-    public ChessBoard Clone()
+    public ChessBoard Clone(PieceColor? startColor = null)
     {
         var newBoard = Init(board =>
             {
@@ -142,29 +147,36 @@ public sealed class ChessBoard
                     };
                 }
             },
-            _currentPlayer);
+            startColor ?? _currentPlayer);
 
         return newBoard;
     }
 
-    public int CalculateDifferentCells(ChessBoard finalBoard)
-    {
-        var count = 0;
-        for (var row = 0; row < Size; row++)
-        {
-            for (var col = 0; col < Size; col++)
+    public async Task<int> CalculateDifferentCellsAsync(ChessBoard finalBoard, CancellationToken cancellationToken)
+        => await Task.Run(() =>
             {
-                var piece = _board[row, col];
-                var otherPiece = finalBoard._board[row, col];
-                if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
+                var count = 0;
+                for (var row = 0; row < Size; row++)
                 {
-                    count++;
-                }
-            }
-        }
+                    for (var col = 0; col < Size; col++)
+                    {
+                        var piece = _board[row, col];
+                        var otherPiece = finalBoard._board[row, col];
+                        if (piece is null != otherPiece is null || piece?.GetType() != otherPiece?.GetType() || piece?.Color != otherPiece?.Color)
+                        {
+                            count++;
+                        }
 
-        return count;
-    }
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            return -1;
+                        }
+                    }
+                }
+
+                return count;
+            },
+            cancellationToken);
 
     public void AddNewPiece(Piece piece, Coordinate coordinate)
     {
@@ -265,15 +277,16 @@ public sealed class ChessBoard
 
     private void UpdateAllValidMoves()
     {
-        // Using for loop instead of foreach because we need to change the collection.
-        for (var row = 0; row < Size; row++)
-        {
-            for (var column = 0; column < Size; column++)
-            {
-                var piece = _board[row, column];
+        _whitePieces.ForEach(x => x.UpdateValidMoves());
+        _blackPieces.ForEach(x => x.UpdateValidMoves());
+        var hasMoves = _currentPlayer == PieceColor.White
+            ? _whitePieces.Any(x => x.HasValidMoves())
+            : _blackPieces.Any(x => x.HasValidMoves());
 
-                piece?.UpdateValidMoves();
-            }
+        if (!hasMoves)
+        {
+            _winner = 1 - _currentPlayer;
+            GameFinished?.Invoke(_winner.Value);
         }
     }
 
@@ -306,4 +319,7 @@ public sealed class ChessBoard
 
         return newBoard;
     }
+
+    public PieceColor? GetWinner()
+        => _winner;
 }

@@ -38,14 +38,4 @@ public sealed record TreeNode<T>(T Value, IList<TreeNode<T>> Children)
     {
         Children.Add(child);
     }
-
-    public int GetDepth()
-    {
-        if (!Children.Any())
-        {
-            return 0;
-        }
-
-        return Children.Max(x => x.GetDepth()) + 1;
-    }
 }

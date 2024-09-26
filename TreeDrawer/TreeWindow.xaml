@@ -12,7 +12,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Slider Minimum="40" Maximum="400" ValueChanged="SizeSlider_OnValueChanged" Value="250"></Slider>
         <ScrollViewer Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Visible">
             <ScrollViewer.Content>

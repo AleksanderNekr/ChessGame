@@ -260,7 +260,12 @@ public abstract class Piece : UserControl
     {
         var futureBoard = Board.CloneAsOnlyPieces();
         var clonePiece = futureBoard.GetPieceOrNull(Coordinate)!;
-        var allyKing = futureBoard.GetPlayerPieces(Board.GetCurrentPlayer()).OfType<King>().First();
+        var allyKing = futureBoard.GetPlayerPieces(Board.GetCurrentPlayer()).OfType<King>().FirstOrDefault();
+        if (allyKing is null)
+        {
+            return false;
+        }
+
         futureBoard.MovePiece(clonePiece, newCoordinate.Row, newCoordinate.Column);
         return futureBoard
             .GetPlayerPieces(1 - Board.GetCurrentPlayer())
@@ -276,6 +281,9 @@ public abstract class Piece : UserControl
     public delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
 
     protected abstract IEnumerable<Coordinate> UpdateAndGetKingAttackMoves();
+
+    public bool HasValidMoves()
+        => ValidMoves.Count > 0;
 }
 
 /// <summary>

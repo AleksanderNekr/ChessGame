@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using ChessGame.GameClasses;
 using TreeDrawer;
 
@@ -7,40 +11,51 @@ namespace ChessGame;
 
 public sealed class DecisionsMaker
 {
-    private const int DepthLimit = 4;
+    private int _depthLimit;
     private readonly HashSet<(ChessBoard VisitedBoard, int G)> _visitedBoards = new();
     private bool _breakFlag;
     private TreeNode<VisualNodeContainer> _root = null!;
+    private int _step;
 
-    public TreeNode<VisualNodeContainer> BuildDecisionTree(ChessBoard currentBoard, ChessBoard finalBoard, PieceColor startColor)
+    public async Task<TreeNode<VisualNodeContainer>> BuildDecisionTreeAsync(ChessBoard currentBoard, ChessBoard? finalBoard, int depthLimit, CancellationToken cancellationToken)
     {
         _visitedBoards.Clear();
         _visitedBoards.Add((currentBoard, int.MaxValue));
         _root = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(currentBoard, 0, 0, int.MaxValue), new List<TreeNode<VisualNodeContainer>>());
-        int depth = 0;
-        int step = 0;
+        _step = 0;
         _breakFlag = false;
-        BuildBranchesAndBoundsTree(_root, finalBoard, startColor, ref depth, ref step);
+        _depthLimit = depthLimit;
+        try
+        {
+            await BuildBranchesAndBoundsTreeAsync(_root, finalBoard, cancellationToken);
+        }
+        catch (OperationCanceledException e)
+        {
+            MessageBox.Show("Операция прервана пользователем");
+            Console.WriteLine("Operation was canceled.");
+            throw;
+        }
+
         return _root;
     }
 
-    private void BuildBranchesAndBoundsTree(TreeNode<VisualNodeContainer> node, ChessBoard finalBoard, PieceColor startColor, ref int depth, ref int step)
+    private async Task BuildBranchesAndBoundsTreeAsync(TreeNode<VisualNodeContainer> node, ChessBoard? finalBoard, CancellationToken cancellationToken)
     {
         while (true)
         {
-            if (node.Value.Board.Equals(finalBoard) || _breakFlag)
+            if (FinishCondition(node.Value.Board, finalBoard) || _breakFlag)
             {
                 _breakFlag = true;
                 return;
             }
 
-            if (node.GetDepth() >= DepthLimit)
+            if (node.Value.HNumber >= _depthLimit)
             {
                 return;
             }
 
             // All possible moves from current position for color
-            foreach (var piece in node.Value.Board.GetPlayerPieces(startColor))
+            foreach (var piece in node.Value.Board.GetPlayerPieces(node.Value.Board.GetCurrentPlayer()))
             {
                 foreach (var move in piece.GetValidMoves())
                 {
@@ -52,13 +67,27 @@ public sealed class DecisionsMaker
                         continue;
                     }
 
-                    step++;
-                    var newG = newBoard.CalculateDifferentCells(finalBoard);
-                    var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, step, newG), new List<TreeNode<VisualNodeContainer>>());
-                    node.AddChild(newNode);
-                    _visitedBoards.Add((newBoard, newG));
-                    
-                    if (newG == 0 || _breakFlag)
+                    _step++;
+
+                    try
+                    {
+                        var newG = finalBoard is not null
+                            ? await newBoard.CalculateDifferentCellsAsync(finalBoard, cancellationToken)
+                            : FinishCondition(newBoard, null)
+                                ? 0
+                                : 1;
+
+                        var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, _step, newG), new List<TreeNode<VisualNodeContainer>>());
+                        node.AddChild(newNode);
+                        _visitedBoards.Add((newBoard, newG));
+
+                        if (newG == 0 || _breakFlag)
+                        {
+                            _breakFlag = true;
+                            return;
+                        }
+                    }
+                    catch (OperationCanceledException e)
                     {
                         _breakFlag = true;
                         return;
@@ -66,12 +95,12 @@ public sealed class DecisionsMaker
                 }
             }
 
-            depth++;
-
             node = FindLeafWithMinF();
-            startColor = 1 - startColor;
         }
     }
+
+    private static bool FinishCondition(ChessBoard board, ChessBoard? finalBoard)
+        => (finalBoard is null && board.GetWinner() is not null) || (finalBoard is not null && board.Equals(finalBoard));
 
     private TreeNode<VisualNodeContainer> FindLeafWithMinF()
     {
