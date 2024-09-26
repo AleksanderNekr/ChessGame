@@ -60,6 +60,15 @@
                         <DropShadowEffect />
                     </Button.Effect>
                 </Button>
+                <Button Content="Случайная расстановка" Click="RandomPreset_Click" HorizontalAlignment="Center"
+                        FontSize="18"
+                        VerticalAlignment="Top"
+                        Margin="0, 10"
+                        MinWidth="250" Padding="5" VerticalContentAlignment="Top" Cursor="Hand">
+                    <Button.Effect>
+                        <DropShadowEffect />
+                    </Button.Effect>
+                </Button>
                 <Separator Margin="0, 10" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="0, 0, 10, 0" FontSize="16">Максимальная глубина:</TextBlock>

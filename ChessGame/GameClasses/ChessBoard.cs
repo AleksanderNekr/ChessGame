@@ -322,4 +322,18 @@ public sealed class ChessBoard
 
     public PieceColor? GetWinner()
         => _winner;
+
+    public void Clear()
+    {
+        for (var row = 0; row < Size; row++)
+        {
+            for (var col = 0; col < Size; col++)
+            {
+                _board[row, col] = null;
+            }
+        }
+
+        _whitePieces.Clear();
+        _blackPieces.Clear();
+    }
 }

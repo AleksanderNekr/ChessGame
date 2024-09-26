@@ -269,4 +269,81 @@ internal sealed partial class MainWindow
 
         _solutionBoard = null;
     }
+
+    private void RandomPreset_Click(object sender, RoutedEventArgs e)
+    {
+        _startColor = PieceColor.White;
+        _board = ChessBoard.Init(b =>
+        {
+            SetRandomPreset(b);
+
+            b.AfterBoardChanged += AfterBoardChangedHandle;
+        });
+        AfterBoardChangedHandle();
+
+        _solutionBoard = null;
+
+        return;
+
+        void SetRandomPreset(ChessBoard chessBoard)
+        {
+            while (true)
+            {
+                var random = Random.Shared;
+                // add 2 kings: white and black
+                Coordinate king1Coord;
+                Coordinate king2Coord;
+                do
+                {
+                    king1Coord = new Coordinate(random.Next(0, 8), random.Next(0, 8));
+                    king2Coord = new Coordinate(random.Next(0, 8), random.Next(0, 8));
+                }
+                // ensure they are not near
+                while (Math.Abs(king1Coord.Column - king2Coord.Column) > 1 && Math.Abs(king1Coord.Row - king2Coord.Row) > 1);
+                _ = new King(chessBoard, PieceColor.White, king1Coord);
+                _ = new King(chessBoard, PieceColor.Black, king2Coord);
+
+                for (var i = 0; i < random.Next(0, 20); i++)
+                {
+                    int row;
+                    int col;
+                    do
+                    {
+                        row = random.Next(0, 8);
+                        col = random.Next(0, 8);
+                    }
+                    while (chessBoard.GetPieceOrNull(row, col) is not null);
+
+                    var color = random.Next(0, 2) == 0 ? PieceColor.White : PieceColor.Black;
+                    var piece = random.Next(0, 5);
+                    switch (piece)
+                    {
+                        case 0:
+                            _ = new Pawn(chessBoard, color, row, col);
+                            break;
+                        case 1:
+                            _ = new Rook(chessBoard, color, row, col);
+                            break;
+                        case 2:
+                            _ = new Knight(chessBoard, color, row, col);
+                            break;
+                        case 3:
+                            _ = new Bishop(chessBoard, color, row, col);
+                            break;
+                        case 4:
+                            _ = new Queen(chessBoard, color, row, col);
+                            break;
+                    }
+                }
+
+                // ensure its not a mate
+                if (chessBoard.GetWinner() is null)
+                {
+                    break;
+                }
+
+                chessBoard.Clear();
+            }
+        }
+    }
 }
