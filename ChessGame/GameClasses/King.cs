@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -41,20 +43,23 @@ public sealed class King : Piece
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    public override void UpdateValidMoves()
+    public override void UpdateValidMoves(bool checkCheck = true)
     {
         ValidMoves.Clear();
-        TryToAdd(-1, 0);
-        TryToAdd(1, 0);
-        TryToAdd(0, -1);
-        TryToAdd(0, 1);
-        TryToAdd(-1, -1);
-        TryToAdd(-1, 1);
-        TryToAdd(1, -1);
-        TryToAdd(1, 1);
+        TryToAdd(checkCheck, -1, 0);
+        TryToAdd(checkCheck, 1, 0);
+        TryToAdd(checkCheck, 0, -1);
+        TryToAdd(checkCheck, 0, 1);
+        TryToAdd(checkCheck, -1, -1);
+        TryToAdd(checkCheck, -1, 1);
+        TryToAdd(checkCheck, 1, -1);
+        TryToAdd(checkCheck, 1, 1);
     }
 
-    private void TryToAdd(int rowDif, int colDif)
+    protected override IEnumerable<Coordinate> UpdateAndGetKingAttackMoves()
+        => Array.Empty<Coordinate>();
+
+    private void TryToAdd(bool checkCheck, int rowDif, int colDif)
     {
         var newRow = Coordinate.Row + rowDif;
         var newCol = Coordinate.Column + colDif;
@@ -70,7 +75,7 @@ public sealed class King : Piece
             return;
         }
 
-        if (IsUnderAttack(newCoordinate))
+        if (checkCheck && IsUnderAttack(newCoordinate))
         {
             return;
         }
@@ -88,7 +93,7 @@ public sealed class King : Piece
             return true;
         }
 
-        if (EnemyPawnAttacks(newCoordinate))
+        if (MoveThereWillCauseCheck(newCoordinate))
         {
             return true;
         }
@@ -98,13 +103,6 @@ public sealed class King : Piece
             .Any(enemyPiece => enemyPiece
                 .GetValidMoves()
                 .Any(validMove => validMove.Row == newCoordinate.Row && validMove.Column == newCoordinate.Column));
-
-        bool EnemyPawnAttacks(Coordinate coordinate)
-            => enemyPieces
-                .Where(piece => piece is Pawn)
-                .Any(enemyPawn => ((Pawn)enemyPawn)
-                    .GetAttackCoordinates()
-                    .Any(validEnemyPawnMove => validEnemyPawnMove.Row == coordinate.Row && validEnemyPawnMove.Column == coordinate.Column));
     }
 
     private bool EnemyKingIsNearTo(Coordinate newCoordinate)

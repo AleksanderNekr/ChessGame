@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -95,29 +96,33 @@ public abstract class Piece : UserControl
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    public abstract void UpdateValidMoves();
+    public abstract void UpdateValidMoves(bool checkCheck = true);
 
-    protected void AddRangeMoves(Piece piece, int rowDif, int colDif)
+    protected void AddRangeMoves(bool checkCheck, Piece piece, int rowDif, int colDif)
     {
         var row = piece.Coordinate.Row;
         var column = piece.Coordinate.Column;
         while (Coordinate.IsCorrectCoordinate(row += rowDif, column += colDif))
         {
             var place = Board.GetPieceOrNull(row, column);
-            if (place == null)
-            {
-                piece.ValidMoves.Add(new Coordinate(row, column));
-                continue;
-            }
-
-            // If ally piece is found, then stop.
-            if (place.Color == piece.Color)
+            if (place?.Color == piece.Color)
             {
                 break;
             }
 
-            // If enemy piece is found, then add it to the valid moves and stop.
-            piece.ValidMoves.Add(new Coordinate(row, column));
+            var newCoordinate = new Coordinate(row, column);
+            if (checkCheck && MoveThereWillCauseCheck(newCoordinate))
+            {
+                continue;
+            }
+
+            if (place == null)
+            {
+                piece.ValidMoves.Add(newCoordinate);
+                continue;
+            }
+
+            piece.ValidMoves.Add(newCoordinate);
             break;
         }
     }
@@ -251,11 +256,26 @@ public abstract class Piece : UserControl
     public IEnumerable<Coordinate> GetValidMoves()
         => ValidMoves;
 
+    protected bool MoveThereWillCauseCheck(Coordinate newCoordinate)
+    {
+        var futureBoard = Board.CloneAsOnlyPieces();
+        var clonePiece = futureBoard.GetPieceOrNull(Coordinate)!;
+        var allyKing = futureBoard.GetPlayerPieces(Board.GetCurrentPlayer()).OfType<King>().First();
+        futureBoard.MovePiece(clonePiece, newCoordinate.Row, newCoordinate.Column);
+        return futureBoard
+            .GetPlayerPieces(1 - Board.GetCurrentPlayer())
+            .Where(piece => piece is not King)
+            .Any(piece => piece
+                .UpdateAndGetKingAttackMoves()
+                .Any(move => move.Column == allyKing.Coordinate.Column && move.Row == allyKing.Coordinate.Row));
+    }
 
     /// <summary>
     ///     Handler for the BoardChangedEvent.
     /// </summary>
     public delegate void LastClickedHandler(Piece sender, RoutedEventArgs e);
+
+    protected abstract IEnumerable<Coordinate> UpdateAndGetKingAttackMoves();
 }
 
 /// <summary>

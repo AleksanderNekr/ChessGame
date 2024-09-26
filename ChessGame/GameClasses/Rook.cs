@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
@@ -28,12 +29,18 @@ public sealed class Rook : Piece
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    public override void UpdateValidMoves()
+    public override void UpdateValidMoves(bool checkCheck = true)
     {
         ValidMoves.Clear();
-        AddRangeMoves(this, -1, 0);
-        AddRangeMoves(this, 1, 0);
-        AddRangeMoves(this, 0, -1);
-        AddRangeMoves(this, 0, 1);
+        AddRangeMoves(checkCheck, this, -1, 0);
+        AddRangeMoves(checkCheck, this, 1, 0);
+        AddRangeMoves(checkCheck, this, 0, -1);
+        AddRangeMoves(checkCheck, this, 0, 1);
+    }
+
+    protected override IEnumerable<Coordinate> UpdateAndGetKingAttackMoves()
+    {
+        UpdateValidMoves(checkCheck: false);
+        return ValidMoves;
     }
 }

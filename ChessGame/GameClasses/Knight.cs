@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -27,20 +28,26 @@ public sealed class Knight : Piece
     protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackKnight"];
 
     /// <inheritdoc />
-    public override void UpdateValidMoves()
+    public override void UpdateValidMoves(bool checkCheck = true)
     {
         ValidMoves.Clear();
-        TryToAddMove(Coordinate.Row - 2, Coordinate.Column + 1);
-        TryToAddMove(Coordinate.Row - 2, Coordinate.Column - 1);
-        TryToAddMove(Coordinate.Row - 1, Coordinate.Column + 2);
-        TryToAddMove(Coordinate.Row - 1, Coordinate.Column - 2);
-        TryToAddMove(Coordinate.Row + 2, Coordinate.Column + 1);
-        TryToAddMove(Coordinate.Row + 2, Coordinate.Column - 1);
-        TryToAddMove(Coordinate.Row + 1, Coordinate.Column + 2);
-        TryToAddMove(Coordinate.Row + 1, Coordinate.Column - 2);
+        TryToAddMove(checkCheck, Coordinate.Row - 2, Coordinate.Column + 1);
+        TryToAddMove(checkCheck, Coordinate.Row - 2, Coordinate.Column - 1);
+        TryToAddMove(checkCheck, Coordinate.Row - 1, Coordinate.Column + 2);
+        TryToAddMove(checkCheck, Coordinate.Row - 1, Coordinate.Column - 2);
+        TryToAddMove(checkCheck, Coordinate.Row + 2, Coordinate.Column + 1);
+        TryToAddMove(checkCheck, Coordinate.Row + 2, Coordinate.Column - 1);
+        TryToAddMove(checkCheck, Coordinate.Row + 1, Coordinate.Column + 2);
+        TryToAddMove(checkCheck, Coordinate.Row + 1, Coordinate.Column - 2);
     }
 
-    private void TryToAddMove(int coordinateRow, int coordinateColumn)
+    protected override IEnumerable<Coordinate> UpdateAndGetKingAttackMoves()
+    {
+        UpdateValidMoves(checkCheck: false);
+        return ValidMoves;
+    }
+
+    private void TryToAddMove(bool checkCheck, int coordinateRow, int coordinateColumn)
     {
         Coordinate coordinate;
         try
@@ -53,7 +60,7 @@ public sealed class Knight : Piece
         }
 
         UserControl? place = Board.GetPieceOrNull(coordinate);
-        if (place == null || IsEnemy(place))
+        if ((place == null || IsEnemy(place)) && !(checkCheck && MoveThereWillCauseCheck(coordinate)))
         {
             ValidMoves.Add(coordinate);
         }

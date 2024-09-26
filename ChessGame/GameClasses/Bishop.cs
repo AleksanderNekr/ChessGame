@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Media;
 
 namespace ChessGame.GameClasses;
@@ -28,12 +29,19 @@ public sealed class Bishop : Piece
     /// <summary>
     ///     Updates the valid moves of the piece.
     /// </summary>
-    public override void UpdateValidMoves()
+    /// <param name="checkCheck"></param>
+    public override void UpdateValidMoves(bool checkCheck = true)
     {
         ValidMoves.Clear();
-        AddRangeMoves(this, -1, -1);
-        AddRangeMoves(this, -1, 1);
-        AddRangeMoves(this, 1, -1);
-        AddRangeMoves(this, 1, 1);
+        AddRangeMoves(checkCheck, this, -1, -1);
+        AddRangeMoves(checkCheck, this, -1, 1);
+        AddRangeMoves(checkCheck, this, 1, -1);
+        AddRangeMoves(checkCheck, this, 1, 1);
+    }
+
+    protected override IEnumerable<Coordinate> UpdateAndGetKingAttackMoves()
+    {
+        UpdateValidMoves(checkCheck: false);
+        return ValidMoves;
     }
 }

@@ -282,4 +282,28 @@ public sealed class ChessBoard
 
     public PieceColor GetCurrentPlayer()
         => _currentPlayer;
+
+    public ChessBoard CloneAsOnlyPieces()
+    {
+        var newBoard = new ChessBoard
+        {
+            _currentPlayer = _currentPlayer,
+        };
+
+        foreach (var piece in _whitePieces.Concat(_blackPieces))
+        {
+            Piece _ = piece switch
+            {
+                Pawn pawn => new Pawn(newBoard, pawn.Color, pawn.Coordinate.Row, pawn.Coordinate.Column),
+                Knight knight => new Knight(newBoard, knight.Color, knight.Coordinate.Row, knight.Coordinate.Column),
+                Bishop bishop => new Bishop(newBoard, bishop.Color, bishop.Coordinate.Row, bishop.Coordinate.Column),
+                Rook rook => new Rook(newBoard, rook.Color, rook.Coordinate.Row, rook.Coordinate.Column),
+                Queen queen => new Queen(newBoard, queen.Color, queen.Coordinate.Row, queen.Coordinate.Column),
+                King king => new King(newBoard, king.Color, king.Coordinate.Row, king.Coordinate.Column),
+                _ => throw new ArgumentOutOfRangeException(nameof(piece)),
+            };
+        }
+
+        return newBoard;
+    }
 }

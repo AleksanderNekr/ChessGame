@@ -16,21 +16,12 @@ public sealed class Pawn : Piece
     }
 
     /// <inheritdoc />
-    public Pawn(ChessBoard board, PieceColor color, Coordinate coordinate) : this(board, color, coordinate.Row, coordinate.Column)
-    {
-    }
-
-    /// <inheritdoc />
     protected override ImageBrush WhiteImage { get; } = (ImageBrush)Application.Current.Resources["WhitePawn"];
 
     /// <inheritdoc />
     protected override ImageBrush BlackImage { get; } = (ImageBrush)Application.Current.Resources["BlackPawn"];
 
-    public Coordinate LastMove { get; set; }
-
-    public Coordinate PrevCoord { get; set; }
-
-    public int Move
+    private int Move
         => Color == PieceColor.White
             ? -1
             : 1;
@@ -40,7 +31,7 @@ public sealed class Pawn : Piece
             ? 6
             : 1;
 
-    public override void UpdateValidMoves()
+    public override void UpdateValidMoves(bool checkCheck = true)
     {
         ValidMoves.Clear();
         if (Coordinate.Row == InitialRow + Move * 6)
@@ -48,20 +39,33 @@ public sealed class Pawn : Piece
             return;
         }
 
-        UpdatePawnDefaultMoves();
-        UpdatePawnAttackMoves();
+        UpdatePawnDefaultMoves(checkCheck);
+        UpdatePawnAttackMoves(checkCheck);
     }
 
-    private void UpdatePawnDefaultMoves()
+    protected override IEnumerable<Coordinate> UpdateAndGetKingAttackMoves()
     {
-        var isCorrectMove = TryToAddMove(Move);
-        if (isCorrectMove && Coordinate.Row == InitialRow)
+        if (Coordinate.Column != 0)
         {
-            TryToAddMove(Move * 2);
+            yield return TryToAddAttackMove(checkCheck: false, columnChange: -1);
+        }
+
+        if (Coordinate.Column != 7)
+        {
+            yield return TryToAddAttackMove(checkCheck: false, columnChange: 1);
         }
     }
 
-    private bool TryToAddMove(int move)
+    private void UpdatePawnDefaultMoves(bool checkCheck)
+    {
+        var isCorrectMove = TryToAddMove(Move, checkCheck);
+        if (isCorrectMove && Coordinate.Row == InitialRow)
+        {
+            TryToAddMove(Move * 2, checkCheck);
+        }
+    }
+
+    private bool TryToAddMove(int move, bool checkCheck)
     {
         var moveRow = Coordinate.Row + move;
         var newCoordinate = new Coordinate(moveRow, Coordinate.Column);
@@ -72,41 +76,35 @@ public sealed class Pawn : Piece
             return false;
         }
 
+        if (checkCheck && MoveThereWillCauseCheck(newCoordinate))
+        {
+            return false;
+        }
+
         ValidMoves.Add(newCoordinate);
         return true;
     }
 
-    private void UpdatePawnAttackMoves()
+    private void UpdatePawnAttackMoves(bool checkCheck)
     {
         if (Coordinate.Column != 0)
         {
-            TryToAddAttackMove(columnChange: -1);
+            TryToAddAttackMove(checkCheck, columnChange: -1);
         }
 
         if (Coordinate.Column != 7)
         {
-            TryToAddAttackMove(columnChange: 1);
+            TryToAddAttackMove(checkCheck, columnChange: 1);
         }
     }
 
-    public IEnumerable<Coordinate> GetAttackCoordinates()
-    {
-        if (Coordinate.Column != 0)
-        {
-            yield return TryToAddAttackMove(columnChange: -1);
-        }
-
-        if (Coordinate.Column != 7)
-        {
-            yield return TryToAddAttackMove(columnChange: 1);
-        }
-    }
-
-    private Coordinate TryToAddAttackMove(int columnChange)
+    private Coordinate TryToAddAttackMove(bool checkCheck, int columnChange)
     {
         var moveRow = Coordinate.Row + Move;
         var newCoordinate = new Coordinate(moveRow, Coordinate.Column + columnChange);
-        if (Board.GetPieceOrNull(newCoordinate) is { } enemy && enemy.Color != Color)
+        if (Board.GetPieceOrNull(newCoordinate) is { } enemy
+            && enemy.Color != Color
+            && !(checkCheck && MoveThereWillCauseCheck(newCoordinate)))
         {
             ValidMoves.Add(newCoordinate);
         }
