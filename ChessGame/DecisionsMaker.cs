@@ -28,12 +28,12 @@ public sealed class DecisionsMaker
     {
         _visitedBoards.Clear();
         _visitedBoards.Add((currentBoard, int.MaxValue));
-        _root = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(currentBoard, 0, 0, int.MaxValue), new List<TreeNode<VisualNodeContainer>>());
+        _fine = fine;
+        _root = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(currentBoard, 0, 0, int.MaxValue, _fine), new List<TreeNode<VisualNodeContainer>>());
         _step = 0;
         _breakFlag = false;
         _depthLimit = depthLimit;
         _player = currentBoard.GetCurrentPlayer();
-        _fine = fine;
         try
         {
             await BuildBranchesAndBoundsTreeAsync(_root, finalBoard, cancellationToken);
@@ -84,9 +84,8 @@ public sealed class DecisionsMaker
                         var newG = finalBoard is not null
                             ? await newBoard.CalculateDifferentCellsAsync(finalBoard, cancellationToken)
                             : loss;
-                        newG += _fine;
 
-                        var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, _step, newG), new List<TreeNode<VisualNodeContainer>>());
+                        var newNode = new TreeNode<VisualNodeContainer>(new VisualNodeContainer(newBoard, node.Value.HNumber + 1, _step, newG, _fine), new List<TreeNode<VisualNodeContainer>>());
                         node.AddChild(newNode);
                         _visitedBoards.Add((newBoard, newG));
 

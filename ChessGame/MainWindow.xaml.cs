@@ -19,11 +19,14 @@ internal sealed partial class MainWindow
     private PieceColor? _startColor;
     private CancellationTokenSource _cancellationTokenSource;
     private bool _isTreeBuilding;
+    private int _maxH;
+    private int _maxStep;
+    private double _maxKpd;
 
     public MainWindow()
     {
         InitializeComponent();
-        Enumerable.Range(1, 4).ToList().ForEach(x => DepthCombobox.Items.Add(x));
+        Enumerable.Range(1, 10).ToList().ForEach(x => DepthCombobox.Items.Add(x));
         DepthCombobox.SelectedValue = 4;
         Enumerable.Range(1, 20).ToList().ForEach(x => FineCombobox.Items.Add(x));
         FineCombobox.SelectedValue = 1;
@@ -140,6 +143,7 @@ internal sealed partial class MainWindow
     private async void ShowTree_Click(object sender, RoutedEventArgs e)
     {
         _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(BuildTreeTimeout));
+        _maxKpd = 0;
         if (_startColor is null)
         {
             MessageBox.Show("Сначала выберите задачу");
@@ -164,7 +168,7 @@ internal sealed partial class MainWindow
             var gField = TextBlock(0, "G = {0}");
             var num = TextBlock(0, "№ {0}");
             var fField = TextBlock(0, "F = {0}");
-            var gridsTree = new TreeNode<StackPanel>(NodePanel(grid, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
+            var gridsTree = new TreeNode<StackPanel>(NodePanel(grid, true, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
             gridsTree = BoardsToGrids(boardsTree, gridsTree);
 
             DrawGraph(gridsTree);
@@ -181,8 +185,19 @@ internal sealed partial class MainWindow
             var gField = TextBlock(child.Value.GNumber, "G = {0}");
             var num = TextBlock(child.Value.Step, "№ {0}");
             var fField = TextBlock(child.Value.FNumber, "F = {0}");
-            var gridNode = new TreeNode<StackPanel>(NodePanel(boardLayout, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
+            var isWin = child.Value.GNumber == 0
+                        || child.Children.Any(x => x.Value.GNumber == 0);
+            var gridNode = new TreeNode<StackPanel>(NodePanel(boardLayout, isWin, num, hField, gField, fField), new List<TreeNode<StackPanel>>());
             gridsTree.AddChild(gridNode);
+            if (isWin)
+            {
+                if (child.Value.HNumber > _maxH)
+                {
+                    _maxH = child.Value.HNumber;
+                    _maxKpd = (double)_maxH / child.Value.Step;
+                }
+                gridsTree.Value.Background = new SolidColorBrush(Colors.Chartreuse);
+            }
 
             BoardsToGrids(child, gridNode);
         }
@@ -194,16 +209,9 @@ internal sealed partial class MainWindow
     {
         var treeWindow = new TreeWindow();
 
-        treeWindow.DrawTree(root);
+        treeWindow.DrawTree(root, _maxKpd);
 
-        ValidMove.ShowValidMove -= ShowValidMoveShowValidMove;
-
-        treeWindow.Closing += (_, _) =>
-        {
-            ValidMove.ShowValidMove += ShowValidMoveShowValidMove;
-        };
-
-        treeWindow.ShowDialog();
+        treeWindow.Show();
     }
 
     private void Mate1MoveEasy_Click(object sender, RoutedEventArgs e)
@@ -222,13 +230,15 @@ internal sealed partial class MainWindow
         _solutionBoard = null;
     }
 
-    private static StackPanel NodePanel(Grid board, params FrameworkElement[] elements)
+    private static StackPanel NodePanel(Grid board, bool isWin, params FrameworkElement[] elements)
     {
         var panel = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Margin = new Thickness(0),
-            Background = new SolidColorBrush(Colors.Bisque),
+            Background = isWin
+                ? new SolidColorBrush(Colors.Chartreuse)
+                : new SolidColorBrush(Colors.Bisque),
         };
         var leftPanel = new StackPanel
         {

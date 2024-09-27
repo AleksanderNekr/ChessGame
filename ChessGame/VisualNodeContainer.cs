@@ -2,7 +2,7 @@
 
 namespace ChessGame;
 
-public sealed record VisualNodeContainer(ChessBoard Board, int HNumber, int Step, int GNumber)
+public sealed record VisualNodeContainer(ChessBoard Board, int HNumber, int Step, int GNumber, int Fine)
 {
-    public int FNumber => HNumber + GNumber;
+    public int FNumber => HNumber + GNumber + Fine;
 }

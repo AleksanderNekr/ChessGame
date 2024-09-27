@@ -12,6 +12,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <TextBlock Name="KpdField" FontSize="20" Margin="5">КПД: </TextBlock>
         <ScrollViewer Grid.Row="1" CanContentScroll="True" HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Visible">
             <ScrollViewer.Content>

@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace TreeDrawer;
+﻿namespace TreeDrawer;
 
 public sealed partial class TreeWindow
 {
@@ -9,22 +7,9 @@ public sealed partial class TreeWindow
         InitializeComponent();
     }
 
-    public void DrawTree<TNode>(TreeNode<TNode> root)
+    public void DrawTree<TNode>(TreeNode<TNode> root, double maxKpd)
     {
+        KpdField.Text += maxKpd;
         GraphLayout.Graph = GraphBuilder<TNode>.Build(root);
-    }
-
-    private void SizeSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        GraphLayout?.Graph?.Vertices.ToList().ForEach(v =>
-        {
-            if (v is not FrameworkElement control)
-            {
-                return;
-            }
-
-            control.Width = (int)e.NewValue;
-            control.Height = (int)e.NewValue;
-        });
     }
 }
